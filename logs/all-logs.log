@@ -1,0 +1,26 @@
+2020-08-26 14:06:22:622 info: User tried to signup with invalid email and/or password
+2020-08-26 14:06:37:637 info: User tried to signup with invalid email and/or password
+2020-08-26 14:07:56:756 info: User tried to signup with invalid email and/or password
+2020-08-26 14:08:54:854 info: New user has been created
+2020-08-26 14:09:26:926 info: undefined: Couldn't connect a user on login function
+2020-08-26 14:10:51:1051 info: New user has been created
+2020-08-26 14:12:01:121 info: Registered user connected
+2020-08-26 14:12:16:1216 info: Registered user connected
+2020-08-26 14:21:03:213 info: New user has been created
+2020-08-26 14:21:29:2129 info: Registered user connected
+2020-08-26 14:32:02:322 info: New user has been created
+2020-08-26 14:32:13:3213 info: Registered user connected
+2020-08-26 14:39:22:3922 info: User tried to signup with invalid email and/or password
+2020-08-26 14:39:54:3954 info: User tried to signup with invalid email and/or password
+2020-08-26 14:39:59:3959 info: User tried to signup with invalid email and/or password
+2020-08-26 14:41:37:4137 info: User tried to signup with invalid email and/or password
+2020-08-26 14:43:28:4328 info: New user has been created
+2020-08-26 14:43:46:4346 info: Registered user connected
+2020-08-26 14:50:38:5038 warn: User didn't use correct password
+2020-08-26 14:50:39:5039 warn: User didn't use correct password
+2020-08-26 14:50:40:5040 warn: User didn't use correct password
+2020-08-26 14:50:56:5056 warn: User didn't use correct password
+2020-08-26 14:51:14:5114 info: Registered user connected
+2020-08-26 14:53:16:5316 warn: User didn't use correct password
+2020-08-26 14:53:47:5347 warn: User didn't use correct password
+2020-08-26 14:54:17:5417 info: Registered user connected
