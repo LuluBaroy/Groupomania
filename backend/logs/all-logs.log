@@ -25,3 +25,391 @@
 2020-08-26 14:53:47:5347 warn: User didn't use correct password
 2020-08-26 14:54:17:5417 info: Registered user connected
 2020-08-26 15:18:20:1820 info: 1: User asked for downloadable file containing his information
+2020-08-29 15:29:23:2923 info: New user has been created
+2020-08-29 15:32:02:322 info: New user has been created
+2020-08-29 15:33:30:3330 info: New user has been created
+2020-08-29 15:37:59:3759 info: Registered user connected
+2020-08-29 16:34:48:3448 info: New user has been created
+2020-08-29 16:37:33:3733 info: New user has been created
+2020-08-29 16:48:21:4821 info: New user has been created
+2020-08-29 16:49:20:4920 info: New user has been created
+2020-08-29 16:51:17:5117 info: New user has been created
+2020-08-29 16:53:04:534 info: New user has been created
+2020-08-29 17:09:34:934 info: New user has been created
+2020-08-29 17:18:52:1852 info: undefined: Couldn't connect a user on login function
+2020-08-29 17:19:02:192 info: undefined: Couldn't connect a user on login function
+2020-08-29 17:20:38:2038 info: Registered user connected
+2020-08-29 17:21:09:219 info: Registered user connected
+2020-08-29 17:23:52:2352 info: Registered user connected
+2020-08-29 17:24:47:2447 info: Registered user connected
+2020-08-29 17:25:22:2522 info: Registered user connected
+2020-08-29 17:26:18:2618 info: Registered user connected
+2020-08-29 17:27:05:275 info: Registered user connected
+2020-08-29 17:38:38:3838 info: New user has been created
+2020-08-29 17:38:38:3838 info: Registered user connected
+2020-08-29 17:47:55:4755 info: Registered user connected
+2020-08-29 17:48:08:488 info: Registered user connected
+2020-08-29 17:49:43:4943 info: Registered user connected
+2020-08-29 17:50:08:508 info: Registered user connected
+2020-08-29 17:50:23:5023 info: Registered user connected
+2020-08-29 17:54:24:5424 info: Registered user connected
+2020-08-29 17:54:58:5458 info: Registered user connected
+2020-08-29 17:59:56:5956 info: Registered user connected
+2020-08-29 18:02:00:20 info: Registered user connected
+2020-08-29 18:41:13:4113 info: Registered user connected
+2020-08-29 18:45:40:4540 info: Registered user connected
+2020-08-29 19:08:11:811 info: Registered user connected
+2020-08-29 19:09:22:922 info: Registered user connected
+2020-08-29 19:20:00:200 info: Registered user connected
+2020-08-29 19:21:36:2136 info: Registered user connected
+2020-08-29 19:22:55:2255 info: Registered user connected
+2020-08-29 19:25:04:254 info: Registered user connected
+2020-08-29 19:26:01:261 info: Registered user connected
+2020-08-29 19:34:56:3456 info: Registered user connected
+2020-08-29 20:09:50:950 info: Registered user connected
+2020-08-29 22:33:55:3355 info: Registered user connected
+2020-08-29 22:49:09:499 warn: User didn't use correct password
+2020-08-29 22:49:14:4914 warn: User didn't use correct password
+2020-08-29 22:49:18:4918 info: Registered user connected
+2020-08-29 23:26:04:264 info: Registered user connected
+2020-08-29 23:29:33:2933 info: Registered user connected
+2020-08-30 00:01:45:145 info: New user has been created
+2020-08-30 00:01:46:146 info: Registered user connected
+2020-08-30 11:20:35:2035 info: Registered user connected
+2020-08-30 17:12:50:1250 info: Registered user connected
+2020-08-30 17:53:45:5345 info: New user has been created
+2020-08-30 17:53:45:5345 info: Registered user connected
+2020-08-30 19:50:06:506 info: 24: User asked for downloadable file containing his information
+2020-08-30 19:52:00:520 info: 24: User asked for downloadable file containing his information
+2020-08-30 19:52:40:5240 info: 1: User asked for downloadable file containing his information
+2020-08-30 19:53:05:535 info: 24: User asked for downloadable file containing his information
+2020-08-30 19:54:53:5453 warn: User didn't use correct password
+2020-08-30 19:55:52:5552 info: 24: User asked for downloadable file containing his information
+2020-08-30 19:57:42:5742 info: Registered user connected
+2020-08-30 19:57:50:5750 info: 1: User asked for downloadable file containing his information
+2020-08-30 20:00:10:010 info: 1: User asked for downloadable file containing his information
+2020-08-30 20:00:15:015 info: 1: User asked for downloadable file containing his information
+2020-08-30 20:01:19:119 info: New user has been created
+2020-08-30 20:01:19:119 info: Registered user connected
+2020-08-30 20:01:24:124 info: 25: User asked for downloadable file containing his information
+2020-08-30 20:02:30:230 info: 25: User asked for downloadable file containing his information
+2020-08-30 20:02:37:237 info: 25: User asked for downloadable file containing his information
+2020-08-30 20:02:51:251 info: 25: User asked for downloadable file containing his information
+2020-08-30 20:04:47:447 info: 25: User asked for downloadable file containing his information
+2020-08-30 20:38:54:3854 info: 25: User asked for downloadable file containing his information
+2020-08-30 20:38:54:3854 info: 25: User asked for downloadable file containing his information
+2020-08-30 20:38:55:3855 info: 25: User asked for downloadable file containing his information
+2020-08-30 20:41:23:4123 info: 25: User asked for downloadable file containing his information
+2020-08-30 20:43:45:4345 info: 25: User asked for downloadable file containing his information
+2020-08-30 20:43:53:4353 info: 25: User asked for downloadable file containing his information
+2020-08-30 20:44:00:440 info: 25: User asked for downloadable file containing his information
+2020-08-30 20:45:19:4519 info: 25: User asked for downloadable file containing his information
+2020-08-30 20:45:29:4529 info: 25: User asked for downloadable file containing his information
+2020-08-30 20:46:32:4632 info: 25: User asked for downloadable file containing his information
+2020-08-30 21:14:19:1419 info: 25: User asked for downloadable file containing his information
+2020-08-30 21:16:11:1611 info: 25: User asked for downloadable file containing his information
+2020-08-30 21:18:45:1845 info: 1: User asked for downloadable file containing his information
+2020-08-30 21:19:22:1922 info: 1: User asked for downloadable file containing his information
+2020-09-01 04:57:25:5725 info: Registered user connected
+2020-09-01 06:05:15:515 info: Registered user connected
+2020-09-01 08:34:39:3439 info: Registered user connected
+2020-09-01 08:36:07:367 info: Registered user connected
+2020-09-01 08:54:26:5426 info: Registered user connected
+2020-09-01 10:34:22:3422 info: Registered user connected
+2020-09-01 11:45:53:4553 info: Registered user connected
+2020-09-01 11:50:41:5041 info: Registered user connected
+2020-09-01 11:53:03:533 info: Registered user connected
+2020-09-03 09:10:51:1051 info: Registered user connected
+2020-09-03 09:17:33:1733 info: Registered user connected
+2020-09-03 09:32:59:3259 info: Registered user connected
+2020-09-03 09:33:34:3334 info: Registered user connected
+2020-09-03 09:34:00:340 info: Registered user connected
+2020-09-04 20:26:03:263 info: Registered user connected
+2020-09-04 23:41:53:4153 info: New user has been created
+2020-09-04 23:50:03:503 info: New user has been created
+2020-09-04 23:50:03:503 info: Registered user connected
+2020-09-05 00:06:05:65 info: New user has been created
+2020-09-05 00:06:05:65 info: Registered user connected
+2020-09-05 00:07:50:750 info: New user has been created
+2020-09-05 00:07:50:750 info: Registered user connected
+2020-09-05 00:08:48:848 info: New user has been created
+2020-09-05 00:08:48:848 info: Registered user connected
+2020-09-05 00:11:29:1129 info: New user has been created
+2020-09-05 00:11:30:1130 info: Registered user connected
+2020-09-05 00:14:43:1443 info: New user has been created
+2020-09-05 00:14:43:1443 info: Registered user connected
+2020-09-05 00:16:07:167 info: New user has been created
+2020-09-05 00:16:07:167 info: Registered user connected
+2020-09-05 00:26:01:261 info: New user has been created
+2020-09-05 00:26:01:261 info: Registered user connected
+2020-09-05 00:29:08:298 info: New user has been created
+2020-09-05 00:29:08:298 info: Registered user connected
+2020-09-05 00:29:59:2959 info: New user has been created
+2020-09-05 00:29:59:2959 info: Registered user connected
+2020-09-05 00:34:20:3420 info: New user has been created
+2020-09-05 00:34:20:3420 info: Registered user connected
+2020-09-05 00:36:08:368 info: New user has been created
+2020-09-05 00:36:08:368 info: Registered user connected
+2020-09-05 00:37:10:3710 info: New user has been created
+2020-09-05 00:37:10:3710 info: Registered user connected
+2020-09-05 00:42:44:4244 info: New user has been created
+2020-09-05 00:42:45:4245 info: Registered user connected
+2020-09-05 00:44:03:443 info: New user has been created
+2020-09-05 00:44:03:443 info: Registered user connected
+2020-09-05 00:44:55:4455 info: New user has been created
+2020-09-05 00:44:55:4455 info: Registered user connected
+2020-09-05 00:46:43:4643 info: New user has been created
+2020-09-05 00:46:43:4643 info: Registered user connected
+2020-09-05 00:47:34:4734 info: New user has been created
+2020-09-05 00:47:34:4734 info: Registered user connected
+2020-09-05 00:51:22:5122 info: Registered user connected
+2020-09-05 01:13:55:1355 info: Registered user connected
+2020-09-05 01:34:39:3439 info: Registered user connected
+2020-09-05 01:36:58:3658 info: Registered user connected
+2020-09-05 01:38:31:3831 info: Registered user connected
+2020-09-05 01:39:07:397 info: Registered user connected
+2020-09-05 01:47:18:4718 info: Registered user connected
+2020-09-05 01:48:33:4833 info: Registered user connected
+2020-09-05 01:50:43:5043 info: Registered user connected
+2020-09-05 02:19:49:1949 info: Registered user connected
+2020-09-05 02:23:58:2358 info: Registered user connected
+2020-09-05 02:24:57:2457 info: Registered user connected
+2020-09-05 02:32:25:3225 info: Registered user connected
+2020-09-05 02:33:30:3330 info: Registered user connected
+2020-09-05 02:36:34:3634 info: Registered user connected
+2020-09-05 02:38:59:3859 info: Registered user connected
+2020-09-05 02:54:23:5423 info: Registered user connected
+2020-09-05 03:00:43:043 info: Registered user connected
+2020-09-05 03:19:34:1934 info: Registered user connected
+2020-09-05 03:21:44:2144 info: Registered user connected
+2020-09-05 03:24:35:2435 info: Registered user connected
+2020-09-05 03:38:20:3820 info: Registered user connected
+2020-09-05 03:39:41:3941 info: Registered user connected
+2020-09-05 04:01:36:136 info: Registered user connected
+2020-09-05 04:02:45:245 info: Registered user connected
+2020-09-05 04:03:57:357 info: Registered user connected
+2020-09-05 04:05:26:526 info: Registered user connected
+2020-09-05 04:22:51:2251 info: Registered user connected
+2020-09-05 04:26:26:2626 info: Registered user connected
+2020-09-05 04:29:52:2952 info: Registered user connected
+2020-09-05 04:33:58:3358 info: Registered user connected
+2020-09-05 20:21:05:215 info: Registered user connected
+2020-09-05 20:22:03:223 info: Registered user connected
+2020-09-05 21:04:33:433 info: Registered user connected
+2020-09-05 21:12:24:1224 info: Registered user connected
+2020-09-05 21:14:25:1425 info: Registered user connected
+2020-09-05 21:16:26:1626 info: Registered user connected
+2020-09-05 21:19:00:190 info: Registered user connected
+2020-09-05 21:24:11:2411 info: Registered user connected
+2020-09-05 21:28:17:2817 info: Registered user connected
+2020-09-05 21:34:15:3415 info: Registered user connected
+2020-09-05 21:38:29:3829 info: Registered user connected
+2020-09-05 21:48:03:483 info: Registered user connected
+2020-09-05 21:49:49:4949 info: Registered user connected
+2020-09-05 22:16:45:1645 info: Registered user connected
+2020-09-05 22:19:25:1925 info: Registered user connected
+2020-09-05 22:47:31:4731 info: Registered user connected
+2020-09-05 23:01:28:128 info: Registered user connected
+2020-09-05 23:04:03:43 info: Registered user connected
+2020-09-05 23:21:41:2141 info: Registered user connected
+2020-09-05 23:25:00:250 info: Registered user connected
+2020-09-05 23:39:34:3934 info: Registered user connected
+2020-09-05 23:49:02:492 info: Registered user connected
+2020-09-06 00:37:27:3727 info: Registered user connected
+2020-09-06 01:07:52:752 info: Registered user connected
+2020-09-06 01:32:02:322 info: Registered user connected
+2020-09-06 02:02:01:21 info: Registered user connected
+2020-09-06 02:13:22:1322 info: Registered user connected
+2020-09-06 02:33:49:3349 info: Registered user connected
+2020-09-06 02:34:15:3415 info: Registered user connected
+2020-09-06 02:35:24:3524 info: New user has been created
+2020-09-06 02:35:24:3524 info: Registered user connected
+2020-09-06 02:36:11:3611 warn: User didn't use correct password
+2020-09-06 02:36:35:3635 warn: User didn't use correct password
+2020-09-06 02:37:10:3710 info: Registered user connected
+2020-09-06 02:37:53:3753 info: Registered user connected
+2020-09-06 02:40:14:4014 warn: User didn't use correct password
+2020-09-06 02:40:29:4029 warn: User didn't use correct password
+2020-09-06 02:41:09:419 info: New user has been created
+2020-09-06 02:41:09:419 info: Registered user connected
+2020-09-06 02:41:30:4130 info: Registered user connected
+2020-09-06 02:42:03:423 info: Registered user connected
+2020-09-06 03:10:12:1012 info: New user has been created
+2020-09-06 03:10:12:1012 info: Registered user connected
+2020-09-06 03:25:06:256 info: Registered user connected
+2020-09-06 03:26:35:2635 info: Registered user connected
+2020-09-06 03:27:22:2722 info: Registered user connected
+2020-09-06 03:42:19:4219 info: Registered user connected
+2020-09-06 03:47:28:4728 info: Registered user connected
+2020-09-06 04:10:04:104 info: Registered user connected
+2020-09-06 04:11:38:1138 info: New user has been created
+2020-09-06 04:11:39:1139 info: Registered user connected
+2020-09-06 04:12:44:1244 info: Registered user connected
+2020-09-06 04:16:19:1619 warn: User didn't use correct password
+2020-09-06 04:16:36:1636 info: Registered user connected
+2020-09-06 04:20:01:201 info: Registered user connected
+2020-09-06 04:20:38:2038 info: Registered user connected
+2020-09-06 04:21:17:2117 info: Registered user connected
+2020-09-06 04:24:51:2451 warn: User didn't use correct password
+2020-09-06 04:25:25:2525 info: Registered user connected
+2020-09-06 04:26:43:2643 info: Registered user connected
+2020-09-06 04:30:19:3019 info: Registered user connected
+2020-09-06 04:31:54:3154 info: Registered user connected
+2020-09-06 04:34:45:3445 warn: User didn't use correct password
+2020-09-06 04:35:21:3521 info: Registered user connected
+2020-09-06 04:38:38:3838 info: Registered user connected
+2020-09-06 20:46:07:467 info: Registered user connected
+2020-09-06 22:25:55:2555 info: Registered user connected
+2020-09-06 23:31:27:3127 info: Registered user connected
+2020-09-06 23:31:43:3143 info: Registered user connected
+2020-09-07 00:36:40:3640 info: Registered user connected
+2020-09-07 00:38:31:3831 info: Registered user connected
+2020-09-07 00:54:58:5458 info: Registered user connected
+2020-09-07 02:34:04:344 info: Registered user connected
+2020-09-07 02:42:51:4251 info: Registered user connected
+2020-09-07 02:59:15:5915 info: Registered user connected
+2020-09-07 02:59:32:5932 info: Registered user connected
+2020-09-07 03:00:00:00 info: Registered user connected
+2020-09-07 03:00:47:047 info: New user has been created
+2020-09-07 03:00:47:047 info: Registered user connected
+2020-09-07 03:01:23:123 info: Registered user connected
+2020-09-07 03:01:53:153 info: Registered user connected
+2020-09-07 03:03:12:312 info: Registered user connected
+2020-09-07 03:04:10:410 info: Registered user connected
+2020-09-07 03:05:34:534 info: Registered user connected
+2020-09-07 03:07:25:725 info: Registered user connected
+2020-09-07 03:08:00:80 info: Registered user connected
+2020-09-07 03:10:40:1040 info: Registered user connected
+2020-09-07 03:12:18:1218 info: Registered user connected
+2020-09-07 03:14:05:145 info: Registered user connected
+2020-09-07 03:16:05:165 info: Registered user connected
+2020-09-07 03:17:25:1725 info: Registered user connected
+2020-09-07 03:19:11:1911 info: Registered user connected
+2020-09-07 03:22:45:2245 info: Registered user connected
+2020-09-07 03:28:39:2839 info: Registered user connected
+2020-09-07 03:29:53:2953 info: Registered user connected
+2020-09-07 03:32:54:3254 info: Registered user connected
+2020-09-07 03:33:29:3329 info: Registered user connected
+2020-09-07 03:34:40:3440 info: Registered user connected
+2020-09-07 03:41:48:4148 info: Registered user connected
+2020-09-07 03:57:16:5716 info: Registered user connected
+2020-09-07 03:58:31:5831 info: Registered user connected
+2020-09-07 03:58:59:5859 info: Registered user connected
+2020-09-07 04:00:51:051 info: Registered user connected
+2020-09-07 04:01:21:121 info: Registered user connected
+2020-09-07 04:03:51:351 info: Registered user connected
+2020-09-07 04:04:27:427 info: Registered user connected
+2020-09-07 04:09:14:914 info: Registered user connected
+2020-09-07 04:11:49:1149 info: Registered user connected
+2020-09-07 04:14:07:147 info: Registered user connected
+2020-09-07 04:15:34:1534 info: Registered user connected
+2020-09-07 04:16:30:1630 info: Registered user connected
+2020-09-07 04:17:24:1724 info: Registered user connected
+2020-09-07 04:19:23:1923 info: Registered user connected
+2020-09-07 04:23:24:2324 info: Registered user connected
+2020-09-07 04:27:55:2755 info: Registered user connected
+2020-09-07 04:28:51:2851 info: Registered user connected
+2020-09-07 04:34:06:346 info: Registered user connected
+2020-09-07 04:35:23:3523 info: Registered user connected
+2020-09-07 04:37:09:379 info: Registered user connected
+2020-09-07 04:37:35:3735 info: Registered user connected
+2020-09-07 20:22:28:2228 info: Registered user connected
+2020-09-07 20:25:34:2534 info: Registered user connected
+2020-09-07 20:26:24:2624 info: Registered user connected
+2020-09-07 20:41:56:4156 info: Registered user connected
+2020-09-07 21:21:40:2140 info: Registered user connected
+2020-09-07 21:40:53:4053 info: Registered user connected
+2020-09-07 21:46:55:4655 info: New user has been created
+2020-09-07 21:46:55:4655 info: Registered user connected
+2020-09-07 21:59:59:5959 info: Registered user connected
+2020-09-07 22:00:52:052 info: Registered user connected
+2020-09-07 22:46:43:4643 info: Registered user connected
+2020-09-07 22:46:43:4643 info: undefined: Couldn't connect a user on login function
+2020-09-07 22:49:30:4930 info: Registered user connected
+2020-09-07 22:49:30:4930 info: undefined: Couldn't connect a user on login function
+2020-09-07 23:02:13:213 info: Registered user connected
+2020-09-07 23:02:35:235 info: Registered user connected
+2020-09-07 23:03:21:321 info: Registered user connected
+2020-09-07 23:03:45:345 info: Registered user connected
+2020-09-07 23:04:04:44 info: Registered user connected
+2020-09-07 23:04:51:451 info: Registered user connected
+2020-09-07 23:09:31:931 info: Registered user connected
+2020-09-07 23:11:33:1133 info: Registered user connected
+2020-09-07 23:12:59:1259 info: Registered user connected
+2020-09-07 23:13:43:1343 info: Registered user connected
+2020-09-07 23:16:58:1658 info: Registered user connected
+2020-09-07 23:18:50:1850 info: Registered user connected
+2020-09-07 23:20:23:2023 info: Registered user connected
+2020-09-07 23:26:31:2631 info: Registered user connected
+2020-09-07 23:29:27:2927 info: Registered user connected
+2020-09-07 23:32:00:320 info: Registered user connected
+2020-09-07 23:33:05:335 info: Registered user connected
+2020-09-07 23:34:17:3417 info: Registered user connected
+2020-09-07 23:36:28:3628 info: Registered user connected
+2020-09-07 23:37:24:3724 info: Registered user connected
+2020-09-07 23:40:17:4017 info: Registered user connected
+2020-09-07 23:41:11:4111 info: Registered user connected
+2020-09-07 23:43:47:4347 info: Registered user connected
+2020-09-07 23:46:44:4644 info: Registered user connected
+2020-09-07 23:54:39:5439 info: Registered user connected
+2020-09-07 23:55:53:5553 info: Registered user connected
+2020-09-07 23:56:43:5643 info: Registered user connected
+2020-09-08 00:00:13:013 info: Registered user connected
+2020-09-08 00:03:17:317 info: Registered user connected
+2020-09-08 00:05:07:57 info: Registered user connected
+2020-09-08 00:05:54:554 info: Registered user connected
+2020-09-08 00:19:41:1941 info: Registered user connected
+2020-09-08 00:21:16:2116 info: Registered user connected
+2020-09-08 00:24:18:2418 info: Registered user connected
+2020-09-08 00:25:54:2554 info: Registered user connected
+2020-09-08 00:27:40:2740 info: Registered user connected
+2020-09-08 00:32:14:3214 info: Registered user connected
+2020-09-08 00:33:04:334 info: Registered user connected
+2020-09-08 00:34:59:3459 info: Registered user connected
+2020-09-08 00:37:12:3712 info: Registered user connected
+2020-09-08 00:37:47:3747 info: Registered user connected
+2020-09-08 00:44:32:4432 info: Registered user connected
+2020-09-08 00:45:31:4531 info: Registered user connected
+2020-09-08 00:59:03:593 info: Registered user connected
+2020-09-08 01:20:10:2010 info: Registered user connected
+2020-09-08 01:20:10:2010 info: Registered user connected
+2020-09-08 01:20:10:2010 info: Registered user connected
+2020-09-08 01:20:25:2025 info: Registered user connected
+2020-09-08 01:21:00:210 info: Registered user connected
+2020-09-08 01:21:30:2130 info: Registered user connected
+2020-09-08 01:22:00:220 info: Registered user connected
+2020-09-08 01:22:55:2255 info: Registered user connected
+2020-09-08 01:24:29:2429 info: Registered user connected
+2020-09-08 01:26:07:267 info: Registered user connected
+2020-09-08 01:27:17:2717 info: Registered user connected
+2020-09-08 01:42:16:4216 info: Registered user connected
+2020-09-08 01:44:21:4421 info: Registered user connected
+2020-09-08 01:45:03:453 info: Registered user connected
+2020-09-08 01:45:41:4541 info: Registered user connected
+2020-09-08 01:49:08:498 info: Registered user connected
+2020-09-08 01:50:09:509 info: Registered user connected
+2020-09-08 02:05:58:558 info: Registered user connected
+2020-09-08 02:06:54:654 info: Registered user connected
+2020-09-08 02:21:01:211 info: Registered user connected
+2020-09-08 02:26:40:2640 warn: User didn't use correct password
+2020-09-08 02:27:00:270 info: Registered user connected
+2020-09-08 02:27:41:2741 info: Registered user connected
+2020-09-08 02:30:20:3020 info: Registered user connected
+2020-09-08 02:56:54:5654 info: Registered user connected
+2020-09-08 02:57:09:579 info: Registered user connected
+2020-09-08 02:58:08:588 info: Registered user connected
+2020-09-08 02:58:08:588 info: Registered user connected
+2020-09-08 02:58:14:5814 info: Registered user connected
+2020-09-08 03:02:01:21 info: Registered user connected
+2020-09-08 03:03:15:315 info: Registered user connected
+2020-09-08 03:09:15:915 info: Registered user connected
+2020-09-08 03:09:18:918 info: Registered user connected
+2020-09-08 03:10:43:1043 info: Registered user connected
+2020-09-08 03:10:45:1045 info: Registered user connected
+2020-09-08 03:13:56:1356 info: Registered user connected
+2020-09-08 03:16:53:1653 info: Registered user connected
+2020-09-08 03:19:50:1950 info: Registered user connected
+2020-09-08 03:24:51:2451 info: Registered user connected
+2020-09-08 03:25:29:2529 info: Registered user connected
+2020-09-08 03:29:24:2924 info: Registered user connected
+2020-09-08 03:34:20:3420 info: Registered user connected

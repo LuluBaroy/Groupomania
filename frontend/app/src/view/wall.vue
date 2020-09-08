@@ -1,0 +1,149 @@
+<template>
+  <div class="container">
+    <div class="col-lg-12 flex-column preWall">
+      <div class="d-flex flex-column col-8 m-auto">
+        <b-carousel
+          id="carousel-1"
+          :interval="15000"
+          controls
+          indicators
+          img-width="1024"
+          img-height="490"
+          style="text-shadow: 1px 1px 2px #333; box-shadow: 0 0 12px black; border: 4px solid black"
+        >
+          <b-carousel-slide
+            img-src="http://localhost:3000/images/Slide0.gif" style="height: 265px;"
+          ></b-carousel-slide>
+          <b-carousel-slide img-src="http://localhost:3000/images/Slide1.gif" style="height: 265px;">
+          </b-carousel-slide>
+        </b-carousel>
+      </div>
+      <b-nav-form id="test">
+        <b-form-input placeholder="Rechercher un utilisateur" id="barSearch" v-model="userResearch"></b-form-input>
+        <b-button v-b-modal.researchModal id="btnSearch" type="submit" @click.prevent="research"><i class="fas fa-search"></i></b-button>
+          <b-modal id="researchModal" title="Utilisateur(s) correspondant(s) à votre recherche :">
+            <div v-if="userResult.length === 0">Aucun utilisateur ne correspond à votre recherche</div>
+            <div class="my-4 d-flex row align-items-center col-8 justify-content-around" v-for="user in userResult" :key="user.id" id="userResearch">
+              <router-link :to="`/profile/${user.id}`"><img :src="user.url_profile_picture" class="imgComment"/></router-link>
+              <h4>{{ user.username }}</h4>
+            </div>
+          </b-modal>
+      </b-nav-form>
+      <user-part></user-part>
+      <div class="divider col-12">
+        <h2><img src="../assets/img/divider.png" alt="logo groupomania"/>Dernières actualités<img src="../assets/img/divider.png" alt="logo groupomania"/></h2>
+      </div>
+      <posts-part></posts-part>
+    </div>
+    <div id="divider_end">
+      <img src="../assets/img/divider_end.png" alt="divider"/>
+      <p v-if="posts.length !== 0">Fin des posts</p>
+    </div>
+  </div>
+</template>
+
+<script>
+import UserPart from '../components/wall_userPart'
+import PostsPart from '../components/wall_postsPart'
+export default {
+  name: 'wall',
+  components: {PostsPart, UserPart},
+  data () {
+    return {
+      userResearch: null,
+      posts: this.$store.state.posts.allPosts,
+      userResult: ''
+    }
+  },
+  beforeMount () {
+    this.$store.dispatch('user/getCurrentUser', this.$store.state.user.currentUser.id)
+      .then(() => {
+        this.$store.dispatch('posts/getAllPosts')
+      })
+  },
+  methods: {
+    research () {
+      if (this.userResearch === null) {
+        this.userResult = [{
+          username: `Merci de renseigner un nom avant de rechercher`,
+          url_profile_picture: 'http://localhost:3000/images/200.gif'
+        }]
+      } else {
+        let data = {
+          research: this.userResearch.toString()
+        }
+        this.$store.dispatch('researchUser', data)
+          .then(() => {
+            this.userResult = this.$store.state.research.resultResearch
+          })
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+  #test{
+    border-top: 4px double #2C3F5F;
+    border-bottom: 4px double #2C3F5F;
+    margin: 4% auto;
+    display: flex;
+    flex: 0 0 100%;
+    justify-content: center;
+    align-items: baseline;
+    background-color: #b8ced4;
+    border-radius: 100px;
+  }
+  .fa-search{
+    font-size: 15px;
+  }
+  #barSearch{
+    margin: 1% 0;
+    flex: 0 0 50%;
+    box-shadow: 0 0 12px black;
+    text-align: center;
+    color: #2C3F5F;
+  }
+  #btnSearch{
+    flex: 0 0 10%;
+    background-color: #2C3F5F;
+    color: white;
+    box-shadow: 0 0 12px black;
+  }
+  #btnSearch:hover{
+    background-color: #0762a3;
+  }
+  #carousel-1{
+    margin: 5% auto 0 auto;
+  }
+  .container{
+    box-shadow: 0 0 12px;
+    background-color: #F7F7F7;
+  }
+  .preWall{
+    margin: 0 auto 0 auto;
+    align-items: center;
+    justify-content: space-around;
+  }
+  .divider{
+    background-color: #2C3F5F;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    color: white;
+    border-radius: 50px;
+    margin: 5% auto;
+    box-shadow: 0 0 12px black;
+  }
+  .divider h2{
+    margin-bottom: 0;
+  }
+  .divider img{
+    max-width: 5%;
+    margin: 4%;
+  }
+  #divider_end{
+    margin: 5%;
+  }
+</style>

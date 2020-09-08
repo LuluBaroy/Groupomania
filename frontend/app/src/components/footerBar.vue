@@ -1,42 +1,40 @@
 <template>
-  <div>
-    <b-navbar toggleable="lg" type="dark" class="navbarbg">
-      <b-navbar-brand><img src="../assets/logoFooter.png" alt="Logo Groupomania"></b-navbar-brand>
-      <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-        <b-navbar-nav class="ml-auto">
-          <b-nav-item href="#" class="fontColor"><span>Nous contacter</span></b-nav-item>
-        </b-navbar-nav>
-        <b-navbar-nav class="ml-auto">
-          <b-nav-item href="#" class="fontColor"><span>FAQ</span></b-nav-item>
-        </b-navbar-nav>
-    </b-navbar>
+  <div class="container-fluid navbarbg">
+    <b-button href="https://www.groupomania.fr" class="col-3 btn"><img src="../assets/img/logoFooter.png" alt="Logo Groupomania"></b-button>
+    <b-button class="col-3 btn"><span>Nous contacter</span></b-button>
+    <b-button class="col-3 btn"><span>FAQ</span></b-button>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'footer'
+  name: 'footerBar'
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   .navbarbg{
-    background-color: transparent;
-    background-image: url('../assets/bgfooter.png');
-    opacity: 0.5;
+    padding: 1%;
+    overflow-x: hidden;
+    background-image: url("../assets/img/bgfooter.png");
+    background-size: cover;
   }
-  .navbar-brand{
-    width: 10%;
+  .btn{
+    color: black;
+    background-color: transparent;
+    border: none;
+  }
+  .btn img{
+    object-fit: scale-down;
+    max-width: 45%;
+    margin: 2%;
   }
   span{
     color: black;
     font-size: 25px;
+    text-decoration: underline;
   }
-  span:hover{
-    color: grey;
-  }
-  img{
-    max-width: 100%;
+  .btn:hover{
+    background-color: rgba(44, 63, 95, 0.5);
   }
 </style>

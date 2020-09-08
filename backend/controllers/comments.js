@@ -10,6 +10,7 @@ const fs = require('fs');
 exports.create = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	const userId = jwtUtils.getUserId(headerAuth);
+	console.log(userId)
 	console.log(req.params.id)
 	models.Comments.create({ comment: req.body.comment, UserId: userId, PostId: req.params.id})
 		.then(comment => {
@@ -57,7 +58,7 @@ exports.delete = (req, res, next) => {
 			models.Comments.findOne({where: {id: req.params.comment_id}})
 				.then(comment => {
 					if (userId === comment.user_id || role.includes('admin')) {
-						models.CommentsReport.destroy({where: {id: req.params.comment_id}})
+						models.CommentsReport.destroy({where: {comment_id: req.params.comment_id}})
 							.then(() => {
 								models.Comments.destroy({where: {id: req.params.comment_id}})
 									.then(() => res.status(200).json({message: `Comment has been deleted !`}))
@@ -76,7 +77,7 @@ exports.readOne = (req, res, next) => {
 }
 
 exports.readAll = (req, res, next) => {
-	models.Comments.findAll({
+	models.Comments.findAll({include: [models.Users],
 		order: [
 			['id', 'ASC']
 		]
