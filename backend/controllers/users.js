@@ -16,6 +16,7 @@ exports.signup = (req, res, next) => {
 		return res.status(422).json({ errors: errors.array() });
 	}
 	let role;
+	let consents = JSON.stringify({'sharable': false, 'contactable': false})
 	models.Users.findAll()
 		.then(users => {
 			if(users.length === 0){
@@ -34,7 +35,8 @@ exports.signup = (req, res, next) => {
 							username: req.body.username,
 							url_profile_picture: urlProfilePicture,
 							bio: req.body.bio,
-							role: role
+							role: role,
+							consents: consents
 						}).then(user => {
 							role = JSON.stringify(['user'])
 							bcrypt.hash(`${process.env.MDP_USER_DELETED}`, 10)
@@ -45,7 +47,9 @@ exports.signup = (req, res, next) => {
 										username: "Utilisateur supprimé",
 										url_profile_picture: `${req.protocol}://${req.get('host')}/images/deletedUser.png`,
 										bio: null,
-										role: role})
+										role: role,
+										consents: consents
+									})
 										.then(()=>{
 											res.status(201).json({message: `New user created ! User ID: ${user.id}`})
 										}).catch(err => res.status(500).json(err))
@@ -71,7 +75,8 @@ exports.signup = (req, res, next) => {
 										username: req.body.username,
 										url_profile_picture: urlProfilePicture,
 										bio: req.body.bio,
-										role: role
+										role: role,
+										consents: consents
 									})
 										.then((newUser) => {
 											res.status(201).json({ message: `New user created ! User ID: ${newUser.id}`})
@@ -95,7 +100,6 @@ exports.login = (req, res, next) => {
 			if(!user){
 				return res.status(404).json({ message: `This user couldn't be found`})
 			}
-
 			bcrypt.compare(req.body.password, user.password)
 				.then(valid => {
 					if (!valid) {
@@ -115,6 +119,7 @@ exports.login = (req, res, next) => {
 }
 
 exports.readOne = (req, res, next) => {
+	console.log(req.cookie)
 	const headerAuth = req.headers['authorization'];
 	const userId = jwtUtils.getUserId(headerAuth);
 	models.Users.findOne({ where: { id: req.params.id }, include: [models.Posts, models.Comments, models.Likes]})
@@ -148,10 +153,8 @@ exports.delete = (req, res, next) => {
 }
 
 exports.update = (req, res, next) => {
-	const headerAuth = req.headers['authorization'];
-	const userId = jwtUtils.getUserId(headerAuth);
 	let urlProfilePicture;
-	models.Users.findOne({ where: { id: userId }})
+	models.Users.findOne({ where: { id: req.params.id }})
 		.then(user => {
 			if(req.file){
 				const filename = user.url_profile_picture.split('/images/')[1];
@@ -162,16 +165,18 @@ exports.update = (req, res, next) => {
 			} else {
 				urlProfilePicture = user.url_profile_picture;
 			}
-			models.Users.update({ ...req.body, url_profile_picture: urlProfilePicture }, { where: { id: userId }})
-				.then(() => {
-					models.Users.findOne({ where: { id: userId }})
-						.then(user => {
-							res.status(200).json({message: `Your information have been updated !`, user})
-						}).catch(err=> res.status(500).json(err))
-				})
-				.catch((err) => res.status(500).json(err))
+			bcrypt.hash(req.body.password, 10)
+				.then(hash => {
+					models.Users.update({ ...req.body, password: hash, url_profile_picture: urlProfilePicture }, { where: { id: req.params.id }})
+						.then(() => {
+							models.Users.findOne({ where: { id: req.params.id }})
+								.then(user => {
+									res.status(200).json({message: `Your information have been updated !`, user})
+								}).catch(err=> res.status(500).json(err))
+						})
+						.catch((err) => res.status(500).json(err))
+				}).catch(err => res.status(500).json(err))
 		}).catch(err=> res.status(500).json(err))
-
 }
 
 exports.readAll = (req, res, next) => {
@@ -232,52 +237,4 @@ exports.updatePrivilege = (req, res, next) => {
 					}
 				}).catch(err => res.status(500).json(err))
 		}).catch(err => res.status(500).json(err))
-}
-
-exports.export = (req, res, next) => {
-	logger.info(`${req.params.id}: User asked for downloadable file containing his information`)
-	const headerAuth = req.headers['authorization'];
-	let userId = jwtUtils.getUserId(headerAuth);
-	models.Users.findAll({ where: { id: userId }, include: [ models.Posts, models.Comments, models.Likes ]})
-		.then((user) => {
-			if(!user){
-				res.status(404).json({ message: `User with ID ${userId} not found !`})
-			} else {
-				function createFile(){
-					return new Promise(function (resolve, reject){
-						fs.writeFile(`./files/${userId}.txt`, JSON.stringify(user[0].dataValues, undefined, 4),  function(err){
-							if(err){
-								logger.info(`${userId}: Couldn't write user information file`);
-								reject(err);
-							}
-							res.setHeader('Content-type', 'text/plain');
-							res.download(`./files/${userId}.txt`, (err) => {if(err){throw err}})
-							resolve();
-						})
-					})
-				}
-				function deleteFile(){
-					return new Promise(function (resolve, reject){
-						fs.stat(`./files/${userId}.txt`, (err) => {
-							if(!err){
-								fs.unlink(`./files/${userId}.txt`, err => {
-									if(err){
-										logger.info(`${userId}: Couldn't delete user information file`);
-										reject(err);
-									}
-									resolve();
-								})
-							}
-						})
-					})
-				}
-				createFile()
-					.then(() => {
-						deleteFile()
-							.catch(error => res.status(500).json(error))
-					})
-					.catch(error => res.status(500).json(error))
-			}
-		})
-		.catch((error) => {logger.info(`${req.params.id}: Couldn't get user information`); res.status(500).json({error})});
 }

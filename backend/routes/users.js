@@ -18,8 +18,6 @@ router.delete('/:id', auth, multer, userCtrl.delete);
 
 router.put('/:id/update_privilege', auth, userCtrl.updatePrivilege);
 
-router.post('/:id/exports', auth, userCtrl.export);
-
 router.get('/', auth, userCtrl.readAll)
 
 

@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 exports.generateToken = (user) => {
 	return jwt.sign(
-		{ userId: user.id, roles: ['user', 'admin']},
+		{ userId: user.id, roles: user.roles},
 		`${process.env.PRIVATEKEY}`,
 		{ expiresIn: '24h' }
 	);
@@ -16,17 +16,20 @@ exports.getBearer = (authorization) => {
 	} else {
 		return (authorization !== null) ? authorization.replace('Bearer ', '') : null;
 	}
-
 }
 
 exports.getUserId = (authorization) => {
 	let userId;
+
 	let token = this.getBearer(authorization);
+	console.log(token)
 	if (token !== null) {
 		try {
-			var jwtToken = jwt.verify(token, `${process.env.PRIVATEKEY}`);
+			let jwtToken = jwt.verify(token, `${process.env.PRIVATEKEY}`);
+			console.log(jwtToken)
 			if (jwtToken != null) {
 				userId = jwtToken.userId;
+				console.log(userId)
 			}
 		} catch (error){
 			throw ` Authentication failed, please login or create an account !`

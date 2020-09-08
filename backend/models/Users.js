@@ -43,6 +43,10 @@ module.exports = (sequelize, Datatypes) => {
 			type: Datatypes.STRING(45),
 			allowNull: true
 		},
+		consents: {
+			type: Datatypes.STRING,
+			allowNull: false
+		},
 		created_at: {
 			type: Datatypes.DATE,
 			required: true

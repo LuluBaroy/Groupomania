@@ -14,6 +14,7 @@ exports.create = (req, res, next) => {
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
 		let urlGif;
+		console.log(req.file, req.body)
 		if(req.file){
 			urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
 		} else {
@@ -32,7 +33,6 @@ exports.createLike = (req, res, next) => {
 		res.status(400).json({ message: `You're not authenticated, please login ! `})
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
-		console.log(userId)
 		models.Likes.findOne({ where: { user_id: userId, post_id: req.params.id }})
 			.then(likes => {
 				if(likes){
@@ -44,7 +44,7 @@ exports.createLike = (req, res, next) => {
 						post_id: req.params.id,
 						user_id: userId
 					})
-						.then(() => res.status(200).json({ message: 'Like added for that post !'}))
+						.then((like) => res.status(200).json(like))
 						.catch(error => res.status(400).json({ error }))
 				}
 			}).catch(err => res.status(500).json(err))
@@ -54,15 +54,33 @@ exports.createLike = (req, res, next) => {
 
 exports.readLike = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
+	let userLiked = []
+	let userInfo = []
 	if(!headerAuth){
 		res.status(400).json({ message: `You're not authenticated, please login ! `})
 	} else {
-		models.Likes.findAll({ where: { post_id: req.params.id }}, {
+		models.Likes.findAll({ where: { post_id: req.params.id },
 			order: [
 				[ 'created_at', 'ASC']
 			]})
 			.then((likes) => {
-				res.status(200).json(likes)
+				if(likes.length > 0){
+					for(let i in likes){
+						userLiked.push(likes[i].user_id)
+					}
+					for(let k = 0; k < userLiked.length; k++){
+						models.Users.findOne({ where: { id: userLiked[k] } })
+							.then((user => {
+								userInfo.push({id:user.id, username: user.username, url_profile_picture: user.url_profile_picture})
+								if(k === userLiked.length -1){
+									res.status(200).json(userInfo)
+								}
+							})).catch(err => res.status(500).json(err))
+					}
+				} else {
+					res.status(200).json(likes)
+				}
+
 			}).catch(err => res.status(500).json(err))
 	}
 
@@ -112,9 +130,26 @@ exports.delete = (req, res, next) => {
 				let role = JSON.parse(admin.role);
 				models.Posts.findOne({where: {id: req.params.id}})
 					.then(post => {
+						console.log(post)
 						if (post && userId === post.user_id || role.includes('admin')) {
-							const filename = post.url_gif.split('/images/')[1];
-							fs.unlink(`images/${filename}`, () => {
+							if(post.url_gif !== null) {
+								const filename = post.url_gif.split('/images/')[1];
+								fs.unlink(`images/${filename}`, () => {
+									models.PostsReport.destroy({where: {post_id: post.id}})
+										.then(() => {
+											models.Comments.destroy({where: {post_id: post.id}})
+												.then(() => {
+													models.Likes.destroy({where: {post_id: post.id}})
+														.then(() => {
+															models.Posts.destroy({where: {id: req.params.id}})
+																.then(() => {
+																	res.status(200).json({message: `Your post have been deleted !`})
+																}).catch(err => res.status(500).json(err))
+														}).catch(err => res.status(500).json(err))
+												}).catch(err => res.status(500).json(err))
+										}).catch(err => res.status(500).json(err))
+								})
+							} else {
 								models.PostsReport.destroy({where: {post_id: post.id}})
 									.then(() => {
 										models.Comments.destroy({where: {post_id: post.id}})
@@ -128,7 +163,7 @@ exports.delete = (req, res, next) => {
 													}).catch(err => res.status(500).json(err))
 											}).catch(err => res.status(500).json(err))
 									}).catch(err => res.status(500).json(err))
-							})
+							}
 						} else {
 							res.status(401).json({message: `You're not allowed to delete this post !`})
 						}
@@ -163,7 +198,7 @@ exports.readAll = (req, res, next) => {
 	if(!headerAuth){
 		res.status(400).json({ message: `You're not authenticated, please login ! `})
 	} else {
-		models.Posts.findAll({
+		models.Posts.findAll({ include: [models.Users, models.Comments, models.Likes],
 			order: [
 				['id', 'DESC']
 			]
@@ -182,7 +217,7 @@ exports.readAllFromUserId = (req, res, next) => {
 		res.status(400).json({ message: `You're not authenticated, please login ! `})
 	} else {
 		console.log(req.params.user_id)
-		models.Posts.findAll({ where: { user_id: req.params.user_id }}, {
+		models.Posts.findAll({ where: { user_id: req.params.user_id }, include: [models.Likes, models.Comments]}, {
 			order: [
 				['id', 'DESC']
 			]

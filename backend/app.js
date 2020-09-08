@@ -10,6 +10,7 @@ const postsRoutes = require('./routes/posts');
 const postsReportRoutes = require('./routes/postsReports');
 const commentReportsRoutes = require('./routes/commentsReport');
 const commentsRoutes = require('./routes/comments');
+const researchRoute = require('./routes/research');
 const path = require('path');
 
 app.use(helmet());
@@ -31,4 +32,5 @@ app.use('/api/auth', usersRoutes);
 app.use('/api/report', postsReportRoutes);
 app.use('/api/report/comment', commentReportsRoutes);
 app.use('/api/posts', commentsRoutes);
+app.use('/api/research', researchRoute);
 module.exports = app;
