@@ -105,45 +105,61 @@ export default {
   data () {
     return {
       user: {
-        email: '',
-        password: '',
-        username: '',
+        email: null,
+        password: null,
+        username: null,
         bio: ''
       },
       file: null
     }
   },
   methods: {
+    showAlertError () {
+      this.$swal({
+        title: 'Merci de renseigner les différents champs',
+        position: 'center',
+        icon: 'error',
+        showConfirmButton: false,
+        timer: '1500'})
+    },
     registerMe () {
-      let formData = new FormData()
-      formData.append('image', this.file)
-      formData.append('email', this.user.email)
-      formData.append('password', this.user.password)
-      formData.append('username', this.user.username)
-      formData.append('bio', this.user.bio)
-      this.$store.dispatch('user/registerUser', formData)
-        .then(() => {
-          this.$store.dispatch('user/logUser', {email: this.user.email, password: this.user.password})
-            .then(() => {
-              this.$store.dispatch('user/getCurrentUser', this.$store.state.user.currentUser.id)
-                .then(() => {
-                  this.$router.push('/wall/')
-                })
-            })
-        })
+      if (this.user.email === null || this.user.password === null || this.user.username === null) {
+        this.showAlertError()
+      } else {
+        let formData = new FormData()
+        formData.append('image', this.file)
+        formData.append('email', this.user.email)
+        formData.append('password', this.user.password)
+        formData.append('username', this.user.username)
+        formData.append('bio', this.user.bio)
+        this.$store.dispatch('user/registerUser', formData)
+          .then(() => {
+            this.$store.dispatch('user/logUser', {email: this.user.email, password: this.user.password})
+              .then(() => {
+                this.$store.dispatch('user/getCurrentUser', this.$store.state.user.currentUser.id)
+                  .then(() => {
+                    this.$router.push('/wall/')
+                  })
+              })
+          })
+      }
     },
     logMe () {
-      let data = {
-        email: this.user.email,
-        password: this.user.password
+      if (this.user.email === null || this.user.password === null) {
+        this.showAlertError()
+      } else {
+        let data = {
+          email: this.user.email,
+          password: this.user.password
+        }
+        this.$store.dispatch('user/logUser', data)
+          .then(() => {
+            this.$router.push('/wall')
+              .then(() => {
+                this.$store.dispatch('user/getCurrentUser', this.$store.state.user.currentUser.id)
+              })
+          })
       }
-      this.$store.dispatch('user/logUser', data)
-        .then(() => {
-          this.$router.push('/wall')
-            .then(() => {
-              this.$store.dispatch('user/getCurrentUser', this.$store.state.user.currentUser.id)
-            })
-        })
     }
   }
 }

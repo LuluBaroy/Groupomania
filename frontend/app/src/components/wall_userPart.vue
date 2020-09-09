@@ -2,7 +2,7 @@
   <div class="col-lg-12 row preWall" id="user">
     <div class="userPart">
       <h1>Bonjour<br> {{ currentUser.infos.username }} !</h1>
-      <router-link :to="`/profile/${currentUser.id}`"><img :src="currentUser.infos.url_profile_picture" alt="123" class="userPhoto">
+      <router-link :to="`/profile/${currentUser.id}`"><img :src="currentUser.infos.url_profile_picture" :alt="currentUser.infos.alt_profile_picture" class="userPhoto">
       </router-link>
     </div>
     <b-form class="formPart" enctype="multipart/form-data">
@@ -33,6 +33,7 @@
             v-model="userPost.content"
             placeholder="Votre publication ..."
             class="postInput"
+            required
             rows="3"
             max-rows="6"
           ></b-form-textarea>
@@ -41,7 +42,7 @@
       <b-row>
         <b-col sm="12" class="d-flex" id="buttonPart">
           <b-form-file v-model="file" class="mt-3" plain></b-form-file>
-          <b-button pill type="submit" id="submitPost" @click.prevent="publish">Publier</b-button>
+          <b-button pill type="submit" id="submitPost" @click.prevent="publish()">Publier</b-button>
         </b-col>
       </b-row>
     </b-form>
@@ -54,8 +55,8 @@ export default {
   data () {
     return {
       userPost: {
-        title: '',
-        content: ''
+        title: null,
+        content: null
       },
       file: null
     }
@@ -66,21 +67,51 @@ export default {
     }
   },
   methods: {
+    showAlert () {
+      this.$swal({
+        title: 'Post publié !',
+        position: 'top-end',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: '1500'})
+    },
+    showAlertError () {
+      this.$swal({
+        title: 'Merci de renseigner les différents champs',
+        position: 'center',
+        icon: 'error',
+        showConfirmButton: false,
+        timer: '1500'})
+    },
     publish () {
-      let formData = new FormData()
-      formData.append('image', this.file)
-      formData.append('title', this.userPost.title)
-      formData.append('content', this.userPost.content)
-      this.$store.dispatch('posts/createPost', formData)
-        .then(() => {
-          this.$store.dispatch('posts/getAllPosts')
-        })
+      if (this.userPost.title === null || this.userPost.content === null) {
+        this.showAlertError()
+      } else {
+        let formData = new FormData()
+        formData.append('image', this.file)
+        formData.append('title', this.userPost.title)
+        formData.append('content', this.userPost.content)
+        this.$store.dispatch('posts/createPost', formData)
+          .then(() => {
+            this.showAlert()
+            this.$store.dispatch('posts/getAllPosts')
+            this.userPost.title = ''
+            this.userPost.content = ''
+            this.file = null
+          })
+      }
     }
   }
 }
 </script>
 
 <style>
+  .swal2-popup, .modal{
+    font-family: 'Chewy';
+  }
+  .swal2-title{
+    color: #2C3F5F;
+  }
   .userPart{
     margin: 2% 0;
     align-items: center;

@@ -23,17 +23,20 @@ exports.signup = (req, res, next) => {
 				role = JSON.stringify(['user', 'admin'])
 				bcrypt.hash(req.body.password, 10)
 					.then(hash => {
-						let urlProfilePicture;
+						let urlProfilePicture, altProfilePicture;
 						if(req.file){
 							urlProfilePicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+							altProfilePicture = "Photo de profil de l'utilisateur"
 						} else {
 							urlProfilePicture = `${req.protocol}://${req.get('host')}/images/defaultPicture.png`
+							altProfilePicture = "Photo de profil de l'utilisateur"
 						}
 						models.Users.create({
 							email: req.body.email,
 							password: hash,
 							username: req.body.username,
 							url_profile_picture: urlProfilePicture,
+							alt_profile_picture: altProfilePicture,
 							bio: req.body.bio,
 							role: role,
 							consents: consents
@@ -46,6 +49,7 @@ exports.signup = (req, res, next) => {
 										password: hash,
 										username: "Utilisateur supprimé",
 										url_profile_picture: `${req.protocol}://${req.get('host')}/images/deletedUser.png`,
+										alt_profile_picture: altProfilePicture,
 										bio: null,
 										role: role,
 										consents: consents
@@ -63,17 +67,20 @@ exports.signup = (req, res, next) => {
 						if(!user){
 							bcrypt.hash(req.body.password, 10)
 								.then(hash => {
-									let urlProfilePicture;
+									let urlProfilePicture, altProfilePicture;
 									if(req.file){
 										urlProfilePicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+										altProfilePicture = "Photo de profil de l'utilisateur"
 									} else {
 										urlProfilePicture = `${req.protocol}://${req.get('host')}/images/defaultPicture.png`
+										altProfilePicture = "Photo de profil de l'utilisateur"
 									}
 									models.Users.create({
 										email: req.body.email,
 										password: hash,
 										username: req.body.username,
 										url_profile_picture: urlProfilePicture,
+										alt_profile_picture: altProfilePicture,
 										bio: req.body.bio,
 										role: role,
 										consents: consents
