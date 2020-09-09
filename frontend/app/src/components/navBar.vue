@@ -3,7 +3,7 @@
     <div class="container">
       <img src="../assets/img/logo.png" alt="Logo Groupomania">
     </div>
-    <i v-if="cookie != null" class="fas fa-power-off mr-3" @click.prevent="removeCookie"></i>
+    <i v-if="cookieTest" class="fas fa-power-off mr-3" @click.prevent="removeCookie"></i>
   </div>
 </template>
 
@@ -11,8 +11,8 @@
 export default {
   name: 'navBar',
   computed: {
-    cookie () {
-      return this.$cookies.get('user')
+    cookieTest () {
+      return this.$cookies.isKey('user')
     }
   },
   methods: {

@@ -23,9 +23,9 @@
         <b-button v-b-modal.researchModal id="btnSearch" type="submit" @click.prevent="research"><i class="fas fa-search"></i></b-button>
           <b-modal id="researchModal" title="Utilisateur(s) correspondant(s) à votre recherche :">
             <div v-if="userResult.length === 0">Aucun utilisateur ne correspond à votre recherche</div>
-            <div class="my-4 d-flex row align-items-center col-8 justify-content-around" v-for="user in userResult" :key="user.id" id="userResearch">
-              <router-link :to="`/profile/${user.id}`"><img :src="user.url_profile_picture" class="imgComment"/></router-link>
-              <h4>{{ user.username }}</h4>
+            <div class="my-4 d-flex row align-items-center col-12 justify-content-between" v-for="user in userResult" :key="user.id" id="userResearch">
+              <router-link :to="`/profile/${user.id}`"><img :src="user.url_profile_picture" class=" d-flex img-fluid imgResearch"/></router-link>
+              <h4 class="d-flex username">{{ user.username }}</h4>
             </div>
           </b-modal>
       </b-nav-form>
@@ -36,7 +36,7 @@
       <posts-part></posts-part>
     </div>
     <div id="divider_end">
-      <img src="../assets/img/divider_end.png" alt="divider"/>
+      <img src="../assets/img/divider_end.png" alt="divider" class="img-fluid"/>
       <p v-if="posts.length !== 0">Fin des posts</p>
     </div>
   </div>
@@ -83,6 +83,24 @@ export default {
 </script>
 
 <style scoped>
+  .modal{
+    font-family: Chewy;
+  }
+  .username{
+    flex: 0 0 80%;
+  }
+  a{
+    display: flex;
+    flex: 0 0 20%;
+    justify-content: center;
+  }
+  .imgResearch{
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    border: 4px solid #2C3F5F;
+    box-shadow: 0 0 6px black;
+  }
   #test{
     border-top: 4px double #2C3F5F;
     border-bottom: 4px double #2C3F5F;

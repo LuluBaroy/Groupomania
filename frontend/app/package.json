@@ -17,7 +17,8 @@
     "pdfmake": "^0.1.68",
     "vue": "^2.5.2",
     "vue-cookies": "^1.7.4",
-    "vue-router": "^3.0.1"
+    "vue-router": "^3.0.1",
+    "vue-sweetalert2": "^3.0.8"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

@@ -13,14 +13,16 @@ exports.create = (req, res, next) => {
 		res.status(400).json({ message: `You're not authenticated, please login ! `})
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
-		let urlGif;
+		let urlGif, altGif;
 		console.log(req.file, req.body)
 		if(req.file){
 			urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+			altGif = "GIF partagé par l'utilisateur"
 		} else {
 			urlGif = null
+			altGif = null
 		}
-		models.Posts.create({ title: req.body.title, UserId: userId, content: req.body.content, url_gif: urlGif })
+		models.Posts.create({ title: req.body.title, UserId: userId, content: req.body.content, url_gif: urlGif, alt_gif: altGif })
 			.then((post) => res.status(201).json({ message: `You're post has been created !`, post}))
 			.catch((err) => res.status(500).json(err))
 	}
@@ -71,7 +73,7 @@ exports.readLike = (req, res, next) => {
 					for(let k = 0; k < userLiked.length; k++){
 						models.Users.findOne({ where: { id: userLiked[k] } })
 							.then((user => {
-								userInfo.push({id:user.id, username: user.username, url_profile_picture: user.url_profile_picture})
+								userInfo.push({id:user.id, username: user.username, url_profile_picture: user.url_profile_picture, alt_profile_picture: user.alt_profile_picture})
 								if(k === userLiked.length -1){
 									res.status(200).json(userInfo)
 								}
@@ -95,17 +97,21 @@ exports.update = (req, res, next) => {
 		models.Posts.findOne({ where: { id: req.params.id }})
 			.then((post) => {
 				if(post && userId === post.user_id){
-					let urlGif;
+					let urlGif, altGif;
 					if(req.file){
-						const filename = post.url_gif.split('/images/')[1];
-						fs.unlink(`images/${filename}`, () => {
-							console.log('Image deleted ! ' + filename);
-						})
+						if(post.url_gif !== null){
+							const filename = post.url_gif.split('/images/')[1];
+							fs.unlink(`images/${filename}`, () => {
+								console.log('Image deleted ! ' + filename);
+							})
+						}
 						urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+						altGif = "GIF partagé par l'utilisateur"
 					} else {
 						urlGif = post.url_gif;
+						altGif = "GIF partagé par l'utilisateur"
 					}
-					models.Posts.update({ ...req.body, url_gif: urlGif }, { where: { id: req.params.id }})
+					models.Posts.update({ ...req.body, url_gif: urlGif, alt_gif: altGif }, { where: { id: req.params.id }})
 						.then(() => {
 							res.status(201).json({ message: `Your post has been updated !`})
 						})
