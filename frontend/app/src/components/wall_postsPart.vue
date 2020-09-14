@@ -12,14 +12,14 @@
           <router-link :to="`/profile/${post.UserId}`"><img :src="post.User.url_profile_picture" :alt="post.User.alt_profile_picture" class="img-fluid userPhoto"/></router-link>
         </div>
         <div v-if="post.User.id === currentUser.id" class="flex-column justify-content-center" id="modifPost">
-          <i v-b-modal="modalFourId(index)" class="fas fa-trash-alt"><span>Supprimer le post</span></i>
-          <b-modal ok-title="Supprimer" ok-variant="danger" cancel-title="Annuler" cancel-variant="info" :id="'modalFour' + index" title="Suppression du Post" @ok="deletePost(index), showAlertDeletePost()">
+          <i v-b-modal="modalPostId(index, 'delete')" class="fas fa-trash-alt"><span>Supprimer le post</span></i>
+          <b-modal ok-title="Supprimer" ok-variant="danger" cancel-title="Annuler" cancel-variant="info" :id="'modalPost' + index + 'delete'" title="Suppression du Post" @ok="deletePost(index), showAlertSuccess('Post supprimé !')">
             <div class="my-4">
               Êtes vous sûr(e) de vouloir supprimer ce post ?
             </div>
           </b-modal>
-          <i v-b-modal="modalTerId(index)" class="far fa-edit" @click="setPostValue(index)"><span>Modifier le post</span></i>
-          <b-modal ok-only ok-title="Cancel" :id="'modalTer' + index" title="Modification du Post">
+          <i v-b-modal="modalPostId(index, 'update')" class="far fa-edit" @click="setPostValue(index)"><span>Modifier le post</span></i>
+          <b-modal ok-only ok-title="Cancel" :id="'modalPost' + index + 'update'" title="Modification du Post" @close="url = ''" @ok="url = ''">
             <div class="my-4">
               <b-form enctype="multipart/form-data">
                 <b-form-group>
@@ -43,9 +43,11 @@
                     max-rows="6"
                   >{{ userPost.content }}</b-form-textarea>
                   <div id="postUpdate">
-                    <b-form-file v-model="file" class="mt-3" plain></b-form-file>
+                    <img :src="userPost.img" v-if="url.length === 0" class="img-fluid imgPosts d-flex" id="updateImg" :alt="userPost.altImg"/>
+                    <img v-else :src="url" class="img-fluid imgPosts d-flex" alt="Preview new image">
+                    <b-form-file v-model="file" class="mt-3" plain @change="onFileChanged"></b-form-file>
                   </div>
-                  <b-button type="submit" @click.prevent="updatePost(index), showAlertUpdatePost()" class="commentBtn">Modifier</b-button>
+                  <b-button type="submit" @click.prevent="updatePost(index), showAlertSuccess('Post modifié !')" class="commentBtn">Modifier</b-button>
                 </b-form-group>
               </b-form>
             </div>
@@ -54,12 +56,12 @@
       </div>
       <div class="d-flex formPart flex-column col-8">
         <h4>{{ post.title }}</h4>
-        <p id="test" v-html="getLinks(post.content)"></p>
-        <img :src="post.url_gif" v-if="post.url_gif" :alt="post.alt_gif" class="img-fluid imgPosts"/>
+        <p v-html="getLinks(post.content)"></p>
+        <img :src="post.url_gif" :alt="post.alt_gif" class="img-fluid imgPosts"/>
         <div class="d-flex row justify-content-around">
           <div id="postInfo">
-            <i class="far fa-flag" v-b-modal="modalSevenId(index)"></i>
-            <b-modal :id="'modalSeven' + index" title="Signaler le contenu du Post" @close="getPosts" @cancel="getPosts" @ok="getPosts">
+            <i class="far fa-flag" v-b-modal="modalPostId(index, 'report')"></i>
+            <b-modal :id="'modalPost' + index + 'report'" title="Signaler le contenu du Post" @close="getPosts" @cancel="getPosts" @ok="getPosts">
               <b-form-group class="d-flex flex-column col-12 mt-4">
                 <b-form-textarea
                   id="postReport"
@@ -77,12 +79,13 @@
             </b-modal>
           </div>
           <div>
-            <div v-b-modal="modalId(index)" @click="getComments(index)"><i class="far fa-comments"><span>{{ post.Comments.length }}</span></i></div>
-            <b-modal :id="'modal' + index" title="Commentaire(s) du post" @close="getPosts" @cancel="getPosts" @ok="getPosts">
+            <i v-if="!hasCommented(index)" v-b-modal="modalPostId(index, 'comments')" @click="getComments(index)" class="far fa-comments"><span>{{ post.Comments.length }}</span></i>
+            <i v-else v-b-modal="modalPostId(index, 'comments')" @click="getComments(index)" class="fas fa-comments"><span>{{ post.Comments.length }}</span></i>
+            <b-modal :id="'modalPost' + index + 'comments'" title="Commentaire(s) du post" @close="getPosts" @cancel="getPosts" @ok="getPosts">
               <div class="my-4 commentsConfig" v-for="(comment, indexComment) in comments" v-if="comment.PostId === posts[index].id" :key="comment.id">
                 <div class="d-flex justify-content-end flex-column">
-                  <i class="far fa-flag" v-b-modal="modalEightId(indexComment)"></i>
-                  <b-modal :id="'modalEight' + indexComment" title="Signaler le contenu du Commentaire" @close="getComments(index)" @cancel="getComments(index)" @ok="getComments(index)">
+                  <i class="far fa-flag" v-b-modal="modalCommentId(index, indexComment, 'report')"></i>
+                  <b-modal :id="'modalComment' + index + indexComment + 'report'" title="Signaler le contenu du Commentaire" @close="getComments(index)" @cancel="getComments(index)" @ok="getComments(index)">
                     <b-form-group class="d-flex flex-column col-12 mt-4">
                       <b-form-textarea
                         id="commentReport"
@@ -106,14 +109,14 @@
                     <div class="commentText">{{ comment.comment }}</div>
                   </div>
                   <div class="d-flex row justify-content-center" v-if="comment.User.id === currentUser.id">
-                    <i v-b-modal="modalFiveId(indexComment)" class="fas fa-trash-alt"><span>Supprimer le commentaire</span></i>
-                    <b-modal ok-title="Supprimer" ok-variant="danger" cancel-title="Annuler" cancel-variant="info" :id="'modalFive' + indexComment" title="Suppression du Commenntaire" @ok="deleteComment(index, indexComment), showAlertDeleteComment()">
+                    <i v-b-modal="modalCommentId(index, indexComment, 'delete')" class="fas fa-trash-alt"><span>Supprimer le commentaire</span></i>
+                    <b-modal ok-title="Supprimer" ok-variant="danger" cancel-title="Annuler" cancel-variant="info" :id="'modalComment' + index + indexComment + 'delete'" title="Suppression du Commenntaire" @ok="deleteComment(index, indexComment), showAlertSuccess('Commentaire supprimé !')">
                       <div class="my-4">
                         Êtes vous sûr(e) de vouloir supprimer ce commentaire ?
                       </div>
                     </b-modal>
-                    <i v-b-modal="modalSixId(indexComment)" class="far fa-edit" @click="setCommentValue(indexComment, index)"><span>Modifier le commentaire</span></i>
-                    <b-modal ok-only ok-title="Cancel" :ref="'modalSix' + indexComment" :id="'modalSix' + indexComment" title="Modification du Commentaire">
+                    <i v-b-modal="modalCommentId(index, indexComment, 'update')" class="far fa-edit" @click="setCommentValue(indexComment, index)"><span>Modifier le commentaire</span></i>
+                    <b-modal ok-only ok-title="Cancel" :id="'modalComment' + index + indexComment + 'update'" title="Modification du Commentaire">
                       <div class="my-4">
                         <b-form enctype="multipart/form-data">
                           <b-form-group>
@@ -127,7 +130,7 @@
                               rows="3"
                               max-rows="6"
                             ></b-form-textarea>
-                            <b-button type="submit" @click.prevent="updateComment(index, indexComment), hideModal(modalSixId(indexComment)), showAlertUpdateComment()" class="commentBtn">Modifier</b-button>
+                            <b-button type="submit" @click.prevent="updateComment(index, indexComment), showAlertSuccess('Commentaire modifié !')" class="commentBtn">Modifier</b-button>
                           </b-form-group>
                         </b-form>
                       </div>
@@ -154,13 +157,14 @@
             </b-modal>
           </div>
           <div>
-            <div v-b-modal="modalBisId(index)" @click="getLikes(index)"><i class="far fa-thumbs-up"><span>{{ post.Likes.length }}</span></i></div>
-            <b-modal ok-only ok-title="Fermer" ok-variant="warning" :id="'modalBis' + index" title="Like(s) du post" @ok="getPosts(index)" @close="getPosts(index)">
+            <i v-if="!hasAlreadyLiked(index)" v-b-modal="modalLikeId(index, 'like')" @click="getLikes(index)" class="far fa-thumbs-up"><span>{{ post.Likes.length }}</span></i>
+            <i v-else v-b-modal="modalLikeId(index, 'like')" @click="getLikes(index)" class="fas fa-thumbs-up"><span>{{ post.Likes.length }}</span></i>
+            <b-modal ok-only ok-title="Fermer" ok-variant="warning" :id="'modalLike' + index + 'like'" title="Like(s) du post" @ok="getPosts(index)" @close="getPosts(index)">
               <div class="my-4 d-flex row align-items-center col-12 justify-content-between" v-for="like in likes" :key="like.id" id="like">
                 <router-link :to="`/profile/${like.id}`"><img :src="like.url_profile_picture" :alt="like.alt_profile_picture" class="img-fluid imgComment"/></router-link>
                 <h4 class="d-flex username">{{ like.username }}</h4>
               </div>
-              <b-btn pill class="d-flex m-auto" variant="info" @click="createLike(index), showAlertAddLike()">Liker</b-btn>
+              <b-btn pill class="d-flex m-auto" :variant="btnLikeVariant" @click="createLike(index), showAlertSuccess()">{{ btnLike }}</b-btn>
             </b-modal>
           </div>
         </div>
@@ -177,9 +181,18 @@ export default {
     return {
       userPost: {
         title: '',
+        content: '',
+        img: '',
+        altImg: ''
+      },
+      modal: {
+        title: '',
         content: ''
       },
       slide: 0,
+      btnLike: '',
+      btnLikeVariant: '',
+      likeClass: '',
       sliding: null,
       file: null,
       likes: null,
@@ -187,6 +200,7 @@ export default {
         comment: null,
         clicked: false
       },
+      url: '',
       commentReport: null,
       postReport: null
     }
@@ -203,79 +217,41 @@ export default {
     }
   },
   methods: {
-    showAlertDeletePost () {
+    onFileChanged (e) {
+      const file = e.target.files[0]
+      this.url = URL.createObjectURL(file)
+    },
+    hasAlreadyLiked (index) {
+      if (this.posts[index].Likes.filter(like => like.user_id === this.currentUser.id).length !== 0) {
+        return true
+      }
+    },
+    hasCommented (index) {
+      if (this.posts[index].Comments.filter(comment => comment.user_id === this.currentUser.id).length !== 0) {
+        return true
+      }
+    },
+    showAlertSuccess (title) {
       this.$swal({
-        title: 'Post supprimé !',
+        title: title,
         position: 'top-end',
         icon: 'success',
         showConfirmButton: false,
         timer: '1500'})
     },
-    showAlertUpdatePost () {
+    showAlertError (title, timer) {
       this.$swal({
-        title: 'Post modifié !',
-        position: 'top-end',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: '1500'})
-    },
-    showAlertReportPost () {
-      this.$swal({
-        title: 'Post signalé !',
-        position: 'top-end',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: '1500'})
-    },
-    showAlertReportComment () {
-      this.$swal({
-        title: 'Commentaire signalé !',
-        position: 'top-end',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: '1500'})
-    },
-    showAlertDeleteComment () {
-      this.$swal({
-        title: 'Commentaire supprimé !',
-        position: 'top-end',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: '1500'})
-    },
-    showAlertUpdateComment () {
-      this.$swal({
-        title: 'Commentaire modifié !',
-        position: 'top-end',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: '1500'})
-    },
-    showAlertAddComment () {
-      this.$swal({
-        title: 'Commentaire ajouté !',
-        position: 'top-end',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: '1500'})
-    },
-    showAlertAddLike () {
-      this.$swal({
-        position: 'top-end',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: '1500'})
-    },
-    showAlertError () {
-      this.$swal({
-        title: 'Merci de renseigner les différents champs',
+        title: title,
         position: 'center',
         icon: 'error',
         showConfirmButton: false,
-        timer: '1500'})
+        timer: timer})
     },
     getPosts () {
       this.$store.dispatch('posts/getAllPosts')
+        .catch(() => {
+          this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+        })
     },
     getLinks (el) {
       return linkifyHTML(el)
@@ -286,21 +262,36 @@ export default {
         .then(post => {
           this.userPost.title = post.data.title
           this.userPost.content = post.data.content
-          if (post.data.url_gif !== null) {
-            let img = document.createElement('img')
-            img.src = post.data.url_gif
-            img.class = 'img-fluid'
-            img.alt = post.data.alt_gif
-            document.getElementById('postUpdate').appendChild(img)
-          }
+          this.userPost.img = post.data.url_gif
+          this.userPost.altImg = post.data.alt_url_gif
+        }).catch(() => {
+          this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
         })
     },
     updatePost (index) {
       let postId = this.posts[index].id
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
+      let newTitle = ''
+      let newContent = ''
+      if (regex.test(this.userPost.title)) {
+        newTitle = this.userPost.title.replace(regex, ' ')
+      }
+      if (regex.test(this.userPost.content)) {
+        newContent = this.userPost.content.replace(regex, ' ')
+      }
       let formData = new FormData()
+      if (newTitle.length !== 0) {
+        formData.append('title', newTitle.toString())
+      } else {
+        formData.append('title', this.userPost.title.toString())
+      }
+      if (newContent.length !== 0) {
+        formData.append('content', newContent.toString())
+      } else {
+        formData.append('content', this.userPost.content.toString())
+      }
       formData.append('image', this.file)
-      formData.append('title', this.userPost.title)
-      formData.append('content', this.userPost.content)
       let payload = {
         id: postId,
         data: formData
@@ -311,6 +302,16 @@ export default {
           this.file = null
           this.userPost.title = ''
           this.userPost.content = ''
+        }).catch(error => {
+          if (error.message.split('code ')[1].includes('500')) {
+            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+          } else if (error.message.split('code ')[1].includes('403')) {
+            this.showAlertError(`Vous n'avez pas le droit de modifier ce post, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
+          } else if (error.message.split('code ')[1].includes('404')) {
+            this.showAlertError(`Ce post n'existe pas !`, '1500')
+          } else if (error.message.split('code ')[1].includes('401')) {
+            this.showAlertError(`Nous n'avons pas pu vous identifier, merci de vous connecter ou de créer un compte !`, '2500')
+          }
         })
     },
     deletePost (index) {
@@ -318,50 +319,88 @@ export default {
       this.$store.dispatch('posts/deletePost', postId)
         .then(() => {
           this.getPosts()
+        }).catch(error => {
+          if (error.message.split('code ')[1].includes('500')) {
+            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+          } else if (error.message.split('code ')[1].includes('401')) {
+            this.showAlertError(`Vous n'avez pas le droit de supprimer ce post, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
+          }
         })
     },
     sendPostReport (index) {
       if (this.postReport === null) {
-        this.showAlertError()
+        this.showAlertError('Merci de renseigner les différents champs', '1500')
       } else {
         let payload = {
           id: this.posts[index].id,
           newReport: {
-            report: this.postReport
+            report: null
           }
         }
-        this.showAlertReportPost()
+        let newReport = ''
+        // eslint-disable-next-line no-useless-escape
+        let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
+        if (regex.test(this.postReport)) {
+          newReport = this.postReport.replace(regex, ' ')
+        }
+        if (newReport.length !== 0) {
+          payload.newReport.report = newReport.toString()
+        } else {
+          payload.newReport.report = this.postReport.toString()
+        }
+        this.showAlertSuccess('Post signalé !')
         this.$store.dispatch('posts/sendPostReport', payload)
           .then(() => {
             this.postReport = null
+          }).catch(error => {
+            if (error.message.split('code ')[1].includes('500')) {
+              this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+            } else if (error.message.split('code ')[1].includes('400')) {
+              this.showAlertError(`Nous n'avons pas pu vous identifier, merci de vous connecter ou de créer un compte !`, '3500')
+            }
           })
       }
     },
     getComments (index) {
       let postId = this.posts[index].id
-      console.log(this.$cookies.get('user'))
       this.$store.dispatch('posts/getComments', postId)
+        .catch(() => {
+          this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+        })
     },
     showTextArea () {
       this.userComment.clicked = true
     },
     addComment (index) {
       if (this.userComment.comment === null) {
-        this.showAlertError()
+        this.showAlertError('Merci de renseigner les différents champs', '1500')
       } else {
+        // eslint-disable-next-line no-useless-escape
+        let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
+        let newComment = ''
         let postId = this.posts[index].id
         let payload = {
           id: postId,
           newComment: {
-            comment: this.userComment.comment
+            comment: null
           }
         }
-        this.showAlertAddComment()
+        if (regex.test(this.userComment.comment)) {
+          newComment = this.userComment.comment.replace(regex, ' ')
+        }
+        if (newComment.length !== 0) {
+          payload.newComment.comment = newComment.toString()
+        } else {
+          payload.newComment.comment = this.userComment.comment.toString()
+        }
+        this.showAlertSuccess('Commentaire ajouté !')
         this.$store.dispatch('posts/createComment', payload)
           .then(() => {
             this.userComment.clicked = false
             this.userComment.comment = ''
             this.getComments(index)
+          }).catch(() => {
+            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
           })
       }
     },
@@ -373,20 +412,42 @@ export default {
       this.$store.dispatch('posts/getOneComment', payload)
         .then(comment => {
           document.getElementById('commentUpdate').innerText = comment.data.comment
+        }).catch(() => {
+          this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
         })
     },
     updateComment (index, indexComment) {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
+      let newComment = ''
+      let postId = this.posts[index].id
       let payload = {
-        id: this.posts[index].id,
+        id: postId,
         commentId: this.comments[indexComment].id,
         newComment: {
-          comment: this.userComment.comment
+          comment: null
         }
+      }
+      if (regex.test(this.userComment.comment)) {
+        newComment = this.userComment.comment.replace(regex, ' ')
+      }
+      if (newComment.length !== 0) {
+        payload.newComment.comment = newComment.toString()
+      } else {
+        payload.newComment.comment = this.userComment.comment.toString()
       }
       this.$store.dispatch('posts/updateComment', payload)
         .then(() => {
           this.getComments(index)
           this.userComment.comment = ''
+        }).catch(error => {
+          if (error.message.split('code ')[1].includes('500')) {
+            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+          } else if (error.message.split('code ')[1].includes('403')) {
+            this.showAlertError(`Vous n'avez pas le droit de modifier ce commentaire, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
+          } else if (error.message.split('code ')[1].includes('404')) {
+            this.showAlertError(`Ce commentaire n'existe pas !`, '1500')
+          }
         })
     },
     deleteComment (index, indexComment) {
@@ -397,23 +458,44 @@ export default {
       this.$store.dispatch('posts/deleteComment', payload)
         .then(() => {
           this.getComments(index)
+        }).catch(error => {
+          if (error.message.split('code ')[1].includes('500')) {
+            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+          } else if (error.message.split('code ')[1].includes('403')) {
+            this.showAlertError(`Vous n'avez pas le droit de supprimer ce commentaire, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
+          } else if (error.message.split('code ')[1].includes('404')) {
+            this.showAlertError(`Ce commentaire n'existe pas !`, '1500')
+          }
         })
     },
     sendCommentReport (index, indexComment) {
       if (this.commentReport === null) {
-        this.showAlertError()
+        this.showAlertError('Merci de renseigner les différents champs', '1500')
       } else {
         let payload = {
           id: this.posts[index].id,
           commentId: this.comments[indexComment].id,
           newReport: {
-            report: this.commentReport
+            report: null
           }
         }
-        this.showAlertReportComment()
+        let newReport = ''
+        // eslint-disable-next-line no-useless-escape
+        let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
+        if (regex.test(this.commentReport)) {
+          newReport = this.commentReport.replace(regex, ' ')
+        }
+        if (newReport.length !== 0) {
+          payload.newReport.report = newReport.toString()
+        } else {
+          payload.newReport.report = this.commentReport.toString()
+        }
+        this.showAlertSuccess('Commentaire signalé !')
         this.$store.dispatch('posts/sendCommentReport', payload)
           .then(() => {
             this.commentReport = null
+          }).catch(() => {
+            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
           })
       }
     },
@@ -421,7 +503,24 @@ export default {
       let postId = this.posts[index].id
       this.$store.dispatch('posts/getLikes', postId)
         .then(response => {
+          let id = []
+          for (let i in response.data) {
+            id.push(response.data[i].id)
+          }
+          if (id.includes(this.currentUser.id)) {
+            this.btnLike = 'Disliker'
+            this.btnLikeVariant = 'danger'
+          } else {
+            this.btnLikeVariant = 'info'
+            this.btnLike = 'Liker'
+          }
           this.likes = response.data
+        }).catch(error => {
+          if (error.message.split('code ')[1].includes('500')) {
+            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+          } else if (error.message.split('code ')[1].includes('400')) {
+            this.showAlertError(`Nous n'avons pas pu vous identifier, merci de vous connecter ou de créer un compte !`, '3500')
+          }
         })
     },
     createLike (index) {
@@ -429,34 +528,22 @@ export default {
       this.$store.dispatch('posts/createLike', postId)
         .then(() => {
           this.getLikes(index)
+        }).catch(error => {
+          if (error.message.split('code ')[1].includes('500')) {
+            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+          } else if (error.message.split('code ')[1].includes('400')) {
+            this.showAlertError(`Nous n'avons pas pu vous identifier, merci de vous connecter ou de créer un compte !`, '3500')
+          }
         })
     },
-    hideModal (id) {
-      this.$refs[id][0].hide()
+    modalPostId (index, text) {
+      return 'modalPost' + index + text
     },
-    modalId (index) {
-      return 'modal' + index
+    modalCommentId (index, indexComment, text) {
+      return 'modalComment' + index + indexComment + text
     },
-    modalBisId (index) {
-      return 'modalBis' + index
-    },
-    modalTerId (index) {
-      return 'modalTer' + index
-    },
-    modalFourId (index) {
-      return 'modalFour' + index
-    },
-    modalFiveId (index) {
-      return 'modalFive' + index
-    },
-    modalSixId (index) {
-      return 'modalSix' + index
-    },
-    modalSevenId (index) {
-      return 'modalSeven' + index
-    },
-    modalEightId (indexComment) {
-      return 'modalEight' + indexComment
+    modalLikeId (index, text) {
+      return 'modalLike' + index + text
     }
   }
 }
@@ -549,8 +636,14 @@ export default {
     color: red;
     margin: 2%;
   }
+  .fa-flag:hover{
+    color: brown;
+  }
   .fa-comments{
     color: darkcyan;
+  }
+  .fa-comments:hover{
+    color: darkslategray;
   }
   .fa-thumbs-up{
     color: cornflowerblue;
@@ -577,6 +670,9 @@ export default {
     font-family: Chewy;
     font-size: 25px;
     margin-left: 10%;
+  }
+  .fa-thumbs-up:hover{
+    color: #0762a3;
   }
   h1{
     font-size: 25px;

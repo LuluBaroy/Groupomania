@@ -1,9 +1,10 @@
 <template>
-  <div class="container-fluid row align-items-center">
+  <div class="container-fluid row align-items-center p-2">
+    <router-link :to="{name: 'wall'}" class="col-1 p-0" :style="{visibility: $route.name === 'profile' ? 'visible' : 'hidden'}"><i class="far fa-arrow-alt-circle-left d-flex flex-column"><span class="mt-2">Retour accueil</span></i></router-link>
     <div class="container">
-      <img src="../assets/img/logo.png" alt="Logo Groupomania">
+      <img src="../assets/img/logo.png" class="col-10" alt="Logo Groupomania">
     </div>
-    <i v-if="cookieTest" class="fas fa-power-off mr-3" @click.prevent="removeCookie"></i>
+    <i v-if="loggedIn" class="fas fa-power-off col-1 d-flex flex-column" @click.prevent="removeCookie"><span class="mt-2">Quitter</span></i>
   </div>
 </template>
 
@@ -11,12 +12,13 @@
 export default {
   name: 'navBar',
   computed: {
-    cookieTest () {
-      return this.$cookies.isKey('user')
+    loggedIn () {
+      return this.$store.state.user.loggedIn
     }
   },
   methods: {
     removeCookie () {
+      this.$store.state.user.loggedIn = false
       this.$cookies.remove('user')
       this.$router.push({name: 'auth'})
     }
@@ -28,6 +30,13 @@ export default {
 .container-fluid{
   background-color: #2C3F5F;
   margin: 0;
+}
+a{
+  color: white;
+  text-decoration: none;
+}
+a:hover{
+  color: lightgray;
 }
 img{
   object-fit: scale-down;

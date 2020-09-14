@@ -22,14 +22,11 @@ exports.getUserId = (authorization) => {
 	let userId;
 
 	let token = this.getBearer(authorization);
-	console.log(token)
 	if (token !== null) {
 		try {
 			let jwtToken = jwt.verify(token, `${process.env.PRIVATEKEY}`);
-			console.log(jwtToken)
 			if (jwtToken != null) {
 				userId = jwtToken.userId;
-				console.log(userId)
 			}
 		} catch (error){
 			throw ` Authentication failed, please login or create an account !`

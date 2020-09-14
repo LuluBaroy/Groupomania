@@ -11,7 +11,16 @@ console.log(config);
 
 const sequelize = new Sequelize(config.db.database, config.db.username, config.db.password, {
   dialect: config.db.dialect,
-  host: config.db.host
+  host: config.db.host,
+  dialectOptions: {
+     typeCast: function (field, next) { // for reading from database
+        if (field.type === 'DATETIME') {
+            return field.string()
+        }
+        return next()
+     },
+  },
+  timezone: '+02:00'
 });
 
 

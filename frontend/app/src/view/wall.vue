@@ -20,10 +20,10 @@
       </div>
       <b-nav-form id="test">
         <b-form-input placeholder="Rechercher un utilisateur" id="barSearch" v-model="userResearch"></b-form-input>
-        <b-button v-b-modal.researchModal id="btnSearch" type="submit" @click.prevent="research"><i class="fas fa-search"></i></b-button>
-          <b-modal id="researchModal" title="Utilisateur(s) correspondant(s) à votre recherche :">
+        <b-button v-b-modal.researchModal id="btnSearch" type="submit" @click.prevent="research()"><i class="fas fa-search"></i></b-button>
+          <b-modal v-if="showModal" id="researchModal" title="Utilisateur(s) correspondant(s) à votre recherche :" ok-only ok-variant="info" @hidden="clearResearch()">
             <div v-if="userResult.length === 0">Aucun utilisateur ne correspond à votre recherche</div>
-            <div class="my-4 d-flex row align-items-center col-12 justify-content-between" v-for="user in userResult" :key="user.id" id="userResearch">
+            <div v-else class="my-4 d-flex row align-items-center col-12 justify-content-between" v-for="user in userResult" :key="user.id" id="userResearch">
               <router-link :to="`/profile/${user.id}`"><img :src="user.url_profile_picture" class=" d-flex img-fluid imgResearch"/></router-link>
               <h4 class="d-flex username">{{ user.username }}</h4>
             </div>
@@ -50,31 +50,69 @@ export default {
   components: {PostsPart, UserPart},
   data () {
     return {
-      userResearch: null,
+      userResearch: '',
       posts: this.$store.state.posts.allPosts,
-      userResult: ''
+      userResult: '',
+      showModal: false
+    }
+  },
+  computed: {
+    currentUser () {
+      return this.$store.state.user.currentUser
     }
   },
   beforeMount () {
-    this.$store.dispatch('user/getCurrentUser', this.$store.state.user.currentUser.id)
-      .then(() => {
-        this.$store.dispatch('posts/getAllPosts')
-      })
+    if (!this.$cookies.isKey('user')) {
+      this.$router.push({name: 'auth'})
+    } else {
+      this.$store.dispatch('user/getCurrentUser')
+        .then(() => {
+          this.$store.dispatch('posts/getAllPosts')
+        })
+    }
   },
   methods: {
+    showAlertError (title, timer) {
+      this.$swal({
+        title: title,
+        position: 'center',
+        icon: 'error',
+        showConfirmButton: false,
+        timer: timer})
+    },
+    clearResearch () {
+      this.showModal = false
+      this.userResearch = ''
+      this.userResult = ''
+    },
     research () {
-      if (this.userResearch === null) {
-        this.userResult = [{
-          username: `Merci de renseigner un nom avant de rechercher`,
-          url_profile_picture: 'http://localhost:3000/images/200.gif'
-        }]
+      if (this.userResearch.length === 0) {
+        this.showAlertError('Merci de renseigner un nom avant de cliquer sur le bouton de recherche', '1500')
       } else {
+        // eslint-disable-next-line no-useless-escape
+        let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
+        let newResearch = ''
         let data = {
-          research: this.userResearch.toString()
+          research: null
         }
+        if (regex.test(this.userResearch)) {
+          newResearch = this.userResearch.replace(regex, '')
+        }
+        if (newResearch.length !== 0) {
+          data.research = newResearch.toString()
+        } else {
+          data.research = this.userResearch.toString()
+        }
+        this.showModal = true
         this.$store.dispatch('researchUser', data)
           .then(() => {
             this.userResult = this.$store.state.research.resultResearch
+          }).catch(error => {
+            if (error.message.split('code ')[1].includes('500')) {
+              this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+            } else if (error.message.split('code ')[1].includes('400')) {
+              this.showAlertError(`Merci de renseigner un nom avant de cliquer sur le bouton de recherche`, '4000')
+            }
           })
       }
     }

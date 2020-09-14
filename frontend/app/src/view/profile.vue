@@ -1,7 +1,7 @@
 <template>
   <div>
-    <account-current-user></account-current-user>
-    <account-other-user></account-other-user>
+    <account-current-user v-if="currentUser.id == this.$route.params.id"></account-current-user>
+    <account-other-user v-else></account-other-user>
   </div>
 </template>
 
@@ -10,7 +10,17 @@ import accountCurrentUser from '../components/account_currentUser'
 import accountOtherUser from '../components/account_otherUser'
 export default {
   name: 'profile',
-  components: {accountCurrentUser, accountOtherUser}
+  components: {accountCurrentUser, accountOtherUser},
+  computed: {
+    currentUser () {
+      return this.$store.state.user.currentUser
+    }
+  },
+  beforeMount () {
+    if (!this.$cookies.isKey('user')) {
+      this.$router.push({name: 'auth'})
+    }
+  }
 }
 </script>
 

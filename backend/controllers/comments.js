@@ -10,8 +10,6 @@ const fs = require('fs');
 exports.create = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	const userId = jwtUtils.getUserId(headerAuth);
-	console.log(userId)
-	console.log(req.params.id)
 	models.Comments.create({ comment: req.body.comment, UserId: userId, PostId: req.params.id})
 		.then(comment => {
 			res.status(201).json({ message: `Your comment has been sent !`, comment})
@@ -44,6 +42,8 @@ exports.update = (req, res, next) => {
 						res.status(201).json({ message: `Your comment has been updated !`})
 					})
 					.catch((err) => res.status(500).json(err))
+			} else {
+				res.status(403).json({ message: `You're not allowed to update this comment`})
 			}
 		})
 		.catch((err) => res.status(404).json({ message: `This comment doesn't exist `, err}))
@@ -64,6 +64,8 @@ exports.delete = (req, res, next) => {
 									.then(() => res.status(200).json({message: `Comment has been deleted !`}))
 									.catch(err => res.status(500).json(err))
 							}).catch(err => res.status(500).json(err))
+					} else {
+						res.status(403).json({ message: `You're not allowed to delete this comment`})
 					}
 				}).catch((err) => res.status(404).json({message: `This comment doesn't exist `, err}))
 		}).catch(err => res.status(500).json(err))
@@ -73,7 +75,7 @@ exports.readOne = (req, res, next) => {
 	models.Comments.findOne({ where: { id: req.params.comment_id }})
 		.then(comment => {
 			res.status(200).json(comment)
-		})
+		}).catch(err => res.status(500).json(err))
 }
 
 exports.readAll = (req, res, next) => {

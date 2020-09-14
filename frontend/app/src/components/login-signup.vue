@@ -31,7 +31,7 @@
                   ></b-form-input>
                 </b-form-group>
               </b-form>
-              <b-button pill type="submit" href="#" @click="logMe">Connexion</b-button>
+              <b-button pill type="submit" href="#" @click.prevent="logMe">Connexion</b-button>
             </div>
           </b-tab>
           <b-tab title="Inscription">
@@ -75,7 +75,7 @@
                   <b-form-textarea
                     id="textarea"
                     v-model="user.bio"
-                    placeholder="Je m'appelle ... J'occupe le poste de ... "
+                    :placeholder="`Exemple : Je m'appelle ${user.username || '...'} J'occupe le poste de ... `"
                     rows="3"
                     max-rows="6"
                   ></b-form-textarea>
@@ -91,7 +91,7 @@
                   ></b-form-file>
                 </b-form-group>
               </b-form>
-              <b-button pill type="submit" @click="registerMe">Inscription</b-button>
+              <b-button pill type="submit" @click.prevent="registerMe">Inscription</b-button>
             </div>
           </b-tab>
         </b-tabs>
@@ -114,17 +114,17 @@ export default {
     }
   },
   methods: {
-    showAlertError () {
+    showAlertError (title, timer) {
       this.$swal({
-        title: 'Merci de renseigner les différents champs',
+        title: title,
         position: 'center',
         icon: 'error',
         showConfirmButton: false,
-        timer: '1500'})
+        timer: timer})
     },
     registerMe () {
       if (this.user.email === null || this.user.password === null || this.user.username === null) {
-        this.showAlertError()
+        this.showAlertError('Merci de renseigner les différents champs', '1500')
       } else {
         let formData = new FormData()
         formData.append('image', this.file)
@@ -141,12 +141,22 @@ export default {
                     this.$router.push('/wall/')
                   })
               })
+          }).catch(error => {
+            if (error.message.split('code ')[1].includes('422')) {
+              this.showAlertError(`Merci de renseigner un email valide`, '2500')
+            } else if (error.message.split('code ')[1].includes('500')) {
+              this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+            } else if (error.message.split('code ')[1].includes('401')) {
+              this.showAlertError(`Cet email est déjà utilisé !`, '1500')
+            } else if (error.message.split('code ')[1].includes('400')) {
+              this.showAlertError(`Merci de renseigner un mot de passe d'au moins 8 caractères avec au moins une majuscule et un chiffre`, '4500')
+            }
           })
       }
     },
     logMe () {
       if (this.user.email === null || this.user.password === null) {
-        this.showAlertError()
+        this.showAlertError('Merci de renseigner les différents champs', '1500')
       } else {
         let data = {
           email: this.user.email,
@@ -158,6 +168,16 @@ export default {
               .then(() => {
                 this.$store.dispatch('user/getCurrentUser', this.$store.state.user.currentUser.id)
               })
+          }).catch((error) => {
+            if (error.message.split('code ')[1].includes('401')) {
+              this.showAlertError('Email ou mot de passe erroné !', '1500')
+            } else if (error.message.split('code ')[1].includes('429')) {
+              this.showAlertError('Trop de tentatives de connexion, merci de patienter 20 secondes avant de réessayer', '2500')
+            } else if (error.message.split('code ')[1].includes('404')) {
+              this.showAlertError(`Aucun compte n'est associé à cet email`, '2000')
+            } else if (error.message.split('code ')[1].includes('422')) {
+              this.showAlertError(`Merci de renseigner un email et/ou un mot de passe valide`, '2000')
+            }
           })
       }
     }

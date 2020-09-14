@@ -23,7 +23,7 @@ module.exports = (sequelize, Datatypes) => {
 		},
 		url_gif: {
 			type: Datatypes.STRING,
-			allowNull: true
+			allowNull: false
 		},
 		alt_gif: {
 			type: Datatypes.STRING(45),

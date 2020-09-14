@@ -1,5 +1,6 @@
 require('dotenv').config();
 const models = require('../models');
+const path = require('path')
 const bcrypt = require('bcryptjs');
 const jwtUtils = require('../middlewares/jwt');
 const {validationResult} = require('express-validator');
@@ -12,19 +13,21 @@ exports.create = (req, res, next) => {
 	if(!headerAuth){
 		res.status(400).json({ message: `You're not authenticated, please login ! `})
 	} else {
-		let userId = jwtUtils.getUserId(headerAuth);
-		let urlGif, altGif;
-		console.log(req.file, req.body)
-		if(req.file){
-			urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-			altGif = "GIF partagé par l'utilisateur"
+		if(!req.file){
+			res.status(400).json({ message: 'File is required !'})
 		} else {
-			urlGif = null
-			altGif = null
+			if(path.extname(req.file.filename).includes('.undefined')) {
+				res.status(400).json({ message: 'This file extension is not allowed !'})
+			} else {
+				let userId = jwtUtils.getUserId(headerAuth);
+				let urlGif, altGif;
+				urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+				altGif = "GIF partagé par l'utilisateur"
+				models.Posts.create({ title: req.body.title, UserId: userId, content: req.body.content, url_gif: urlGif, alt_gif: altGif })
+					.then((post) => res.status(201).json({ message: `You're post has been created !`, post}))
+					.catch((err) => res.status(500).json(err))
+			}
 		}
-		models.Posts.create({ title: req.body.title, UserId: userId, content: req.body.content, url_gif: urlGif, alt_gif: altGif })
-			.then((post) => res.status(201).json({ message: `You're post has been created !`, post}))
-			.catch((err) => res.status(500).json(err))
 	}
 
 }
@@ -102,7 +105,7 @@ exports.update = (req, res, next) => {
 						if(post.url_gif !== null){
 							const filename = post.url_gif.split('/images/')[1];
 							fs.unlink(`images/${filename}`, () => {
-								console.log('Image deleted ! ' + filename);
+								//
 							})
 						}
 						urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
@@ -117,7 +120,7 @@ exports.update = (req, res, next) => {
 						})
 						.catch((err) => res.status(500).json(err))
 				} else {
-					res.status(400).json({ message: `You're not allowed to update this post ! `})
+					res.status(403).json({ message: `You're not allowed to update this post ! `})
 				}
 			})
 			.catch((err) => res.status(404).json({ message: `This post doesn't exist `, err}))
@@ -136,7 +139,6 @@ exports.delete = (req, res, next) => {
 				let role = JSON.parse(admin.role);
 				models.Posts.findOne({where: {id: req.params.id}})
 					.then(post => {
-						console.log(post)
 						if (post && userId === post.user_id || role.includes('admin')) {
 							if(post.url_gif !== null) {
 								const filename = post.url_gif.split('/images/')[1];
@@ -222,10 +224,9 @@ exports.readAllFromUserId = (req, res, next) => {
 	if(!headerAuth){
 		res.status(400).json({ message: `You're not authenticated, please login ! `})
 	} else {
-		console.log(req.params.user_id)
 		models.Posts.findAll({ where: { user_id: req.params.user_id }, include: [models.Likes, models.Comments]}, {
 			order: [
-				['id', 'DESC']
+				['created_at', 'DESC']
 			]
 		})
 			.then(posts => {

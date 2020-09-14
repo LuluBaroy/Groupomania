@@ -22,6 +22,9 @@ export default {
   font-family: 'Chewy';
   src: url("./assets/fonts/Chewy.woff") format('woff');
 }
+a, button, i{
+  outline: 0 none !important;
+}
 #app {
   display: flex;
   flex-direction: column;
