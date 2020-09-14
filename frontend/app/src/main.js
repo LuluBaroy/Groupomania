@@ -13,7 +13,6 @@ import store from './store'
 Vue.use(BootstrapVue)
 Vue.use(VueCookies)
 Vue.use(VueSweetalert2)
-Vue.$cookies.config('1d')
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

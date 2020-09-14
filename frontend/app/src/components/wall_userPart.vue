@@ -5,7 +5,7 @@
       <router-link :to="`/profile/${currentUser.id}`"><img :src="currentUser.infos.url_profile_picture" :alt="currentUser.infos.alt_profile_picture" class="userPhoto">
       </router-link>
     </div>
-    <b-form class="formPart" enctype="multipart/form-data">
+    <b-form class="formPart" enctype="multipart/form-data" novalidate>
       <h2 id="posth2">Voulez-vous partager quelque chose ?</h2>
       <b-row class="mb-2">
         <b-col sm="3" class="mb-2">
@@ -17,7 +17,6 @@
             label="Titre :"
             label-for="title"
             v-model="userPost.title"
-            required
             class="postInput"
             placeholder="Titre de votre publication ... "
           ></b-form-input>
@@ -33,7 +32,6 @@
             v-model="userPost.content"
             placeholder="Votre publication ..."
             class="postInput"
-            required
             rows="3"
             max-rows="6"
           ></b-form-textarea>
@@ -41,7 +39,7 @@
       </b-row>
       <b-row>
         <b-col sm="12" class="d-flex" id="buttonPart">
-          <b-form-file v-model="file" class="mt-3" plain></b-form-file>
+          <b-form-file v-model="file" class="mt-3" plain accept=".jpg, .png, .gif, .jpeg"></b-form-file>
           <b-button pill type="submit" id="submitPost" @click.prevent="publish()">Publier</b-button>
         </b-col>
       </b-row>
@@ -67,38 +65,59 @@ export default {
     }
   },
   methods: {
-    showAlert () {
+    showAlert (title, icon, timer) {
       this.$swal({
-        title: 'Post publié !',
+        title: title,
         position: 'top-end',
-        icon: 'success',
+        icon: icon,
         showConfirmButton: false,
-        timer: '1500'})
-    },
-    showAlertError () {
-      this.$swal({
-        title: 'Merci de renseigner les différents champs',
-        position: 'center',
-        icon: 'error',
-        showConfirmButton: false,
-        timer: '1500'})
+        timer: timer})
     },
     publish () {
-      if (this.userPost.title === null || this.userPost.content === null) {
-        this.showAlertError()
+      if (this.userPost.title === null || this.userPost.content === null || this.file === null) {
+        this.showAlert('Merci de renseigner les différents champs', 'error', '1500')
       } else {
-        let formData = new FormData()
-        formData.append('image', this.file)
-        formData.append('title', this.userPost.title)
-        formData.append('content', this.userPost.content)
-        this.$store.dispatch('posts/createPost', formData)
-          .then(() => {
-            this.showAlert()
-            this.$store.dispatch('posts/getAllPosts')
-            this.userPost.title = ''
-            this.userPost.content = ''
-            this.file = null
-          })
+        let authorizedFile = ['jpg', 'jpeg', 'gif', 'png']
+        if (!authorizedFile.includes(this.file.name.split('.')[1])) {
+          this.showAlert(`Ce type de fichier n'est pas pris en charge`, 'error', '1500')
+        } else {
+          // eslint-disable-next-line no-useless-escape
+          let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
+          let newTitle = ''
+          let newContent = ''
+          if (regex.test(this.userPost.title)) {
+            newTitle = this.userPost.title.replace(regex, ' ')
+          }
+          if (regex.test(this.userPost.content)) {
+            newContent = this.userPost.content.replace(regex, ' ')
+          }
+          let formData = new FormData()
+          if (newTitle.length !== 0) {
+            formData.append('title', newTitle.toString())
+          } else {
+            formData.append('title', this.userPost.title.toString())
+          }
+          if (newContent.length !== 0) {
+            formData.append('content', newContent.toString())
+          } else {
+            formData.append('content', this.userPost.content.toString())
+          }
+          formData.append('image', this.file)
+          this.$store.dispatch('posts/createPost', formData)
+            .then(() => {
+              this.showAlert('Post publié !', 'success', '1500')
+              this.$store.dispatch('posts/getAllPosts')
+              this.userPost.title = ''
+              this.userPost.content = ''
+              this.file = null
+            }).catch(error => {
+              if (error.message.split('code ')[1].includes('400')) {
+                this.showAlert(`Vous devez ajouter une image au format JPG, JPEG, PNG ou GIF !`, 'error', '2500')
+              } else if (error.message.split('code ')[1].includes('500')) {
+                this.showAlert(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, 'error', '3500')
+              }
+            })
+        }
       }
     }
   }

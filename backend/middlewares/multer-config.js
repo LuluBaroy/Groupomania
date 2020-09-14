@@ -16,7 +16,9 @@ const storage = multer.diskStorage({
 	filename: (req, file, callback) => {
 		const random = (Math.floor(Math.random()*Math.pow(10, 10))).toString();
 		const extension = MIME_TYPES[file.mimetype];
-		callback(null, random + '.' + extension);
+		if(extension !== undefined){
+			callback(null, random + '.' + extension);
+		}
 	}
 });
 

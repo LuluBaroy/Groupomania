@@ -4,11 +4,12 @@ const multer = require('../middlewares/multer-config')
 const userCtrl = require('../controllers/users');
 const bouncer = require('express-bouncer')(15000, 30000, 3);
 const auth = require('../middlewares/auth');
+const validator = require('../middlewares/validator')
 'use strict';
 
-router.post('/signup', multer, userCtrl.signup);
+router.post('/signup', multer, validator.checkingSignup,userCtrl.signup);
 
-router.post('/login', bouncer.block, userCtrl.login);
+router.post('/login', bouncer.block, validator.checkingSignup, userCtrl.login);
 
 router.get('/:id', auth, userCtrl.readOne);
 
