@@ -2,7 +2,7 @@
     <div id="login">
       <h1>Bienvenue sur notre réseau social !</h1>
       <div class="d-flex align-items-center justify-content-center">
-        <b-tabs content-class="mt-3">
+        <b-tabs content-class="mt-3" id="tab1">
           <b-tab title="Connexion" active>
             <div class="formConnexion">
               <h2>Connectez-vous !</h2>
@@ -193,7 +193,7 @@ export default {
     margin: 2%;
     color: #2C3F5F;
   }
-  .tabs{
+  #tab1{
     width: 500px;
     margin-bottom: 5%;
   }

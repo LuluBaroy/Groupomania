@@ -140,38 +140,28 @@ exports.delete = (req, res, next) => {
 				models.Posts.findOne({where: {id: req.params.id}})
 					.then(post => {
 						if (post && userId === post.user_id || role.includes('admin')) {
-							if(post.url_gif !== null) {
-								const filename = post.url_gif.split('/images/')[1];
-								fs.unlink(`images/${filename}`, () => {
-									models.PostsReport.destroy({where: {post_id: post.id}})
-										.then(() => {
-											models.Comments.destroy({where: {post_id: post.id}})
-												.then(() => {
-													models.Likes.destroy({where: {post_id: post.id}})
-														.then(() => {
-															models.Posts.destroy({where: {id: req.params.id}})
-																.then(() => {
-																	res.status(200).json({message: `Your post have been deleted !`})
-																}).catch(err => res.status(500).json(err))
-														}).catch(err => res.status(500).json(err))
-												}).catch(err => res.status(500).json(err))
-										}).catch(err => res.status(500).json(err))
-								})
-							} else {
-								models.PostsReport.destroy({where: {post_id: post.id}})
+							const filename = post.url_gif.split('/images/')[1];
+							fs.unlink(`images/${filename}`, () => {
+								models.CommentsReport.destroy({where: {post_id: post.id}})
 									.then(() => {
 										models.Comments.destroy({where: {post_id: post.id}})
 											.then(() => {
 												models.Likes.destroy({where: {post_id: post.id}})
 													.then(() => {
-														models.Posts.destroy({where: {id: req.params.id}})
+														models.PostsReport.destroy({
+															where: {PostId: post.id},
+															include: [models.Likes]
+														})
 															.then(() => {
-																res.status(200).json({message: `Your post have been deleted !`})
+																models.Posts.destroy({where: {id: post.id}})
+																	.then((response) => {
+																		res.status(200).json({message: 'Post deleted', response})
+																	}).catch(err => res.status(500).json({err}))
 															}).catch(err => res.status(500).json(err))
 													}).catch(err => res.status(500).json(err))
 											}).catch(err => res.status(500).json(err))
 									}).catch(err => res.status(500).json(err))
-							}
+							})
 						} else {
 							res.status(401).json({message: `You're not allowed to delete this post !`})
 						}

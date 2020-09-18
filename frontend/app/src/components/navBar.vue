@@ -1,10 +1,10 @@
 <template>
   <div class="container-fluid row align-items-center p-2">
-    <router-link :to="{name: 'wall'}" class="col-1 p-0" :style="{visibility: $route.name === 'profile' ? 'visible' : 'hidden'}"><i class="far fa-arrow-alt-circle-left d-flex flex-column"><span class="mt-2">Retour accueil</span></i></router-link>
+    <router-link :to="{name: 'wall'}" class="col-1 p-0" :style="{visibility: visibilityTest ? 'visible' : 'hidden'}"><i class="far fa-arrow-alt-circle-left d-flex flex-column"><span class="mt-2">Retour accueil</span></i></router-link>
     <div class="container">
       <img src="../assets/img/logo.png" class="col-10" alt="Logo Groupomania">
     </div>
-    <i v-if="loggedIn" class="fas fa-power-off col-1 d-flex flex-column" @click.prevent="removeCookie"><span class="mt-2">Quitter</span></i>
+    <i :style="{visibility: this.$cookies.isKey('user') ? 'visible' : 'hidden'}" class="fas fa-power-off col-1 d-flex flex-column" @click.prevent="removeCookie"><span class="mt-2">Quitter</span></i>
   </div>
 </template>
 
@@ -12,13 +12,18 @@
 export default {
   name: 'navBar',
   computed: {
-    loggedIn () {
-      return this.$store.state.user.loggedIn
+    visibilityTest () {
+      if (this.$route.name === 'profile') {
+        return true
+      } else if (this.$route.name === 'faq') {
+        return true
+      } else {
+        return false
+      }
     }
   },
   methods: {
     removeCookie () {
-      this.$store.state.user.loggedIn = false
       this.$cookies.remove('user')
       this.$router.push({name: 'auth'})
     }

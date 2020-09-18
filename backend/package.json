@@ -32,6 +32,7 @@
     "multer": "^1.4.2",
     "mysql2": "^2.1.0",
     "node-shield": "^0.1.11",
+    "nodemon": "^2.0.4",
     "password-validator": "^5.1.0",
     "sequelize": "^6.3.4",
     "snyk": "^1.373.1",

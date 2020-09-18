@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import auth from '../components/login-signup'
 import wall from '../view/wall'
 import profile from '../view/profile'
+import faq from '../view/faq'
 
 Vue.use(Router)
 
@@ -22,6 +23,11 @@ export default new Router({
       path: '/profile/:id',
       name: 'profile',
       component: profile
+    },
+    {
+      path: '/faq',
+      name: 'faq',
+      component: faq
     }
   ]
 })

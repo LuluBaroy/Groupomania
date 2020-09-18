@@ -17,6 +17,10 @@ module.exports = (sequelize, Datatypes) => {
 			type: Datatypes.INTEGER,
 			required: true
 		},
+		post_id: {
+			type: Datatypes.INTEGER,
+			required: true
+		},
 		report: {
 			type: Datatypes.TEXT,
 			required: true,
@@ -39,6 +43,11 @@ module.exports = (sequelize, Datatypes) => {
 	})
 	CommentsReport.associate = (models) => {
 		CommentsReport.belongsTo(models.Users, {
+			foreignKey: {
+				allowNull: false
+			}
+		})
+		CommentsReport.belongsTo(models.Posts, {
 			foreignKey: {
 				allowNull: false
 			}

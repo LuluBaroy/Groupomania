@@ -231,12 +231,14 @@
       </div>
       <b-button v-if="consentsHaveChanged" @click="updateUser()" variant="outline-info" pill>Valider les changements</b-button>
     </section>
+    <account-admin v-if="userRole.includes('admin')"></account-admin>
   </div>
 </template>
 
 <script>
 import pdfMake from 'pdfmake/build/pdfmake'
 import linkifyHTML from 'linkifyjs/html'
+import AccountAdmin from './account_admin'
 pdfMake.fonts = {
   Roboto: {
     normal: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf',
@@ -247,12 +249,14 @@ pdfMake.fonts = {
 }
 export default {
   name: 'accountCurrentUser',
+  components: {AccountAdmin},
   data () {
     return {
       newConsents: {
         contactable: JSON.parse(this.$store.state.user.currentUser.infos.consents).contactable,
         shareable: JSON.parse(this.$store.state.user.currentUser.infos.consents).shareable
       },
+      userRole: JSON.parse(this.$store.state.user.currentUser.infos.role),
       file: null,
       userInfo: {
         email: this.$store.state.user.currentUser.infos.email,

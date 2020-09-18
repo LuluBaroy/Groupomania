@@ -151,8 +151,9 @@ exports.readOne = (req, res, next) => {
 		.then((user) => {
 			if(!user){
 				res.status(404).json({ message: `User with ID ${userId} not found !`})
+			} else {
+				res.status(200).json(user)
 			}
-			res.status(200).json(user)
 		}).catch(err => res.status(500).json(err))
 }
 

@@ -1,0 +1,29 @@
+import axios from 'axios'
+import auth from '../services/auth'
+
+const url = 'http://localhost:3000/api/issue'
+
+class UserIssues {
+  createIssue (data) {
+    return axios.post(url, data)
+      .catch(err => { throw err })
+  }
+  readOneIssue (id) {
+    return axios.get(url + '/' + id, { headers: auth() })
+      .catch(err => { throw err })
+  }
+  readAllIssues () {
+    return axios.get(url, { headers: auth() })
+      .catch(err => { throw err })
+  }
+  readAllPending () {
+    return axios.get(url + '/all/pending', { headers: auth() })
+      .catch(err => { throw err })
+  }
+  updateIssue (id) {
+    return axios.put(url + '/' + id, '', { headers: auth() })
+      .catch(err => { throw err })
+  }
+}
+
+export default new UserIssues()

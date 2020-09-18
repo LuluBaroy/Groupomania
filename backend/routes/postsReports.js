@@ -8,12 +8,12 @@ const auth = require('../middlewares/auth');
 
 router.get('/post/:id', reportCtrl.readOne)
 
-router.put('/posts/:id', reportCtrl.update)
+router.put('/post/:id', reportCtrl.update)
 
 router.get('/pending', reportCtrl.readAllPending)
 
 router.get('/', reportCtrl.readAll)
 
-router.delete('/posts/:id', reportCtrl.delete)
+router.delete('/post/:id', reportCtrl.delete)
 
 module.exports = router;
