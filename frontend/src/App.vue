@@ -1,9 +1,13 @@
 <template>
     <div id="app">
+      <!--NAVBAR - SEE COMPONENT 'navBar.vue'-->
       <nav-bar></nav-bar>
-        <div>Test</div>
+
+      <!--ROUTER - SEE 'router/index.js'-->
       <router-view></router-view>
+
       <footer>
+         <!--FOOTERBAR - SEE COMPONENT 'footerBar.vue'-->
         <footerBar></footerBar>
       </footer>
     </div>

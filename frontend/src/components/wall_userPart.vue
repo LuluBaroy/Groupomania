@@ -1,10 +1,20 @@
 <template>
   <div class="col-lg-12 row preWall" id="user">
-    <div class="userPart">
+
+    <!--USERNAME + PROFILE PICTURE-->
+    <div class="userPart col-3 d-flex flex-column align-items-center">
       <h1>Bonjour<br> {{ currentUser.infos.username }} !</h1>
-      <router-link :to="`/profile/${currentUser.id}`"><img :src="currentUser.infos.url_profile_picture" :alt="currentUser.infos.alt_profile_picture" class="userPhoto">
-      </router-link>
+      <div>
+        <!--LINK TO CURRENT USER PROFILE-->
+        <router-link :to="`/profile/${currentUser.id}`" class="d-flex row align-items-center text-decoration-none"><img :src="currentUser.infos.url_profile_picture" :alt="currentUser.infos.alt_profile_picture" class="userPhoto">
+          <!--IF USER IS ADMIN => NOTIFICATION FOR USER MESSAGE & REPORTS-->
+          <i id="popover-content" v-if="currentUser.infos.role.includes('admin')" class="fas fa-envelope col-1" v-b-popover><span class="ml-1">{{ messageWaiting.total }}</span></i>
+          <b-popover target="popover-content" triggers="hover" placement="bottomright"><template v-slot:title>Notification(s) :</template>Message(s): {{ messageWaiting.issues.length }} en attente <br>Signalement(s): {{ messageWaiting.postReports.length + messageWaiting.commentReports.length }} en attente</b-popover>
+        </router-link>
+      </div>
     </div>
+
+    <!--FORM TO PUBLISH POST-->
     <b-form class="formPart" enctype="multipart/form-data" novalidate>
       <h2 id="posth2">Voulez-vous partager quelque chose ?</h2>
       <b-row class="mb-2">
@@ -62,6 +72,9 @@ export default {
   computed: {
     currentUser () {
       return this.$store.state.user.currentUser
+    },
+    messageWaiting () {
+      return this.$store.state.issues.messageWaiting
     }
   },
   methods: {
@@ -120,6 +133,12 @@ export default {
         }
       }
     }
+  },
+  beforeMount () {
+    this.$store.dispatch('messageWaiting')
+      .then(response => {
+        console.log(response.data)
+      })
   }
 }
 </script>
@@ -156,5 +175,12 @@ export default {
   }
   #buttonPart{
     align-items: baseline;
+  }
+  .fa-envelope{
+    text-decoration: none;
+    color: #2C3F5F;
+  }
+  .fa-envelope:hover{
+    color: #0762a3;
   }
 </style>

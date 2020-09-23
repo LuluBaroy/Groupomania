@@ -2,21 +2,17 @@ import ReportsRoutes from '../services/reports'
 
 export const reports = {
   state: {
-    allReports: ''
+    allReports: '',
+    messageWaiting: {
+      issues: '',
+      reports: {
+        postReports: '',
+        commentReports: ''
+      },
+      total: 0
+    }
   },
   actions: {
-    readOnePostReport ({ commit }, id) {
-      return ReportsRoutes.readOnePostReport(id).then(
-        (response) => {
-          commit('readOnePostReportSuccess', response)
-          return Promise.resolve(response)
-        },
-        (error) => {
-          commit('readOnePostReportFailure')
-          return Promise.reject(error)
-        }
-      )
-    },
     updatePostReport ({ commit }, id) {
       return ReportsRoutes.updatePostReport(id).then(
         (response) => {
@@ -37,18 +33,6 @@ export const reports = {
         },
         (error) => {
           commit('deleteOnePostReportFailure')
-          return Promise.reject(error)
-        }
-      )
-    },
-    readOneCommentReport ({ commit }, id) {
-      return ReportsRoutes.readOneCommentReport(id).then(
-        (response) => {
-          commit('readOneCommentReportSuccess', response)
-          return Promise.resolve(response)
-        },
-        (error) => {
-          commit('readOneCommentReportFailure')
           return Promise.reject(error)
         }
       )
@@ -88,36 +72,18 @@ export const reports = {
           return Promise.reject(error)
         }
       )
-    },
-    readAllPendingReports ({ commit }) {
-      return ReportsRoutes.readAllPendingReports().then(
-        (response) => {
-          commit('readAllPendingReportsSuccess', response)
-          return Promise.resolve(response)
-        },
-        (error) => {
-          commit('rreadAllPendingReportsFailure')
-          return Promise.reject(error)
-        }
-      )
     }
   },
   mutations: {
-    readOnePostReportSuccess () {},
-    readOnePostReportFailure () {},
     updatePostReportSuccess () {},
     updatePostReportFailure () {},
     deleteOnePostReportSuccess () {},
     deleteOnePostReportFailure () {},
-    readOneCommentReportSuccess () {},
-    readOneCommentReportFailure () {},
     updateCommentReportSuccess () {},
     updateCommentReportFailure () {},
     deleteOneCommentReportSuccess () {},
     deleteOneCommentReportFailure () {},
     readAllReportsSuccess () {},
-    readAllReportsFailure () {},
-    readAllPendingReportsSuccess () {},
-    readAllPendingReportsFailure () {}
+    readAllReportsFailure () {}
   }
 }

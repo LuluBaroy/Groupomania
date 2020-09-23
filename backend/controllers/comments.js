@@ -79,7 +79,7 @@ exports.readOne = (req, res, next) => {
 }
 
 exports.readAll = (req, res, next) => {
-	models.Comments.findAll({include: [models.Users],
+	models.Comments.findAll({where: {PostId: req.params.id}, include: [models.Users],
 		order: [
 			['id', 'ASC']
 		]

@@ -1,23 +1,34 @@
 <template>
   <div class="d-flex flex-column col-12">
+    <!--NO POST-->
     <div v-if="posts.length === 0" class="col-8 m-auto">
       <h3>Aucun post n'a encore été publié ! Lancez vous !</h3>
       <p>Si vous ne savez pas comment faire, regardez le tutoriel dans le carrousel en haut de page ou retrouvez nos astuces dans la section FAQ !!</p>
       <img src="../assets/img/hello.gif" alt="hello gif" class="img-fluid imgPosts">
     </div>
+
+    <!--ALL POSTS-->
     <div id="postPart" class="row align-items-center justify-content-around mt-4" v-for="(post, index) in posts" :key="post.id">
       <div class="d-flex col-2 justify-content-center align-items-center flex-column">
+
+        <!--POST AUTHOR-->
         <div class="d-flex flex-column">
           <h3>{{ post.User.username }}</h3>
-          <router-link :to="`/profile/${post.UserId}`"><img :src="post.User.url_profile_picture" :alt="post.User.alt_profile_picture" class="img-fluid userPhoto"/></router-link>
+          <router-link :to="`/profile/${post.UserId}`"><img :src="post.User.url_profile_picture" :alt="post.User.alt_profile_picture" class="userPhoto"/></router-link>
         </div>
-        <div v-if="post.User.id === currentUser.id" class="flex-column justify-content-center" id="modifPost">
+
+        <!--ADMIN PANEL IF USER IS ADMIN OR USER IS AUTHOR-->
+        <div v-if="post.User.id === currentUser.id || currentUser.infos.role.includes('admin')" class="flex-column justify-content-center" id="modifPost">
+
+          <!--MODAL - DELETE POST-->
           <i v-b-modal="modalPostId(index, 'delete')" class="fas fa-trash-alt"><span>Supprimer le post</span></i>
           <b-modal ok-title="Supprimer" ok-variant="danger" cancel-title="Annuler" cancel-variant="info" :id="'modalPost' + index + 'delete'" title="Suppression du Post" @ok="deletePost(index), showAlertSuccess('Post supprimé !')">
             <div class="my-4">
               Êtes vous sûr(e) de vouloir supprimer ce post ?
             </div>
           </b-modal>
+
+          <!--MODAL - UPDATE POST-->
           <i v-b-modal="modalPostId(index, 'update')" class="far fa-edit" @click="setPostValue(index)"><span>Modifier le post</span></i>
           <b-modal ok-only ok-title="Cancel" :id="'modalPost' + index + 'update'" title="Modification du Post" @close="url = ''" @ok="url = ''">
             <div class="my-4">
@@ -54,12 +65,17 @@
           </b-modal>
         </div>
       </div>
+
+      <!--POST CONTENT-->
       <div class="d-flex formPart flex-column col-8">
         <h4>{{ post.title }}</h4>
         <p v-html="getLinks(post.content)"></p>
         <img :src="post.url_gif" :alt="post.alt_gif" class="img-fluid imgPosts"/>
         <div class="d-flex row justify-content-around">
+
+          <!--USER PANEL-->
           <div id="postInfo">
+            <!--MODAL - REPORT POST-->
             <i class="far fa-flag" v-b-modal="modalPostId(index, 'report')"></i>
             <b-modal :id="'modalPost' + index + 'report'" title="Signaler le contenu du Post" @close="getPosts" @cancel="getPosts" @ok="getPosts">
               <b-form-group class="d-flex flex-column col-12 mt-4">
@@ -79,11 +95,17 @@
             </b-modal>
           </div>
           <div>
+
+            <!--COMMENTS ICON-->
             <i v-if="!hasCommented(index)" v-b-modal="modalPostId(index, 'comments')" @click="getComments(index)" class="far fa-comments"><span>{{ post.Comments.length }}</span></i>
             <i v-else v-b-modal="modalPostId(index, 'comments')" @click="getComments(index)" class="fas fa-comments"><span>{{ post.Comments.length }}</span></i>
-            <b-modal :id="'modalPost' + index + 'comments'" title="Commentaire(s) du post" @close="getPosts" @cancel="getPosts" @ok="getPosts">
+
+            <!--MODAL - GET COMMENTS-->
+            <b-modal :id="'modalPost' + index + 'comments'" title="Commentaire(s) du post" @close="getPosts(), userComment.clicked = null" @cancel="getPosts(), userComment.clicked = null" @ok="getPosts(), userComment.clicked = null">
               <div class="my-4 commentsConfig" v-for="(comment, indexComment) in comments" :key="comment.id">
-                <div class="d-flex justify-content-end flex-column" v-if="comment.PostId === posts[index].id">
+                <div class="d-flex justify-content-end flex-column" >
+
+                  <!--MODAL - REPORT COMMENT-->
                   <i class="far fa-flag" v-b-modal="modalCommentId(index, indexComment, 'report')"></i>
                   <b-modal :id="'modalComment' + index + indexComment + 'report'" title="Signaler le contenu du Commentaire" @close="getComments(index)" @cancel="getComments(index)" @ok="getComments(index)">
                     <b-form-group class="d-flex flex-column col-12 mt-4">
@@ -101,20 +123,28 @@
                       <b-button type="submit" @click.prevent="sendCommentReport(index, indexComment)" class="commentBtn">Envoyer</b-button>
                     </b-form-group>
                   </b-modal>
+
+                  <!--COMMENTS AUTHOR + CONTENT-->
                   <div class="col-12 row justify-content-sm-between align-items-center comment">
                     <div class="userComment d-flex flex-column">
+                      <!--LINK TO COMMENT AUTHOR PROFILE-->
                       <router-link :to="`/profile/${comment.UserId}`"><img :src="comment.User.url_profile_picture" :alt="comment.User.alt_profile_picture" class="img-fluid imgComment"/></router-link>
                       <h4>{{ comment.User.username}}</h4>
                     </div>
                     <div class="commentText">{{ comment.comment }}</div>
                   </div>
-                  <div class="d-flex row justify-content-center" v-if="comment.User.id === currentUser.id">
+
+                  <!--ADMIN PANEL IF USER IS ADMIN OR COMMENT AUTHOR-->
+                  <div class="d-flex row justify-content-center" v-if="comment.User.id === currentUser.id || currentUser.infos.role.includes('admin')">
+                    <!--MODAL - DELETE COMMENT-->
                     <i v-b-modal="modalCommentId(index, indexComment, 'delete')" class="fas fa-trash-alt"><span>Supprimer le commentaire</span></i>
                     <b-modal ok-title="Supprimer" ok-variant="danger" cancel-title="Annuler" cancel-variant="info" :id="'modalComment' + index + indexComment + 'delete'" title="Suppression du Commenntaire" @ok="deleteComment(index, indexComment), showAlertSuccess('Commentaire supprimé !')">
                       <div class="my-4">
                         Êtes vous sûr(e) de vouloir supprimer ce commentaire ?
                       </div>
                     </b-modal>
+
+                    <!--MODAL - UPDATE COMMENT-->
                     <i v-b-modal="modalCommentId(index, indexComment, 'update')" class="far fa-edit" @click="setCommentValue(indexComment, index)"><span>Modifier le commentaire</span></i>
                     <b-modal ok-only ok-title="Cancel" :id="'modalComment' + index + indexComment + 'update'" title="Modification du Commentaire">
                       <div class="my-4">
@@ -138,8 +168,10 @@
                   </div>
                 </div>
               </div>
+
+              <!--ADD COMMENT-->
               <div>
-                <button type="button" class="btn commentBtn" @click="showTextArea()">Ajouter un commentaire</button>
+                <button type="button" class="btn commentBtn rounded-pill" @click="showTextArea()">Ajouter un commentaire</button>
                 <b-form-group v-if="userComment.clicked">
                   <b-form-textarea
                     label="Votre commentaire :"
@@ -151,19 +183,25 @@
                     rows="3"
                     max-rows="6"
                   ></b-form-textarea>
-                  <b-button type="submit" @click.prevent="addComment(index)" class="commentBtn">Commenter</b-button>
+                  <b-button type="submit" @click.prevent="addComment(index)" class="rounded-pill commentBtn">Commenter</b-button>
                 </b-form-group>
               </div>
             </b-modal>
           </div>
+
+          <!--LIKES-->
           <div>
+            <!--LIKES ICON-->
             <i v-if="!hasAlreadyLiked(index)" v-b-modal="modalLikeId(index, 'like')" @click="getLikes(index)" class="far fa-thumbs-up"><span>{{ post.Likes.length }}</span></i>
             <i v-else v-b-modal="modalLikeId(index, 'like')" @click="getLikes(index)" class="fas fa-thumbs-up"><span>{{ post.Likes.length }}</span></i>
+
+            <!--MODAL - GET LIKES-->
             <b-modal ok-only ok-title="Fermer" ok-variant="warning" :id="'modalLike' + index + 'like'" title="Like(s) du post" @ok="getPosts(index)" @close="getPosts(index)">
               <div class="my-4 d-flex row align-items-center col-12 justify-content-between" v-for="like in likes" :key="like.id" id="like">
                 <router-link :to="`/profile/${like.id}`"><img :src="like.url_profile_picture" :alt="like.alt_profile_picture" class="img-fluid imgComment"/></router-link>
                 <h4 class="d-flex username">{{ like.username }}</h4>
               </div>
+              <!--CHANGING BUTTON LIKE/DISLIKE-->
               <b-btn pill class="d-flex m-auto" :variant="btnLikeVariant" @click="createLike(index), showAlertSuccess()">{{ btnLike }}</b-btn>
             </b-modal>
           </div>
@@ -352,6 +390,7 @@ export default {
         this.$store.dispatch('posts/sendPostReport', payload)
           .then(() => {
             this.postReport = null
+            this.$store.dispatch('messageWaiting')
           }).catch(error => {
             if (error.message.split('code ')[1].includes('500')) {
               this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
@@ -494,6 +533,7 @@ export default {
         this.$store.dispatch('posts/sendCommentReport', payload)
           .then(() => {
             this.commentReport = null
+            this.$store.dispatch('messageWaiting')
           }).catch(() => {
             this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
           })
@@ -582,7 +622,6 @@ export default {
   .commentBtn{
     background-color: #2C3F5F;
     color: white;
-    border-radius: 25px;
     display: flex;
     margin: 5% auto 5% auto;
   }
@@ -676,6 +715,9 @@ export default {
   }
   h1{
     font-size: 25px;
+  }
+  h3, h4{
+    font-size: 20px;
   }
   label, input{
     margin-bottom: 5%;

@@ -3,6 +3,8 @@
       <h1>Bienvenue sur notre réseau social !</h1>
       <div class="d-flex align-items-center justify-content-center">
         <b-tabs content-class="mt-3" id="tab1">
+
+          <!--CONNEXION FORM-->
           <b-tab title="Connexion" active>
             <div class="formConnexion">
               <h2>Connectez-vous !</h2>
@@ -34,6 +36,8 @@
               <b-button pill type="submit" href="#" @click.prevent="logMe">Connexion</b-button>
             </div>
           </b-tab>
+
+          <!--SIGNUP FORM-->
           <b-tab title="Inscription">
             <div class="formConnexion">
               <h2>Incrivez-vous !</h2>

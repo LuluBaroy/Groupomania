@@ -103,3 +103,56 @@ exports.readAllPending = (req, res, next) => {
 			}
 		}).catch(err => res.status(500).json(err))
 }
+
+exports.delete = (req, res, next) => {
+	const headerAuth = req.headers['authorization'];
+	let userId = jwtUtils.getUserId(headerAuth);
+	models.Users.findOne({where: {id: userId}})
+		.then(admin => {
+			let role = JSON.parse(admin.role);
+			if (!role.includes('admin')) {
+				res.status(400).json({message: `You're not allowed for this route !`})
+			} else {
+				models.UserIssues.destroy({where: {id: req.params.id}})
+					.then(() => {
+						res.status(200).json({ message: `The user issue has been deleted !`})
+					}).catch(err => res.status(500).json(err))
+			}
+		}).catch(err => res.status(500).json(err))
+}
+
+exports.readMessageWaiting = (req, res, next) => {
+	const headerAuth = req.headers['authorization'];
+	let userId = jwtUtils.getUserId(headerAuth);
+	models.Users.findOne({where: {id: userId}})
+		.then(admin => {
+			let role = JSON.parse(admin.role);
+			if (!role.includes('admin')) {
+				res.status(400).json({message: `You're not allowed for this route !`})
+			} else {
+				models.UserIssues.findAll({where: {status: 'pending'}}, {
+					order: [
+						['id', 'DESC']
+					]
+				}).then(issues => {
+					models.PostsReport.findAll({where: {status: 'pending'}}, {
+						order: [
+							['id', 'DESC']
+						]
+					})
+						.then(postReports => {
+							models.CommentsReport.findAll({where: {status: 'pending'}}, {
+								order: [
+									['id', 'DESC']
+								]
+							})
+								.then(commentReports => {
+									let total = issues.length + postReports.length + commentReports.length
+									res.status(200).json({issues, postReports, commentReports, total})
+								})
+								.catch(err => res.status(500).json(err))
+						}).catch(err => res.status(500).json(err))
+				})
+			}
+		})
+}

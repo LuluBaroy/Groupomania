@@ -97,6 +97,18 @@ export const user = {
           return Promise.reject(error)
         }
       )
+    },
+    updatePrivilege ({ commit }, id) {
+      return UserRoutes.updatePrivilege(id).then(
+          (response) => {
+            commit('updatePrivilegeSuccess', response)
+            return Promise.resolve(response)
+          },
+          (error) => {
+            commit('updatePrivilegeFailure')
+            return Promise.reject(error)
+          }
+      )
     }
   },
   mutations: {
@@ -126,6 +138,8 @@ export const user = {
       state.currentUser.infos = user.data
       state.loggedIn = true
     },
-    getCurrentUserFailure () {}
+    getCurrentUserFailure () {},
+    updatePrivilegeSuccess () {},
+    updatePrivilegeFailure () {}
   }
 }

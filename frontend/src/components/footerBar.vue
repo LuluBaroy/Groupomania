@@ -1,9 +1,12 @@
 <template>
   <div class="container-fluid navbarbg">
+    <!--MODAL - COMING SOON - REPLACE WITH LINK TO COMPANY WEBSITE-->
     <b-button v-b-modal.site class="col-3 btn"><img src="../assets/img/logoFooter.png" alt="Logo Groupomania"></b-button>
     <b-modal ok-only ok-variant="info" ok-title="Fermer" id="site" title="Bientôt disponible !">
       <img src="../assets/img/comingSoon.png" alt="Le site de l'entreprise bientôt disponible !" class="img-fluid">
     </b-modal>
+
+    <!--MODAL - CONTACT US - FOR ANY USER ISSUE-->
     <b-button class="col-3 btn" @click="showModal()"><span>Nous contacter</span></b-button>
     <b-modal ref="contact" title="Nous contacter" ok-only ok-title="Fermer" ok-variant="info">
       <p class="text-center mb-3">Pour vos différentes questions vous pouvez vous rendre sur notre rubrique FAQ<br>
@@ -59,6 +62,8 @@
         </b-card>
       </b-collapse>
     </b-modal>
+
+    <!--LINK TO FAQ-->
     <b-button class="col-3 btn"><router-link :to="{name: 'faq'}"><span>FAQ</span></router-link></b-button>
   </div>
 </template>
@@ -90,6 +95,7 @@ export default {
           this.firstName = ''
           this.email = ''
           this.issue = ''
+          this.$store.dispatch('messageWaiting')
         })
         .catch(() => {
           this.showAlertError('Une erreur est survenue, merci de réessayer ultérieurement !', '4000')
