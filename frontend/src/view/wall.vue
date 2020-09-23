@@ -2,6 +2,8 @@
   <div class="container">
     <div class="col-lg-12 flex-column preWall">
       <div class="d-flex flex-column col-8 m-auto">
+
+        <!--WELCOMING CAROUSEL-->
         <b-carousel
           id="carousel-1"
           :interval="15000"
@@ -18,7 +20,9 @@
           </b-carousel-slide>
         </b-carousel>
       </div>
-      <b-nav-form id="test">
+
+      <!--SEARCH BAR-->
+      <b-nav-form id="searchBar">
         <b-form-input placeholder="Rechercher un utilisateur" id="barSearch" v-model="userResearch"></b-form-input>
         <b-button v-b-modal.researchModal id="btnSearch" type="submit" @click.prevent="research()"><i class="fas fa-search"></i></b-button>
           <b-modal v-if="showModal" id="researchModal" title="Utilisateur(s) correspondant(s) à votre recherche :" ok-only ok-variant="info" @hidden="clearResearch()">
@@ -29,12 +33,21 @@
             </div>
           </b-modal>
       </b-nav-form>
+
+      <!--USER PART - SEE COMPONENT 'wall_userPart.vue'-->
       <user-part></user-part>
+
+      <!--DIVIDER-->
       <div class="divider col-12">
         <h2><img src="../assets/img/divider.png" alt="logo groupomania"/>Dernières actualités<img src="../assets/img/divider.png" alt="logo groupomania"/></h2>
       </div>
+
+      <!--POST PART - SEE COMPONENT 'wall_postPart.vue'-->
       <posts-part></posts-part>
+
     </div>
+
+    <!--END DIVIDER-->
     <div id="divider_end">
       <img src="../assets/img/divider_end.png" alt="divider" class="img-fluid"/>
       <p v-if="posts.length !== 0">Fin des posts</p>
@@ -139,7 +152,7 @@ export default {
     border: 4px solid #2C3F5F;
     box-shadow: 0 0 6px black;
   }
-  #test{
+  #searchBar{
     border-top: 4px double #2C3F5F;
     border-bottom: 4px double #2C3F5F;
     margin: 4% auto;

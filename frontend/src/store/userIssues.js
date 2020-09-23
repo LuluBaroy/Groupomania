@@ -4,7 +4,8 @@ export const issues = {
   state: {
     allIssues: '',
     allPendingIssues: '',
-    oneIssue: ''
+    oneIssue: '',
+    messageWaiting: ''
   },
   actions: {
     createIssue ({ commit }, data) {
@@ -15,18 +16,6 @@ export const issues = {
         },
         (error) => {
           commit('createIssueFailure')
-          return Promise.reject(error)
-        }
-      )
-    },
-    readOneIssue ({ commit }, id) {
-      return UserIssues.readOneIssue(id).then(
-        (response) => {
-          commit('readOneIssueSuccess', response)
-          return Promise.resolve(response)
-        },
-        (error) => {
-          commit('readOneIssueFailure')
           return Promise.reject(error)
         }
       )
@@ -66,6 +55,30 @@ export const issues = {
           return Promise.reject(error)
         }
       )
+    },
+    deleteIssue ({ commit }, id) {
+      return UserIssues.deleteIssue(id).then(
+          (response) => {
+            commit('deleteIssueSuccess', response)
+            return Promise.resolve(response)
+          },
+          (error) => {
+            commit('deleteIssueFailure')
+            return Promise.reject(error)
+          }
+      )
+    },
+    messageWaiting ({ commit }) {
+      return UserIssues.messageWaiting().then(
+          (response) => {
+            commit('messageWaitingSuccess', response)
+            return Promise.resolve(response)
+          },
+          (error) => {
+            commit('messageWaitingFailure')
+            return Promise.reject(error)
+          }
+      )
     }
   },
   mutations: {
@@ -84,6 +97,12 @@ export const issues = {
     },
     readAllPendingFailure () {},
     updateIssueSuccess () {},
-    updateIssueFailure () {}
+    updateIssueFailure () {},
+    deleteIssueSuccess () {},
+    deleteIssueFailure () {},
+    messageWaitingFailure () {},
+    messageWaitingSuccess (state, response) {
+      state.messageWaiting = response.data
+    }
   }
 }

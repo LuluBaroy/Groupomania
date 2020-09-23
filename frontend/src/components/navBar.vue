@@ -1,9 +1,12 @@
 <template>
   <div class="container-fluid row align-items-center p-2">
-    <router-link :to="{name: 'wall'}" class="col-1 p-0" :style="{visibility: visibilityTest ? 'visible' : 'hidden'}"><i class="far fa-arrow-alt-circle-left d-flex flex-column"><span class="mt-2">Retour accueil</span></i></router-link>
+    <!--LINK RETURN-->
+    <router-link :to="{name: 'wall'}" class="col-1 p-0" :style="{visibility: visibilityTest ? 'visible' : 'hidden'}"><i class="far fa-arrow-alt-circle-left d-flex flex-column"><span class="mt-2">Retour</span></i></router-link>
     <div class="container">
+      <!--LOGO-->
       <img src="../assets/img/logo.png" class="col-10" alt="Logo Groupomania">
     </div>
+    <!--DISCONNECTION BUTTON-->
     <i :style="{visibility: this.$cookies.isKey('user') ? 'visible' : 'hidden'}" class="fas fa-power-off col-1 d-flex flex-column" @click.prevent="removeCookie"><span class="mt-2">Quitter</span></i>
   </div>
 </template>
@@ -42,6 +45,7 @@ a{
 }
 a:hover{
   color: lightgray;
+  text-decoration: none;
 }
 img{
   object-fit: scale-down;

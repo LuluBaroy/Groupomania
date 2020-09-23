@@ -97,33 +97,37 @@ exports.update = (req, res, next) => {
 		res.status(400).json({ message: `You're not authenticated, please login ! `})
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
-		models.Posts.findOne({ where: { id: req.params.id }})
-			.then((post) => {
-				if(post && userId === post.user_id){
-					let urlGif, altGif;
-					if(req.file){
-						if(post.url_gif !== null){
-							const filename = post.url_gif.split('/images/')[1];
-							fs.unlink(`images/${filename}`, () => {
-								//
-							})
+		models.Users.findOne({where: {id: userId}})
+			.then((user) => {
+				models.Posts.findOne({ where: { id: req.params.id }})
+				.then((post) => {
+					if(post && userId === post.user_id || JSON.parse(user.role).includes('admin')){
+						let urlGif, altGif;
+						if(req.file){
+							if(post.url_gif !== null){
+								const filename = post.url_gif.split('/images/')[1];
+								fs.unlink(`images/${filename}`, () => {
+									//
+								})
+							}
+							urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+							altGif = "GIF partagé par l'utilisateur"
+						} else {
+							urlGif = post.url_gif;
+							altGif = "GIF partagé par l'utilisateur"
 						}
-						urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-						altGif = "GIF partagé par l'utilisateur"
+						models.Posts.update({ ...req.body, url_gif: urlGif, alt_gif: altGif }, { where: { id: req.params.id }})
+							.then(() => {
+								res.status(201).json({ message: `Your post has been updated !`})
+							})
+							.catch((err) => res.status(500).json(err))
 					} else {
-						urlGif = post.url_gif;
-						altGif = "GIF partagé par l'utilisateur"
+						res.status(403).json({ message: `You're not allowed to update this post ! `})
 					}
-					models.Posts.update({ ...req.body, url_gif: urlGif, alt_gif: altGif }, { where: { id: req.params.id }})
-						.then(() => {
-							res.status(201).json({ message: `Your post has been updated !`})
-						})
-						.catch((err) => res.status(500).json(err))
-				} else {
-					res.status(403).json({ message: `You're not allowed to update this post ! `})
-				}
+				})
+				.catch((err) => res.status(404).json({ message: `This post doesn't exist `, err}))
 			})
-			.catch((err) => res.status(404).json({ message: `This post doesn't exist `, err}))
+
 	}
 
 }

@@ -24,7 +24,7 @@ exports.signup = (req, res, next) => {
 	} else {
 		if(schema.validate(req.body.password)) {
 			let role;
-			let consents = JSON.stringify({'sharable': false, 'contactable': false})
+			let consents = JSON.stringify({'shareable': false, 'contactable': false})
 			models.Users.findAll()
 				.then(users => {
 					if(users.length === 0){
@@ -232,7 +232,9 @@ exports.readAll = (req, res, next) => {
 					users.push({
 						id: allUsers[i].id,
 						username: allUsers[i].username,
-						email: allUsers[i].email
+						email: allUsers[i].email,
+						url_profile_picture: allUsers[i].url_profile_picture,
+						alt_profile_picture: allUsers[i].alt_profile_picture
 					})
 				}
 				res.status(200).json({message: `Here are all users`, users})
@@ -248,31 +250,24 @@ exports.updatePrivilege = (req, res, next) => {
 	let userId = jwtUtils.getUserId(headerAuth);
 	models.Users.findOne({where: {id: userId}})
 		.then(admin => {
-			bcrypt.compare(req.body.password, admin.password)
-				.then(valid => {
-					if (!valid) {
-						res.status(400).json({message: `Wrong Password ! `})
-					} else {
-						let role = JSON.parse(admin.role);
-						if (!role.includes('admin')) {
-							res.status(400).json({message: `You're not allowed for this route !`})
+			let role = JSON.parse(admin.role);
+			if (!role.includes('admin')) {
+				res.status(400).json({message: `You're not allowed for this route !`})
+			} else {
+				models.Users.findOne({where: {id: req.params.id}})
+					.then(user => {
+						let roleUser = JSON.parse(user.role)
+						if (roleUser.includes('admin')) {
+							roleUser = ['user']
 						} else {
-							models.Users.findOne({where: {id: req.params.id}})
-								.then(user => {
-									let roleUser = JSON.parse(user.role)
-									if (roleUser.includes('admin')) {
-										roleUser = ['user']
-									} else {
-										roleUser = ['user', 'admin'];
-									}
-									let newRole = JSON.stringify(roleUser)
-									models.Users.update({role: newRole}, {where: {id: req.params.id}})
-										.then(() => {
-											res.status(200).json({message: `This user's privilege has been updated to : ${roleUser} ! `})
-										}).catch(err => res.status(500).json(err))
-								}).catch(err => res.status(500).json(err))
+							roleUser = ['user', 'admin'];
 						}
-					}
-				}).catch(err => res.status(500).json(err))
+						let newRole = JSON.stringify(roleUser)
+						models.Users.update({role: newRole}, {where: {id: req.params.id}})
+							.then(() => {
+								res.status(200).json({message: `This user's privilege has been updated to : ${roleUser} ! `})
+							}).catch(err => res.status(500).json(err))
+					}).catch(err => res.status(500).json(err))
+			}
 		}).catch(err => res.status(500).json(err))
 }

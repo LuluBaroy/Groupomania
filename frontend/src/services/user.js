@@ -51,6 +51,12 @@ class UserRoutes {
         throw err
       })
   }
+  updatePrivilege (id) {
+      return axios.put(url + id + '/update_privilege', '', { headers: auth() })
+          .catch((err) => {
+              throw err
+          })
+  }
 }
 
 export default new UserRoutes()

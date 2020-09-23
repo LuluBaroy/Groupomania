@@ -1,13 +1,18 @@
 <template>
   <div id="faq">
+    <!--FAQ VIEW-->
     <h1>Bienvenue sur notre section Foire aux Questions !</h1>
     <h2>Quel est votre problème ?</h2>
     <div class="d-flex align-items-center justify-content-center col-7 m-auto">
       <b-tabs content-class="mt-3" id="tab2" class="col-12" align="center">
+
+        <!--LOGIN/SIGNUP ISSUES-->
         <b-tab title="M'inscrire/Me connecter">
           <div class="accordion" role="tablist">
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO SIGNUP ?-->
                 <b-button block v-b-toggle.accordion-1 variant="info">Comment m'inscrire ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-1" accordion="my-accordion" role="tabpanel">
@@ -25,6 +30,8 @@
             </b-card>
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO LOGIN ?-->
                 <b-button block v-b-toggle.accordion-2 variant="info">Comment me connecter ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-2" accordion="my-accordion" role="tabpanel">
@@ -41,10 +48,14 @@
             </b-card>
           </div>
         </b-tab>
+
+        <!--POSTS ISSUES-->
         <b-tab title="Posts">
           <div class="accordion" role="tablist">
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO PUBLISH POST ?-->
                 <b-button block v-b-toggle.accordion-3 variant="info">Comment publier un post ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-3" accordion="my-accordion" role="tabpanel">
@@ -60,6 +71,8 @@
             </b-card>
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO EDIT POST ?-->
                 <b-button block v-b-toggle.accordion-4 variant="info">Comment modifier mon post ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-4" accordion="my-accordion" role="tabpanel">
@@ -74,6 +87,8 @@
             </b-card>
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO DELETE POST ?-->
                 <b-button block v-b-toggle.accordion-5 variant="info">Comment supprimer mon post ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-5" accordion="my-accordion" role="tabpanel">
@@ -88,6 +103,8 @@
             </b-card>
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO REPORT POST-->
                 <b-button block v-b-toggle.accordion-6 variant="info">Comment signaler un post ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-6" accordion="my-accordion" role="tabpanel">
@@ -103,10 +120,14 @@
             </b-card>
           </div>
         </b-tab>
+
+        <!--COMMENTS ISSUES-->
         <b-tab title="Commentaires">
           <div class="accordion" role="tablist">
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO COMMENT ?-->
                 <b-button block v-b-toggle.accordion-7 variant="info">Comment commenter une publication ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-7" accordion="my-accordion" role="tabpanel">
@@ -123,6 +144,8 @@
             </b-card>
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO EDIT COMMENT ?-->
                 <b-button block v-b-toggle.accordion-8 variant="info">Comment modifier mon commentaire ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-8" accordion="my-accordion" role="tabpanel">
@@ -137,6 +160,8 @@
             </b-card>
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO DELETE COMMENT ?-->
                 <b-button block v-b-toggle.accordion-9 variant="info">Comment supprimer mon commentaire ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-9" accordion="my-accordion" role="tabpanel">
@@ -151,6 +176,8 @@
             </b-card>
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO REPORT COMMENT ?-->
                 <b-button block v-b-toggle.accordion-10 variant="info">Comment signaler un commentaire ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-10" accordion="my-accordion" role="tabpanel">
@@ -166,10 +193,14 @@
             </b-card>
           </div>
         </b-tab>
+
+        <!--LIKES ISSUES-->
         <b-tab title="Likes">
           <div class="accordion" role="tablist">
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO LIKE A POST ?-->
                 <b-button block v-b-toggle.accordion-11 variant="info">Comment liker un post ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-11" accordion="my-accordion" role="tabpanel">
@@ -186,6 +217,8 @@
             </b-card>
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO DISLIKE A POST ?-->
                 <b-button block v-b-toggle.accordion-12 variant="info">Comment disliker un post ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-12" accordion="my-accordion" role="tabpanel">
@@ -202,10 +235,14 @@
             </b-card>
           </div>
         </b-tab>
+
+        <!--ACCOUNT ISSUES-->
         <b-tab title="Votre compte">
           <div class="accordion" role="tablist">
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO DISCONNECT ?-->
                 <b-button block v-b-toggle.accordion-13 variant="info">Comment me déconnecter ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-13" accordion="my-accordion" role="tabpanel">
@@ -219,6 +256,8 @@
             </b-card>
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO GO ON MY ACCOUNT ?-->
                 <b-button block v-b-toggle.accordion-14 variant="info">Comment accéder à mon compte ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-14" accordion="my-accordion" role="tabpanel">
@@ -232,6 +271,8 @@
             </b-card>
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO EDIT MY INFO ?-->
                 <b-button block v-b-toggle.accordion-15 variant="info">Comment modifier mes informations ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-15" accordion="my-accordion" role="tabpanel">
@@ -245,6 +286,8 @@
             </b-card>
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO DOWNLOAD MY INFOS ?-->
                 <b-button block v-b-toggle.accordion-16 variant="info">Comment télécharger mes informations ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-16" accordion="my-accordion" role="tabpanel">
@@ -259,6 +302,8 @@
             </b-card>
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO DELETE MY ACCOUNT ?-->
                 <b-button block v-b-toggle.accordion-17 variant="info">Comment supprimer mon compte ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-17" accordion="my-accordion" role="tabpanel">
@@ -273,6 +318,8 @@
             </b-card>
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO EDIT MY CONSENTS ?-->
                 <b-button block v-b-toggle.accordion-18 variant="info">Comment modifier mon consentement pour le traitement de mes données ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-18" accordion="my-accordion" role="tabpanel">
@@ -287,10 +334,14 @@
             </b-card>
           </div>
         </b-tab>
+
+        <!--OTHER USER ISSUES-->
         <b-tab title="Utilisateurs">
           <div class="accordion" role="tablist">
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO SEARCH FOR ANOTHER USER ?-->
                 <b-button block v-b-toggle.accordion-19 variant="info">Comment rechercher un autre utilisateur ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-19" accordion="my-accordion" role="tabpanel">
@@ -307,6 +358,8 @@
             </b-card>
             <b-card no-body class="mb-1">
               <b-card-header header-tag="header" class="p-1" role="tab">
+
+                <!--HOW TO GO ON ANOTHER USER ACCOUNT ?-->
                 <b-button block v-b-toggle.accordion-20 variant="info">Comment accéder au profil d'un autre utilisateur ?</b-button>
               </b-card-header>
               <b-collapse id="accordion-20" accordion="my-accordion" role="tabpanel">
@@ -319,6 +372,8 @@
             </b-card>
           </div>
         </b-tab>
+
+        <!--ISSUE NOT LISTED-->
         <b-tab title="Autre ?">
           <b-card no-body class="mb-1">
             <b-card-header header-tag="header" class="p-1" role="tab">

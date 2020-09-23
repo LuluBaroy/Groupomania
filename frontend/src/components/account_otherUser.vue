@@ -1,29 +1,44 @@
 <template>
   <div class="container p-2" id="containerbg">
+    <!--OTHER USER INFO-->
     <h1 class="titleConfig rounded-pill mb-5">Compte utilisateur</h1>
     <div class="d-flex row align-items-center justify-content-center col-12 mb-5" id="userPart">
       <img :src="infos.url_profile_picture" class="userPhoto">
       <h2 class="col-4">{{ infos.username }}</h2>
     </div>
+
+    <!--OTHER USER POSTS-->
     <div class="d-flex flex-column align-items-center container">
       <h2 class="titleConfig rounded-pill col-12 p-2 mb-5">Ses publications</h2>
+
+      <!--NO POST PUBLISHED-->
       <div v-if="userPosts.length === 0" class="d-flex flex-column align-items-center justify-content-md-between col-10">
         <h3 class="m-auto pt-3">{{ infos.username }} n'a rien posté !</h3>
         <p class="m-auto mt-2">Retrouvez toutes les publications sur le <router-link to="/wall">mur principal !</router-link></p>
         <img src="../assets/img/hello.gif" alt="hello gif" class="img-fluid imgPosts">
       </div>
+
+      <!--ALL USER'S POSTS-->
       <div class="d-flex mb-5 container-fluid row allPosts justify-content-center align-items-center" v-for="(post, index) in userPosts" :key="index">
         <div class="d-flex col-9 justify-content-center m-auto align-items-center formPart">
           <div class="d-flex col-9 flex-column">
+
+            <!--POST TITLE + CONTENT + GIF-->
             <h3 class="m-4">{{ post.title }}</h3>
             <p v-html="getLinks(post.content)"></p>
             <img :src="post.url_gif" v-if="post.url_gif" :alt="post.alt_gif" class="img-fluid imgPosts"/>
             <div class="d-flex row col-6 justify-content-around m-auto">
+
+              <!--COMMENTS ICON-->
               <i v-if="!hasCommented(index)" v-b-modal="modalPostId(index, 'comments')" @click="getComments(index)" class="far fa-comments"><span>{{ post.Comments.length }}</span></i>
               <i v-else v-b-modal="modalPostId(index, 'comments')" @click="getComments(index)" class="fas fa-comments"><span>{{ post.Comments.length }}</span></i>
+
+              <!--MODAL - GET COMMENTS-->
               <b-modal :id="'modalPost' + index + 'comments'" title="Commentaire(s) du post" @close="getUserPosts()" @cancel="getUserPosts()" @ok="getUserPosts()">
                 <div class="my-4 commentsConfig" v-for="(comment, indexComment) in comments" :key="comment.id">
                   <div class="d-flex justify-content-end flex-column" v-if="comment.PostId === userPosts[index].id">
+
+                    <!--MODAL - REPORT COMMENT-->
                     <i class="far fa-flag" v-b-modal="modalCommentId(index, indexComment, 'report')"></i>
                     <b-modal :id="'modalComment' + index + indexComment + 'report'" title="Signaler le contenu du Commentaire" @close="getComments(index)" @cancel="getComments(index)" @ok="getComments(index)">
                       <b-form-group class="d-flex flex-column col-12 mt-4">
@@ -38,23 +53,32 @@
                           rows="3"
                           max-rows="6"
                         ></b-form-textarea>
-                        <b-button type="submit" @click.prevent="sendCommentReport(index, indexComment)" class="commentBtn">Envoyer</b-button>
+                        <b-button type="submit" @click.prevent="sendCommentReport(index, indexComment)" class="commentBtn rounded-pill">Envoyer</b-button>
                       </b-form-group>
                     </b-modal>
+
+                    <!--COMMENT AUTHOR + CONTENT-->
                     <div class="col-12 row justify-content-sm-between align-items-center comment">
                       <div class="userComment d-flex flex-column">
+                        <!--LINK TO AUTHOR PROFILE-->
                         <router-link :to="`/profile/${comment.UserId}`"><img :src="comment.User.url_profile_picture" :alt="comment.User.alt_profile_picture" class="img-fluid imgComment"/></router-link>
                         <h4>{{ comment.User.username}}</h4>
                       </div>
                       <div class="commentText">{{ comment.comment }}</div>
                     </div>
-                    <div class="d-flex row justify-content-center" v-if="comment.User.id === currentUser.id">
+
+                    <!--COMMENT PANEL IF CURRENT USER IS ADMIN OR COMMENT AUTHOR-->
+                    <div class="d-flex row justify-content-center" v-if="comment.User.id === currentUser.id || currentUser.infos.role.includes('admin')">
+
+                      <!--MODAL - DELETE COMMENT-->
                       <i v-b-modal="modalCommentId(index, indexComment, 'delete')" class="fas fa-trash-alt"><span>Supprimer le commentaire</span></i>
                       <b-modal ok-title="Supprimer" ok-variant="danger" cancel-title="Annuler" cancel-variant="info" :id="'modalComment' + index + indexComment + 'delete'" title="Suppression du Commenntaire" @ok="deleteComment(index, indexComment), showAlertSuccess('Commentaire supprimé !')">
                         <div class="my-4">
                           Êtes vous sûr(e) de vouloir supprimer ce commentaire ?
                         </div>
                       </b-modal>
+
+                      <!--MODAL - EDIT COMMENT-->
                       <i v-b-modal="modalCommentId(index, indexComment, 'update')" class="far fa-edit" @click="setCommentValue(indexComment, index)"><span>Modifier le commentaire</span></i>
                       <b-modal ok-only ok-title="Cancel" :id="'modalComment' + index + indexComment + 'update'" title="Modification du Commentaire">
                         <div class="my-4">
@@ -70,7 +94,7 @@
                                 rows="3"
                                 max-rows="6"
                               ></b-form-textarea>
-                              <b-button type="submit" @click.prevent="updateComment(index, indexComment), showAlertSuccess('Commentaire modifié !')" class="commentBtn">Modifier</b-button>
+                              <b-button type="submit" @click.prevent="updateComment(index, indexComment), showAlertSuccess('Commentaire modifié !')" class="commentBtn rounded-pill">Modifier</b-button>
                             </b-form-group>
                           </b-form>
                         </div>
@@ -79,7 +103,9 @@
                   </div>
                 </div>
                 <div>
-                  <button type="button" class="btn commentBtn" @click="showTextArea()">Ajouter un commentaire</button>
+
+                  <!--ADD COMMENT-->
+                  <b-button type="button" class="btn commentBtn rounded-pill" @click="showTextArea()">Ajouter un commentaire</b-button>
                   <b-form-group v-if="userComment.clicked">
                     <b-form-textarea
                       label="Votre commentaire :"
@@ -91,23 +117,30 @@
                       rows="3"
                       max-rows="6"
                     ></b-form-textarea>
-                    <b-button type="submit" @click.prevent="addComment(index)" class="commentBtn">Commenter</b-button>
+                    <b-button type="submit" @click.prevent="addComment(index)" class="commentBtn rounded-pill">Commenter</b-button>
                   </b-form-group>
                 </div>
               </b-modal>
+
+              <!--LIKES ICON-->
               <i v-if="!hasAlreadyLiked(index)" v-b-modal="modalLikeId(index, 'like')" @click="getLikes(index)" class="far fa-thumbs-up"><span>{{ post.Likes.length }}</span></i>
               <i v-else v-b-modal="modalLikeId(index, 'like')" @click="getLikes(index)" class="fas fa-thumbs-up"><span>{{ post.Likes.length }}</span></i>
+
+              <!--MODAL - GET LIKES-->
               <b-modal ok-only ok-title="Fermer" ok-variant="warning" :id="'modalLike' + index + 'like'" title="Like(s) du post" @ok="getUserPosts()" @close="getUserPosts()">
                 <div class="my-4 d-flex row align-items-center col-12 justify-content-between" v-for="like in likes" :key="like.id" id="like">
                   <router-link :to="`/profile/${like.id}`"><img :src="like.url_profile_picture" :alt="like.alt_profile_picture" class="img-fluid imgComment"/></router-link>
                   <h4 class="d-flex username">{{ like.username }}</h4>
                 </div>
+                <!--CHANGING BUTTON LIKE/DISLIKE-->
                 <b-btn pill class="d-flex m-auto" :variant="btnLikeVariant" @click="createLike(index), showAlertSuccess()">{{ btnLike }}</b-btn>
               </b-modal>
             </div>
           </div>
         </div>
         <div class="col-2">
+
+          <!--MODAL - REPORT POST-->
           <i class="far fa-flag" v-b-modal="modalPostId(index, 'report')"><span>Signaler le post</span></i>
           <b-modal :id="'modalPost' + index + 'report'" title="Signaler le contenu du Post" @close="getUserPosts" @cancel="getUserPosts" @ok="getUserPosts">
             <b-form-group class="d-flex flex-column col-12 mt-4">
@@ -122,10 +155,35 @@
                 rows="3"
                 max-rows="6"
               ></b-form-textarea>
-              <b-button type="submit" @click.prevent="sendPostReport(index)" class="commentBtn">Envoyer</b-button>
+              <b-button type="submit" @click.prevent="sendPostReport(index)" class="commentBtn rounded-pill">Envoyer</b-button>
             </b-form-group>
           </b-modal>
         </div>
+      </div>
+    </div>
+
+    <!--ADMIN PANEL IF CURRENT USER IS ADMIN-->
+    <div v-if="currentUser.infos.role.includes('admin')" class="d-flex flex-column align-items-center container mb-5">
+      <h2 class="titleConfig rounded-pill col-12 p-2 mb-5">Options pour {{ infos.username }}</h2>
+      <div class="d-flex row align-items-center justify-content-between col-10">
+        <div class="d-flex flex-column">
+
+          <!--UPDATE USER ROLE-->
+          <h3>Privilège(s) de {{ infos.username }}</h3>
+          <p>Actuellement {{ infos.username }} dispose des droits suivants : <span>{{ userRole.toUpperCase() }}</span></p>
+          <b-button class="rounded-pill" variant="info" @click="updatePrivilege()">Modifier les privilèges</b-button>
+        </div>
+
+        <!--CONTACT USER-->
+        <b-button class="rounded-pill" variant="warning" :href="'mailto:' + infos.email">Envoyer un mail à {{ infos.username }}</b-button>
+
+        <!--MODAL - DELETE USER ACCOUNT-->
+        <b-button class="rounded-pill" variant="danger" v-b-modal.deleteUser>Supprimer {{ infos.username }}</b-button>
+        <b-modal ok-title="Supprimer" ok-variant="danger" cancel-title="Annuler" cancel-variant="info" id="deleteUser" :title="'Suppression du compte de ' + infos.username" @ok="deleteUser()">
+          <div class="my-4">
+            Êtes vous sûr(e) de vouloir supprimer le compte de {{ infos.username }} ?
+          </div>
+        </b-modal>
       </div>
     </div>
   </div>
@@ -141,6 +199,7 @@ export default {
       infos: {},
       posts: {},
       likes: '',
+      showModal: false,
       btnLike: '',
       btnLikeVariant: '',
       userComment: {
@@ -148,7 +207,8 @@ export default {
         clicked: false
       },
       commentReport: null,
-      postReport: null
+      postReport: null,
+      userRole: ''
     }
   },
   computed: {
@@ -168,6 +228,25 @@ export default {
     }
   },
   methods: {
+    deleteUser () {
+      this.$store.dispatch('user/deleteUser', this.$route.params.id)
+        .then(() => {
+          this.showAlertSuccess('Utilisateur Supprimé')
+          this.$router.push({name: 'wall'})
+        })
+    },
+    updatePrivilege () {
+      let id = this.infos.id
+      this.$store.dispatch('user/updatePrivilege', id)
+        .then(() => {
+          this.$store.dispatch('user/getOneUser', this.$route.params.id)
+            .then((response) => {
+              this.showAlertSuccess(`Les privilèges de ${response.data.username} ont été modifiés : ${JSON.parse(response.data.role).join(', ')}!`, '2500')
+              this.infos = response.data
+              this.userRole = JSON.parse(response.data.role).join(', ')
+            })
+        })
+    },
     getLinks (el) {
       return linkifyHTML(el)
     },
@@ -189,13 +268,13 @@ export default {
         showConfirmButton: false,
         timer: timer})
     },
-    showAlertSuccess (title) {
+    showAlertSuccess (title, timer) {
       this.$swal({
         title: title,
         position: 'top-end',
         icon: 'success',
         showConfirmButton: false,
-        timer: '1500'})
+        timer: timer || '1500'})
     },
     modalPostId (index, text) {
       return 'modalPost' + index + text
@@ -244,7 +323,6 @@ export default {
       }
     },
     getComments (index) {
-      console.log(this.userPosts)
       let postId = this.userPosts[index].id
       this.$store.dispatch('posts/getComments', postId)
         .catch(() => {
@@ -424,13 +502,17 @@ export default {
     if (!this.$cookies.isKey('user')) {
       this.$router.push({name: 'auth'})
     } else {
-      this.$store.dispatch('user/getOneUser', this.$route.params.id)
-        .then(response => {
-          this.infos = response.data
-          this.$store.dispatch('posts/getAllPostsFromOneUser', this.infos.id)
-            .then(posts => {
-              this.posts = posts.data
-            })
+      this.$store.dispatch('user/getCurrentUser')
+        .then(() => {
+          this.$store.dispatch('user/getOneUser', this.$route.params.id)
+                  .then(response => {
+                    this.infos = response.data
+                    this.userRole = JSON.parse(response.data.role).join(', ')
+                    this.$store.dispatch('posts/getAllPostsFromOneUser', this.infos.id)
+                            .then(posts => {
+                              this.posts = posts.data
+                            })
+                  })
         })
     }
   }
@@ -475,6 +557,12 @@ export default {
   #userPart{
     margin: 2% 0;
     flex: 0 0 20%;
+  }
+  .commentBtn{
+    background-color: #2C3F5F;
+    color: white;
+    display: flex;
+    margin: 5% auto 5% auto;
   }
   .userPhoto{
     object-fit: cover;

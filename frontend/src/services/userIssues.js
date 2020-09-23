@@ -8,10 +8,6 @@ class UserIssues {
     return axios.post(url, data)
       .catch(err => { throw err })
   }
-  readOneIssue (id) {
-    return axios.get(url + '/' + id, { headers: auth() })
-      .catch(err => { throw err })
-  }
   readAllIssues () {
     return axios.get(url, { headers: auth() })
       .catch(err => { throw err })
@@ -22,6 +18,14 @@ class UserIssues {
   }
   updateIssue (id) {
     return axios.put(url + '/' + id, '', { headers: auth() })
+      .catch(err => { throw err })
+  }
+  deleteIssue (id) {
+    return axios.delete(url + '/' + id, { headers: auth() })
+      .catch(err => { throw err })
+  }
+  messageWaiting () {
+    return axios.get(url + '/all/messageWaiting', { headers: auth() })
       .catch(err => { throw err })
   }
 }
