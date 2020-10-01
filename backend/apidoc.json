@@ -1,0 +1,14 @@
+{
+  "name": "API Groupomania",
+  "version": "0.1.0",
+  "description": "Projet 7 - OpenClassRooms - Lucie BAROILLER",
+  "title": "Groupomania - Réseau social",
+  "order": [
+    "User",
+    "User Issue",
+    "Posts",
+    "Comments",
+    "Posts Reports and Comments reports",
+    "Research"
+  ]
+}

@@ -1,17 +1,43 @@
 require('dotenv').config();
 const models = require('../models');
 const path = require('path')
-const bcrypt = require('bcryptjs');
 const jwtUtils = require('../middlewares/jwt');
-const {validationResult} = require('express-validator');
 const fs = require('fs');
 const logger = require('../middlewares/winston')
 'use strict';
 
+/**
+ * @api {post} /api/posts Create
+ * @apiName Create
+ * @apiGroup Posts
+ *
+ * @apiSuccess Object Message + new post info
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 201 Created
+ *{
+ *	"message":"You're post has been created !",
+ *	"post":{
+ *		"id":18,
+ *		"title":"123",
+ *		"UserId":3,
+ *		"content":"123",
+ *		"url_gif":"http://localhost:3000/images/4629494962.gif",
+ *		"alt_gif":"GIF partagé par l'utilisateur",
+ *		"updatedAt":"2020-10-01T12:56:04.501Z",
+ *		"createdAt":"2020-10-01T12:56:04.501Z"
+ *	}
+ *}
+ * @apiErrorExample Error-Response: User not Authenticated
+ * HTTP/1.1 400 Bad Request
+ *{
+ *  	"message": "You're not authenticated, please log in !"
+ *}
+ */
 exports.create = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
-		res.status(400).json({ message: `You're not authenticated, please login ! `})
+		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		if(!req.file){
 			res.status(400).json({ message: 'File is required !'})
@@ -32,10 +58,34 @@ exports.create = (req, res, next) => {
 
 }
 
+/**
+ * @api {post} /api/posts/:id/like Create Like
+ * @apiName CreateLike
+ * @apiGroup Posts
+ *
+ * @apiParam {Number} PostId id(unique)
+ *
+ * @apiSuccess Object new like info
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 201 Created
+ *{
+ *	"id":23,
+ *	"post_id":"17",
+ *	"user_id":3,
+ *	"updatedAt":"2020-10-01T12:59:53.353Z",
+ *	"createdAt":"2020-10-01T12:59:53.353Z"
+ *}
+ * @apiErrorExample Error-Response: User not Authenticated
+ * HTTP/1.1 400 Bad Request
+ *{
+ *  	"message": "You're not authenticated, please log in !"
+ *}
+ */
 exports.createLike = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
-		res.status(400).json({ message: `You're not authenticated, please login ! `})
+		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
 		models.Likes.findOne({ where: { user_id: userId, post_id: req.params.id }})
@@ -49,7 +99,7 @@ exports.createLike = (req, res, next) => {
 						post_id: req.params.id,
 						user_id: userId
 					})
-						.then((like) => res.status(200).json(like))
+						.then((like) => res.status(201).json(like))
 						.catch(error => res.status(400).json({ error }))
 				}
 			}).catch(err => res.status(500).json(err))
@@ -57,12 +107,43 @@ exports.createLike = (req, res, next) => {
 
 }
 
+/**
+ * @api {get} /api/posts/:id/like Read Like
+ * @apiName ReadLike
+ * @apiGroup Posts
+ *
+ * @apiParam {Number} PostId id(unique)
+ *
+ * @apiSuccess Array all likes info of the targeted post
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *[
+ *	{
+ *		"id":2,
+ *		"username":"Utilisateur supprimé",
+ *		"url_profile_picture":"http://localhost:3000/images/deletedUser.png",
+ *		"alt_profile_picture":"Photo de profil de l'utilisateur"
+ *	},
+ *	{
+ *		"id":3,
+ *		"username":"Testeur test",
+ *		"url_profile_picture":"http://localhost:3000/images/defaultPicture.png",
+ *		"alt_profile_picture":"Photo de profil de l'utilisateur"
+ *	}
+ *]
+ * @apiErrorExample Error-Response: User not Authenticated
+ * HTTP/1.1 400 Bad Request
+ *{
+ *  	"message": "You're not authenticated, please log in !"
+ *}
+ */
 exports.readLike = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	let userLiked = []
 	let userInfo = []
 	if(!headerAuth){
-		res.status(400).json({ message: `You're not authenticated, please login ! `})
+		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		models.Likes.findAll({ where: { post_id: req.params.id },
 			order: [
@@ -91,10 +172,30 @@ exports.readLike = (req, res, next) => {
 
 }
 
+/**
+ * @api {put} /api/posts/:id Update
+ * @apiName Update
+ * @apiGroup Posts
+ *
+ * @apiParam {Number} PostId id(unique)
+ *
+ * @apiSuccess Message message
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *{
+ *	"message":"Your post has been updated !"
+ *}
+ * @apiErrorExample Error-Response: User not Authenticated
+ * HTTP/1.1 400 Bad Request
+ *{
+ *	"message": "You're not authenticated, please log in !"
+ *}
+ */
 exports.update = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
-		res.status(400).json({ message: `You're not authenticated, please login ! `})
+		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
 		models.Users.findOne({where: {id: userId}})
@@ -118,7 +219,7 @@ exports.update = (req, res, next) => {
 						}
 						models.Posts.update({ ...req.body, url_gif: urlGif, alt_gif: altGif }, { where: { id: req.params.id }})
 							.then(() => {
-								res.status(201).json({ message: `Your post has been updated !`})
+								res.status(200).json({ message: `Your post has been updated !`})
 							})
 							.catch((err) => res.status(500).json(err))
 					} else {
@@ -132,10 +233,30 @@ exports.update = (req, res, next) => {
 
 }
 
+/**
+ * @api {delete} /api/posts/:id Delete
+ * @apiName Delete
+ * @apiGroup Posts
+ *
+ * @apiParam {Number} PostId id(unique)
+ *
+ * @apiSuccess Message message
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *{
+ *	"message":"Post deleted"
+ *}
+ * @apiErrorExample Error-Response: User not Authenticated
+ * HTTP/1.1 400 Bad Request
+ *{
+ *	"message": "You're not authenticated, please log in !"
+ *}
+ */
 exports.delete = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
-		res.status(400).json({ message: `You're not authenticated, please login ! `})
+		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
 		models.Users.findOne({where: {id: userId}})
@@ -158,8 +279,8 @@ exports.delete = (req, res, next) => {
 														})
 															.then(() => {
 																models.Posts.destroy({where: {id: post.id}})
-																	.then((response) => {
-																		res.status(200).json({message: 'Post deleted', response})
+																	.then(() => {
+																		res.status(200).json({message: 'Post deleted'})
 																	}).catch(err => res.status(500).json({err}))
 															}).catch(err => res.status(500).json(err))
 													}).catch(err => res.status(500).json(err))
@@ -175,10 +296,40 @@ exports.delete = (req, res, next) => {
 
 }
 
+/**
+ * @api {get} /api/posts/:id Read One
+ * @apiName ReadOne
+ * @apiGroup Posts
+ *
+ * @apiParam {Number} PostId id(unique)
+ *
+ * @apiSuccess Object Post info
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *{
+ *	"id":18,
+ *	"title":"123",
+ *	"content":"123",
+ *	"user_id":3,
+ *	"url_gif":"http://localhost:3000/images/4629494962.gif",
+ *	"alt_gif":"GIF partagé par l'utilisateur",
+ *	"created_at":"2020-10-01 14:56:04",
+ *	"updated_at":"2020-10-01 14:56:04",
+ *	"createdAt":"2020-10-01 14:56:04",
+ *	"updatedAt":"2020-10-01 14:56:04",
+ *	"UserId":3
+ *}
+ * @apiErrorExample Error-Response: User not Authenticated
+ * HTTP/1.1 400 Bad Request
+ *{
+ *	"message": "You're not authenticated, please log in !"
+ *}
+ */
 exports.readOne = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
-		res.status(400).json({ message: `You're not authenticated, please login ! `})
+		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
 		if(userId){
@@ -188,17 +339,117 @@ exports.readOne = (req, res, next) => {
 				})
 				.catch((err) => res.status(404).json(err))
 		} else {
-			res.status(400).json({ message: `You're not authenticated, please login ! `})
+			res.status(400).json({ message: `You're not authenticated, please log in ! `})
 		}
 	}
 
 
 }
 
+/**
+ * @api {get} /api/posts/ Read All
+ * @apiName ReadAll
+ * @apiGroup Posts
+ *
+ * @apiSuccess Array All posts info
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *[
+ *	{
+ *		"id":18,
+ *		"title":"123",
+ *		"content":"123",
+ *		"user_id":3,
+ *		"url_gif":"http://localhost:3000/images/4629494962.gif",
+ *		"alt_gif":"GIF partagé par l'utilisateur",
+ *		"created_at":"2020-10-01 14:56:04",
+ *		"updated_at":"2020-10-01 14:56:04",
+ *		"createdAt":"2020-10-01 14:56:04",
+ *		"updatedAt":"2020-10-01 14:56:04",
+ *		"UserId":3,
+ *		"User":{
+ *			"id":3,
+ *			"email":"test2@test.fr",
+ *			"password":"$2a$10$tloa5dX6MNt.Iaw6QAMnuu/2oeO5gvW.tg7xSaVImo/0assd.12R2",
+ *			"username":"Testeur test",
+ *			"role":"[\"user\",\"admin\"]",
+ *			"bio":"123456",
+ *			"url_profile_picture":"http://localhost:3000/images/defaultPicture.png",
+ *			"alt_profile_picture":"Photo de profil de l'utilisateur",
+ *			"consents":"{\"shareable\":\"false\",\"contactable\":\"false\"}",
+ *			"created_at":"2020-09-24 20:35:11",
+ *			"updated_at":"2020-09-30 18:20:24",
+ *			"createdAt":"2020-09-24 20:35:11",
+ *			"updatedAt":"2020-09-30 18:20:24"
+ *		},
+ *		"Comments":[],
+ *		"Likes":[]
+ *	},
+ *	{
+ *		"id":17,
+ *		"title":"123",
+ *		"content":"www.google.fr",
+ *		"user_id":3,
+ *		"url_gif":"http://localhost:3000/images/7808213270.gif",
+ *		"alt_gif":"GIF partagé par l'utilisateur",
+ *		"created_at":"2020-09-30 15:13:55",
+ *		"updated_at":"2020-09-30 15:14:25",
+ *		"createdAt":"2020-09-30 15:13:55",
+ *		"updatedAt":"2020-09-30 15:14:25",
+ *		"UserId":3,
+ *		"User":{
+ *			"id":3,
+ *			"email":"test2@test.fr",
+ *			"password":"$2a$10$tloa5dX6MNt.Iaw6QAMnuu/2oeO5gvW.tg7xSaVImo/0assd.12R2",
+ *			"username":"Testeur test",
+ *			"role":"[\"user\",\"admin\"]",
+ *			"bio":"123456",
+ *			"url_profile_picture":"http://localhost:3000/images/defaultPicture.png",
+ *			"alt_profile_picture":"Photo de profil de l'utilisateur",
+ *			"consents":"{\"shareable\":\"false\",\"contactable\":\"false\"}",
+ *			"created_at":"2020-09-24 20:35:11",
+ *			"updated_at":"2020-09-30 18:20:24",
+ *			"createdAt":"2020-09-24 20:35:11",
+ *			"updatedAt":"2020-09-30 18:20:24"
+ *		},
+ *		"Comments":[
+ *			{
+ *				"id":29,
+ *				"comment":"123456",
+ *				"user_id":3,
+ *				"post_id":17,
+ *				"created_at":"2020-10-01 14:44:01",
+ *				"updated_at":"2020-10-01 14:44:01",
+ *				"createdAt":"2020-10-01 14:44:01",
+ *				"updatedAt":"2020-10-01 14:44:01",
+ *				"UserId":3,
+ *				"PostId":17
+ *			}
+ *		],
+ *		"Likes":[
+ *			{
+ *				"id":23,
+ *				"user_id":3,
+ *				"post_id":17,
+ *				"created_at":"2020-10-01 14:59:53",
+ *				"updated_at":"2020-10-01 14:59:53",
+ *				"createdAt":"2020-10-01 14:59:53",
+ *				"updatedAt":"2020-10-01 14:59:53"
+ *			}
+ *		]
+ *	}
+ *]
+ * @apiErrorExample Error-Response: User not Authenticated
+ * HTTP/1.1 400 Bad Request
+ *{
+ *	"message": "You're not authenticated, please log in !"
+ *}
+ */
 exports.readAll = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
-		res.status(400).json({ message: `You're not authenticated, please login ! `})
+		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		models.Posts.findAll({ include: [models.Users, models.Comments, models.Likes],
 			order: [
@@ -213,10 +464,83 @@ exports.readAll = (req, res, next) => {
 
 }
 
+/**
+ * @api {get} /api/posts/from/:user_id Read All From One User
+ * @apiName ReadAllFromOneUserId
+ * @apiGroup Posts
+ *
+ * @apiParam {Number} PostId id(unique)
+ * @apiParam {Number} UserId id(unique)
+ *
+ * @apiSuccess Array All posts created by the targeted user + their info + their likes + their comments
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *[
+ *	{
+ *		"id":17,
+ *		"title":"123",
+ *		"content":"www.google.fr",
+ *		"user_id":3,
+ *		"url_gif":"http://localhost:3000/images/7808213270.gif",
+ *		"alt_gif":"GIF partagé par l'utilisateur",
+ *		"created_at":"2020-09-30 15:13:55",
+ *		"updated_at":"2020-09-30 15:14:25",
+ *		"createdAt":"2020-09-30 15:13:55",
+ *		"updatedAt":"2020-09-30 15:14:25",
+ *		"UserId":3,
+ *		"Likes":[
+ *			{
+ *				"id":23,
+ *				"user_id":3,
+ *				"post_id":17,
+ *				"created_at":"2020-10-01 14:59:53",
+ *				"updated_at":"2020-10-01 14:59:53",
+ *				"createdAt":"2020-10-01 14:59:53",
+ *				"updatedAt":"2020-10-01 14:59:53"
+ *			}
+ *		],
+ *		"Comments":[
+ *			{
+ *				"id":29,
+ *				"comment":"123456",
+ *				"user_id":3,
+ *				"post_id":17,
+ *				"created_at":"2020-10-01 14:44:01",
+ *				"updated_at":"2020-10-01 14:44:01",
+ *				"createdAt":"2020-10-01 14:44:01",
+ *				"updatedAt":"2020-10-01 14:44:01",
+ *				"UserId":3,
+ *				"PostId":17
+ *			}
+ *		]
+ *	},
+ *	{
+ *		"id":18,
+ *		"title":"123",
+ *		"content":"123",
+ *		"user_id":3,
+ *		"url_gif":"http://localhost:3000/images/4629494962.gif",
+ *		"alt_gif":"GIF partagé par l'utilisateur",
+ *		"created_at":"2020-10-01 14:56:04",
+ *		"updated_at":"2020-10-01 14:56:04",
+ *		"createdAt":"2020-10-01 14:56:04",
+ *		"updatedAt":"2020-10-01 14:56:04",
+ *		"UserId":3,
+ *		"Likes":[],
+ *		"Comments":[]
+ *	}
+ *]
+ * @apiErrorExample Error-Response: User not Authenticated
+ * HTTP/1.1 400 Bad Request
+ *{
+ *	"message": "You're not authenticated, please log in !"
+ *}
+ */
 exports.readAllFromUserId = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
-		res.status(400).json({ message: `You're not authenticated, please login ! `})
+		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		models.Posts.findAll({ where: { user_id: req.params.user_id }, include: [models.Likes, models.Comments]}, {
 			order: [
@@ -231,10 +555,37 @@ exports.readAllFromUserId = (req, res, next) => {
 
 }
 
+/**
+ * @api {post} /api/posts Create Post Report
+ * @apiName CreatePostReport
+ * @apiGroup Posts
+ *
+ * @apiSuccess Object Message + new post report info
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 201 Created
+ *{
+ *	"message":"Your report has been sent, we'll eventually contact you if we need more information !",
+ *	"report":{
+ *		"id":11,
+ *		"PostId":"18",
+ *		"UserId":3,
+ *		"report":"123",
+ *		"status":"pending",
+ *		"updatedAt":"2020-10-01T13:26:27.036Z",
+ *		"createdAt":"2020-10-01T13:26:27.036Z"
+ *	}
+ *}
+ * @apiErrorExample Error-Response: User not Authenticated
+ * HTTP/1.1 400 Bad Request
+ *{
+ *  	"message": "You're not authenticated, please log in !"
+ *}
+ */
 exports.createReport = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
-		res.status(400).json({ message: `You're not authenticated, please login ! `})
+		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
 		models.PostsReport.create({

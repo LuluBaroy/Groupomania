@@ -4,6 +4,7 @@ import auth from '../components/login-signup'
 import wall from '../view/wall'
 import profile from '../view/profile'
 import faq from '../view/faq'
+import admin from '../view/admin'
 
 Vue.use(Router)
 
@@ -28,6 +29,11 @@ export default new Router({
       path: '/faq',
       name: 'faq',
       component: faq
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: admin
     }
   ]
 })

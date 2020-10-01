@@ -16,10 +16,44 @@ schema
 
 'use strict';
 
+/**
+ * @api {post} /api/auth/signup Sign Up
+ * @apiName Sign up
+ * @apiGroup User
+ *
+ * @apiSuccess message Message + user ID
+ *
+ * @apiSuccessExample Success-Response:
+ *HTTP/1.1 201 Created
+ *{
+ *	"message":"New user created ! User ID: 18"
+ *}
+ *
+ * @apiErrorExample Error-Response: Wrong email/password
+ * HTTP/1.1 422 Unprocessable Entity
+ *{
+ *	"errors": [
+ *				{
+ *					"value": "123456",
+ *					"msg": "Email incorrect. Please try with a valid mail",
+ *					"param": "email",
+ *					"location": "body"
+ *				}
+ *			]
+ *}
+ *@apiDescription
+ *
+ * ⚠️-  If this is the first user signing up,
+ *a second account will be automatically created to reassign all posts and
+ *comments from future deleted users.
+ *
+ * ⚠️-  First user signing up is Admin
+ *
+ */
 exports.signup = (req, res, next) => {
 	const errors = validationResult(req);
 	if(!errors.isEmpty()){
-		logger.info('User tried to signup with invalid email and/or password');
+		logger.info('User tried to sign up with invalid email and/or password');
 		return res.status(422).json({ errors: errors.array() });
 	} else {
 		if(schema.validate(req.body.password)) {
@@ -112,11 +146,28 @@ exports.signup = (req, res, next) => {
 	}
 }
 
-
+/**
+ * @api {post} /api/auth/login Log in
+ * @apiName Login
+ * @apiGroup User
+ *
+ * @apiSuccessExample Success-Response:
+ *HTTP/1.1 200 OK
+ *{
+ *	"user_id":18,
+ *	"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE4LCJpYXQiOjE2MDE0ODAwMzQsImV4cCI6MTYwMTU2NjQzNH0.YbBLM9y_GBwD9o3vaWa42z4hTYkYAfeu0L_NoUB1D5E"
+ *}
+ *
+ * @apiErrorExample Error-Response: User couldn't be found
+ *HTTP/1.1 404 Not found
+ *{
+ *	"message":"This user couldn't be found"
+ *}
+ */
 exports.login = (req, res, next) => {
 	const errors = validationResult(req);
 	if(!errors.isEmpty()){
-		logger.info('User tried to login with invalid email and/or password');
+		logger.info('User tried to log in with invalid email and/or password');
 		return res.status(422).json({ errors: errors.array() });
 	} else {
 		models.Users.findOne({ where: { email: req.body.email }})
@@ -137,90 +188,314 @@ exports.login = (req, res, next) => {
 							token: jwtUtils.generateToken(user)
 						});
 					})
-					.catch((error) => {logger.info(`${req.params.id}: Couldn't connect a user on login function`); res.status(500).json({ error })});
+					.catch((error) => {logger.info(`${req.params.id}: Couldn't connect a user on log in function`); res.status(500).json({ error })});
 			})
-			.catch(error => {logger.info(`${req.params.id}: Couldn't connect a user on login function`); res.status(500).json({ error })});
+			.catch(error => {logger.info(`${req.params.id}: Couldn't connect a user on log in function`); res.status(500).json({ error })});
 	}
 
 }
 
+/**
+ * @api {get} /api/auth/:id Read One
+ * @apiName ReadOne
+ * @apiGroup User
+ *
+ * @apiParam {Number} User id (unique)
+ *
+ * @apiSuccess Object All user info
+ *
+ * @apiSuccessExample Success-Response:
+ *HTTP/1.1 200 OK
+ *{
+ *     "id":2,
+ *     "email":"deletedUser@admin.fr",
+ *     "password":"$2a$10$BvS4N1seTASRfWlmRcBDN.LpKwwUp7Y/D92I..o/3xcNDyXkr58qu",
+ *     "username":"Utilisateur supprimé",
+ *     "role":"[\"user\"]",
+ *     "bio":null,
+ *     "url_profile_picture":"http://localhost:3000/images/deletedUser.png",
+ *     "alt_profile_picture":"Photo de profil de l'utilisateur",
+ *     "consents":"{\"shareable\":false,\"contactable\":false}",
+ *     "created_at":"2020-09-24 17:33:09",
+ *     "updated_at":"2020-09-24 17:33:09",
+ *     "createdAt":"2020-09-24 17:33:09",
+ *     "updatedAt":"2020-09-24 17:33:09",
+ *     "Posts":[
+ *     		{
+ *     		"id":1,
+ *     		"title":"123",
+ *     		"content":"123456🤪",
+ *     		"user_id":2,
+ *     		"url_gif":"http://localhost:3000/images/7932182674.gif",
+ *     		"alt_gif":"GIF partagé par l'utilisateur",
+ *     		"created_at":"2020-09-24 17:59:11",
+ *     		"updated_at":"2020-09-29 16:51:26",
+ *     		"createdAt":"2020-09-24 17:59:11",
+ *     		"updatedAt":"2020-09-29 16:51:26",
+ *     		"UserId":2
+ *     		},
+ *     		{
+ *     		"id":5,
+ *     		"title":"132",
+ *     		"content":"khghfwsdfgthyhujikoljnhg 😧",
+ *     		"user_id":2,
+ *     		"url_gif":"http://localhost:3000/images/579015870.gif",
+ *     		"alt_gif":"GIF partagé par l'utilisateur",
+ *     		"created_at":"2020-09-27 15:06:02",
+ *     		"updated_at":"2020-09-29 17:28:51",
+ *     		"createdAt":"2020-09-27 15:06:02",
+ *     		"updatedAt":"2020-09-29 17:28:51",
+ *     		"UserId":2
+ *     		}
+ *     	 ],
+ *     	"Comments": [],
+ *     	"Likes": [],
+ *}
+ *
+ * @apiErrorExample Error-Response: User couldn't be found
+ *HTTP/1.1 404 Not found
+ *{
+ *	"message": "User with ID 3 not found !"
+ *}
+ */
 exports.readOne = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	const userId = jwtUtils.getUserId(headerAuth);
-	models.Users.findOne({ where: { id: req.params.id }, include: [models.Posts, models.Comments, models.Likes]})
-		.then((user) => {
-			if(!user){
-				res.status(404).json({ message: `User with ID ${userId} not found !`})
-			} else {
-				res.status(200).json(user)
-			}
-		}).catch(err => res.status(500).json(err))
+	if(!headerAuth){
+		res.status(400).json({message: `You're not authenticated, please log in !`})
+	} else {
+		models.Users.findOne({ where: { id: req.params.id }, include: [models.Posts, models.Comments, models.Likes]})
+			.then((user) => {
+				if(!user){
+					res.status(404).json({ message: `User with ID ${userId} not found !`})
+				} else {
+					res.status(200).json(user)
+				}
+			}).catch(err => res.status(500).json(err))
+	}
 }
 
+/**
+ * @api {delete} /api/auth/:id Delete
+ * @apiName Delete
+ * @apiGroup User
+ *
+ * @apiParam {Number} UserId id (unique)
+ *
+ * @apiSuccess message user deleted
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *{
+ *	"message": "User 14 deleted !"
+ *}
+ *
+ * @apiErrorExample Error-Response: User couldn't be found
+ *HTTP/1.1 404 Not found
+ *{
+ *	"message": "User 1500 couldn't be found !"
+ *}
+ */
 exports.delete = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	const userId = jwtUtils.getUserId(headerAuth);
-	models.Users.findOne({where: {id: userId}})
-		.then(admin => {
-			let role = JSON.parse(admin.role);
-			if (userId == req.params.id || role.includes('admin')) {
-				const filename = admin.url_profile_picture.split('/images/')[1];
-				if(!filename.includes('defaultPicture.png')) {
-					fs.unlink(`images/${filename}`, () => {
-						models.Posts.update({user_id: 2}, {where: {user_id: req.params.id}, includes:[models.Comments, models.Likes, models.PostsReport, models.CommentsReport]})
+	if(!headerAuth){
+		res.status(400).json({message: `You're not authenticated, please log in !`})
+	} else {
+		function deleting () {
+			return new Promise((resolve) => {
+				models.CommentsReport.update({user_id: 2}, {where: {user_id: req.params.id}})
+					.then(() => {
+						models.PostsReport.update({user_id: 2}, {where: {user_id: req.params.id}})
 							.then(() => {
-								models.Users.destroy({where: {id: req.params.id}})
-								res.status(200).json({message: `User ${req.params.id} has been deleted, all his Posts and Comment have been updated to user_id: 2`})
+								models.Likes.update({user_id: 2}, {where: {user_id: req.params.id}})
+									.then(() => {
+										models.Comments.update({user_id: 2}, {where: {user_id: req.params.id}})
+											.then(() => {
+												models.Posts.update({user_id: 2}, {where: {user_id: req.params.id}})
+													.then(() => resolve())
+													.catch(err => res.status(500).json(err))
+											}).catch(err => res.status(500).json(err))
+									}).catch(err => res.status(500).json(err))
 							}).catch(err => res.status(500).json(err))
-					})
+					}).catch(err => res.status(500).json(err))
+			})
+		}
+
+		models.Users.findOne({where: {id: req.params.id}})
+			.then(admin => {
+				if(!admin){
+					res.status(404).json({message: `User ${req.params.id} couldn't be found !`})
 				} else {
-					models.Posts.update({user_id: 2}, {where: {user_id: req.params.id}, includes:[models.Comments, models.Likes, models.PostsReport, models.CommentsReport]})
-						.then(() => {
-							models.Users.destroy({where: {id: req.params.id}})
-							res.status(200).json({message: `User ${req.params.id} has been deleted, all his Posts and Comment have been updated to user_id: 2`})
-						}).catch(err => res.status(500).json(err))
+					let role = JSON.parse(admin.role);
+					if (userId == req.params.id || role.includes('admin')) {
+						const filename = admin.url_profile_picture.split('/images/')[1];
+						if(!filename.includes('defaultPicture.png')) {
+							fs.unlink(`images/${filename}`, () => {
+								deleting()
+									.then(() => {
+										models.Users.destroy({where: {id: req.params.id}})
+											.then(() => res.status(200).json({message: `User ${req.params.id} deleted !`}))
+											.catch(err => res.status(500).json(err))
+									}).catch(err => res.status(500).json(err))
+							})
+						} else {
+							deleting()
+								.then(() => {
+									models.Users.destroy({where: {id: req.params.id}})
+										.then(() => res.status(200).json({message: `User ${req.params.id} deleted !`}))
+										.catch(err => res.status(500).json(err))
+								}).catch(err => res.status(500).json(err))
+						}
+					} else {
+						res.status(400).json({message: `You're not allowed for this action`})
+					}
 				}
-			} else {
-				res.status(400).json({message: `You're not allowed for this action`})
-			}
-		}).catch(err => res.status(500).json(err))
+			}).catch(err => res.status(500).json(err))
+	}
 }
 
+/**
+ * @api {put} /api/auth/:id Update
+ * @apiName Update
+ * @apiGroup User
+ *
+ * @apiParam {Number} UserId id (unique)
+ *
+ * @apiSuccess message Updated + new info
+ *
+ * @apiSuccessExample Success-Response:
+ *HTTP/1.1 200 OK
+ *{
+ *     "message":"Your information have been updated !",
+ *     "user": {
+ *     		"id":3,
+ *     		"email":"test2@test.fr",
+ *     		"password":"$2a$10$tloa5dX6MNt.Iaw6QAMnuu/2oeO5gvW.tg7xSaVImo/0assd.12R2",
+ *     		"username":"Testeur test",
+ *     		"role":"[\"user\",\"admin\"]",
+ *     		"bio":"123456",
+ *     		"url_profile_picture":"http://localhost:3000/images/defaultPicture.png",
+ *     		"alt_profile_picture":"Photo de profil de l'utilisateur",
+ *     		"consents":"{\"shareable\":\"false\",\"contactable\":\"false\"}",
+ *     		"created_at":"2020-09-24 20:35:11",
+ *     		"updated_at":"2020-09-30 18:20:24",
+ *     		"createdAt":"2020-09-24 20:35:11",
+ *     		"updatedAt":"2020-09-30 18:20:24"
+ *     		}
+ *}
+ *
+ * @apiErrorExample Error-Response : User is not allowed for this action
+ * HTTP/1.1 403 Forbidden
+ *{
+ *  	"message": "You're not allowed for this action !"
+ *}
+ */
 exports.update = (req, res, next) => {
 	let urlProfilePicture;
-	models.Users.findOne({ where: { id: req.params.id }})
-		.then(user => {
-			if(req.file){
-				const filename = user.url_profile_picture.split('/images/')[1];
-				fs.unlink(`images/${filename}`, () => {
-					//
-				})
-				urlProfilePicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-			} else {
-				urlProfilePicture = user.url_profile_picture;
-			}
-			let consents = {
-				shareable: req.body.shareable,
-				contactable: req.body.contactable
-			};
-			bcrypt.hash(req.body.password, 10)
-				.then(hash => {
-					models.Users.update({ ...req.body, password: hash, url_profile_picture: urlProfilePicture, consents: JSON.stringify(consents) }, { where: { id: req.params.id }})
-						.then(() => {
-							models.Users.findOne({ where: { id: req.params.id }})
-								.then(user => {
-									res.status(200).json({message: `Your information have been updated !`, user})
-								}).catch(err=> res.status(500).json(err))
-						})
-						.catch((err) => res.status(500).json(err))
-				}).catch(err => res.status(500).json(err))
-		}).catch(err=> res.status(500).json(err))
-}
-
-exports.readAll = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	const userId = jwtUtils.getUserId(headerAuth);
-	if(userId){
+	if(!headerAuth){
+		res.status(400).json({message: `You're not authenticated, please log in !`})
+	} else {
+		models.Users.findOne({ where: { id: req.params.id }})
+			.then(user => {
+				if(user.id === userId){
+					if(req.file){
+						const filename = user.url_profile_picture.split('/images/')[1];
+						fs.unlink(`images/${filename}`, () => {
+							//
+						})
+						urlProfilePicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+					} else {
+						urlProfilePicture = user.url_profile_picture;
+					}
+					let consents = {
+						shareable: req.body.shareable,
+						contactable: req.body.contactable
+					};
+					let password
+					if(req.body.password === ''){
+						password = user.password
+						console.log(password)
+						models.Users.update({ ...req.body, password: password, url_profile_picture: urlProfilePicture, consents: JSON.stringify(consents) }, { where: { id: req.params.id }})
+							.then(() => {
+								models.Users.findOne({ where: { id: req.params.id }})
+									.then(user => {
+										res.status(200).json({message: `Your information have been updated !`, user})
+									}).catch(err=> res.status(500).json(err))
+							})
+							.catch((err) => res.status(500).json(err))
+					} else {
+						bcrypt.hash(req.body.password, 10)
+							.then(hash => {
+								password = hash
+								console.log('bcrypt : ' + password)
+								models.Users.update({ ...req.body, password: password, url_profile_picture: urlProfilePicture, consents: JSON.stringify(consents) }, { where: { id: req.params.id }})
+									.then(() => {
+										models.Users.findOne({ where: { id: req.params.id }})
+											.then(user => {
+												res.status(200).json({message: `Your information have been updated !`, user})
+											}).catch(err=> res.status(500).json(err))
+									})
+									.catch((err) => res.status(500).json(err))
+							}).catch(err => res.status(500).json(err))
+					}
+				} else {
+					res.status(403).json({message: `You're not allowed for this action !`})
+				}
+			}).catch(err=> res.status(500).json(err))
+	}
+}
+
+/**
+ * @api {get} /api/auth/ Read All
+ * @apiName ReadAll
+ * @apiGroup User
+ *
+ * @apiSuccess message Message + All users
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *     "message":"Here are all users",
+ *     "users": [
+ *     		{
+ *     			"id":4,
+ *     			"username":"Lulu",
+ *     			"email":"test3@test.fr",
+ *     			"url_profile_picture":"http://localhost:3000/images/defaultPicture.png",
+ *     			"alt_profile_picture":"Photo de profil de l'utilisateur",
+ *     			"role":"[\"user\"]"
+ *     		},
+ *     		{
+ *     			"id":18,
+ *     			"username":"Lulu blablabla",
+ *     			"email":"testlkgjhfgjik@test.fr",
+ *     			"url_profile_picture":"http://localhost:3000/images/defaultPicture.png",
+ *     			"alt_profile_picture":"Photo de profil de l'utilisateur",
+ *     			"role":"[\"user\"]"
+ *     		},
+ *     		{
+ *     			"id":17,
+ *     			"username":"Lulu lululu",
+ *     			"email":"testlkjvhbjnk@test.fr",
+ *     			"url_profile_picture":"http://localhost:3000/images/defaultPicture.png",
+ *     			"alt_profile_picture":"Photo de profil de l'utilisateur",
+ *     			"role":"[\"user\"]"
+ *     		}
+ *     	  ]
+ *}
+
+ * @apiErrorExample Error-Response: User not Authenticated
+ * HTTP/1.1 400 Bad Request
+ *{
+ *  	"message": "You're not authenticated, please log in !"
+ *}
+ */
+exports.readAll = (req, res, next) => {
+	const headerAuth = req.headers['authorization'];
+	if(headerAuth){
 		models.Users.findAll({
 			order: [
 				['username', 'ASC']
@@ -234,40 +509,68 @@ exports.readAll = (req, res, next) => {
 						username: allUsers[i].username,
 						email: allUsers[i].email,
 						url_profile_picture: allUsers[i].url_profile_picture,
-						alt_profile_picture: allUsers[i].alt_profile_picture
+						alt_profile_picture: allUsers[i].alt_profile_picture,
+						role: allUsers[i].role
 					})
 				}
 				res.status(200).json({message: `Here are all users`, users})
 			}).catch((err) => res.status(500).json(err))
 	} else {
-		res.status(400).json({ message: `You're not authenticate, please login ! `})
+		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	}
 
 }
 
+/**
+ * @api {put} /api/auth/:id Update Privilege
+ * @apiName UpdatePrivilege
+ * @apiGroup User
+ *
+ * @apiParam {Number} UserId id (unique)
+ *
+ * @apiSuccess message Message + new role
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ * {
+ *     "message":"This user's privilege has been updated to : user,admin ! "
+ *}
+ *
+ * @apiErrorExample Error-Response: User not allowed for this action
+ * HTTP/1.1 403 Forbidden
+ *{
+ *  	"message": "You're not allowed for this route !"
+ *}
+ *
+ * @apiDescription ⚠️Admin role needed
+ */
 exports.updatePrivilege = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	let userId = jwtUtils.getUserId(headerAuth);
-	models.Users.findOne({where: {id: userId}})
-		.then(admin => {
-			let role = JSON.parse(admin.role);
-			if (!role.includes('admin')) {
-				res.status(400).json({message: `You're not allowed for this route !`})
-			} else {
-				models.Users.findOne({where: {id: req.params.id}})
-					.then(user => {
-						let roleUser = JSON.parse(user.role)
-						if (roleUser.includes('admin')) {
-							roleUser = ['user']
-						} else {
-							roleUser = ['user', 'admin'];
-						}
-						let newRole = JSON.stringify(roleUser)
-						models.Users.update({role: newRole}, {where: {id: req.params.id}})
-							.then(() => {
-								res.status(200).json({message: `This user's privilege has been updated to : ${roleUser} ! `})
-							}).catch(err => res.status(500).json(err))
-					}).catch(err => res.status(500).json(err))
-			}
-		}).catch(err => res.status(500).json(err))
+	if(!headerAuth){
+		res.status(400).json({message: `You're not authenticated, please log in !`})
+	} else {
+		models.Users.findOne({where: {id: userId}})
+			.then(admin => {
+				let role = JSON.parse(admin.role);
+				if (!role.includes('admin')) {
+					res.status(403).json({message: `You're not allowed for this route !`})
+				} else {
+					models.Users.findOne({where: {id: req.params.id}})
+						.then(user => {
+							let roleUser = JSON.parse(user.role)
+							if (roleUser.includes('admin')) {
+								roleUser = ['user']
+							} else {
+								roleUser = ['user', 'admin'];
+							}
+							let newRole = JSON.stringify(roleUser)
+							models.Users.update({role: newRole}, {where: {id: req.params.id}})
+								.then(() => {
+									res.status(200).json({message: `This user's privilege has been updated to : ${roleUser} ! `})
+								}).catch(err => res.status(500).json(err))
+						}).catch(err => res.status(500).json(err))
+				}
+			}).catch(err => res.status(500).json(err))
+	}
 }

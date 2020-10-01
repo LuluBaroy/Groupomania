@@ -5,8 +5,6 @@ const issueCtrl = require('../controllers/usersIssue');
 
 router.post('/', issueCtrl.create)
 
-router.get('/:id', issueCtrl.readOne)
-
 router.put('/:id', issueCtrl.update)
 
 router.get('/all/pending', issueCtrl.readAllPending)

@@ -1,45 +1,43 @@
 <template>
-  <div class="container">
-    <div class="col-lg-12 flex-column preWall">
-      <div class="d-flex flex-column col-8 m-auto">
+  <div id="wall" class="col-lg-9 m-auto">
+    <div class="col-md-12 flex-column">
+      <div class="d-none d-lg-flex flex-column col-lg-8 ml-auto mr-auto mt-5">
 
         <!--WELCOMING CAROUSEL-->
         <b-carousel
           id="carousel-1"
-          :interval="15000"
+          :interval="9500"
           controls
           indicators
-          img-width="1024"
-          img-height="490"
           style="text-shadow: 1px 1px 2px #333; box-shadow: 0 0 12px black; border: 4px solid black"
         >
-          <b-carousel-slide
-            img-src="http://localhost:3000/images/Slide0.gif" style="height: 265px;"
-          ></b-carousel-slide>
-          <b-carousel-slide img-src="http://localhost:3000/images/Slide1.gif" style="height: 265px;">
-          </b-carousel-slide>
+          <b-carousel-slide img-src="http://localhost:3000/images/Slide0.gif"></b-carousel-slide>
+          <b-carousel-slide img-src="http://localhost:3000/images/Slide1.gif"></b-carousel-slide>
+          <b-carousel-slide img-src="http://localhost:3000/images/Slide2.png"></b-carousel-slide>
         </b-carousel>
       </div>
 
       <!--SEARCH BAR-->
-      <b-nav-form id="searchBar">
-        <b-form-input placeholder="Rechercher un utilisateur" id="barSearch" v-model="userResearch"></b-form-input>
-        <b-button v-b-modal.researchModal id="btnSearch" type="submit" @click.prevent="research()"><i class="fas fa-search"></i></b-button>
-          <b-modal v-if="showModal" id="researchModal" title="Utilisateur(s) correspondant(s) à votre recherche :" ok-only ok-variant="info" @hidden="clearResearch()">
+      <div id="searchBarBg" class="mt-5 mb-5 d-flex flex-column ml-auto mr-auto flex-md-row align-items-center justify-content-center">
+        <b-form-input placeholder="Rechercher un utilisateur" id="barSearch" v-model="userResearch" class="col-md-9 col-lg-8 mt-md-1 mb-md-1"></b-form-input>
+        <b-button v-b-modal.researchModal id="btnSearch" type="submit" @click.prevent="research()" class="col-md-2"><i class="fas fa-search"></i></b-button>
+          <b-modal centered v-if="showModal" id="researchModal" title="Utilisateur(s) correspondant(s) à votre recherche :" ok-only ok-variant="info" @hidden="clearResearch()">
             <div v-if="userResult.length === 0">Aucun utilisateur ne correspond à votre recherche</div>
-            <div v-else class="my-4 d-flex row align-items-center col-12 justify-content-between" v-for="user in userResult" :key="user.id" id="userResearch">
+            <div v-else class="my-4 d-flex row align-items-center justify-content-md-between" v-for="user in userResult" :key="user.id" id="userResearch">
               <router-link :to="`/profile/${user.id}`"><img :src="user.url_profile_picture" class=" d-flex img-fluid imgResearch"/></router-link>
-              <h4 class="d-flex username">{{ user.username }}</h4>
+              <h4 class="d-flex text-break col-8">{{ user.username }}</h4>
             </div>
           </b-modal>
-      </b-nav-form>
+      </div>
 
       <!--USER PART - SEE COMPONENT 'wall_userPart.vue'-->
       <user-part></user-part>
 
       <!--DIVIDER-->
-      <div class="divider col-12">
-        <h2><img src="../assets/img/divider.png" alt="logo groupomania"/>Dernières actualités<img src="../assets/img/divider.png" alt="logo groupomania"/></h2>
+      <div class="divider col-12 mt-3 d-flex flex-column flex-md-row justify-content-md-center align-items-md-center">
+          <img src="../assets/img/divider.png" alt="logo groupomania" class="d-none d-md-flex m-2 pr-2"/>
+          <h2>Dernières actualités</h2>
+          <img src="../assets/img/divider.png" alt="logo groupomania" class="d-none d-md-flex m-2 pl-2"/>
       </div>
 
       <!--POST PART - SEE COMPONENT 'wall_postPart.vue'-->
@@ -74,17 +72,51 @@ export default {
       return this.$store.state.user.currentUser
     }
   },
-  beforeMount () {
+  beforeCreate () {
     if (!this.$cookies.isKey('user')) {
       this.$router.push({name: 'auth'})
     } else {
       this.$store.dispatch('user/getCurrentUser')
-        .then(() => {
-          this.$store.dispatch('posts/getAllPosts')
-        })
     }
   },
+  beforeMount() {
+    this.$store.dispatch('posts/getAllPosts')
+            .then(() => {
+              let today = new Date()
+              let dd = String(today.getDate()).padStart(2, '0');
+              let mm = String(today.getMonth() + 1).padStart(2, '0');
+              let yyyy = today.getFullYear();
+              let hour = String(today.getHours()).padStart(2, '0')
+              let minutes = String(today.getMinutes()).padStart(2, '0')
+              let time = hour + ':' + minutes
+              today = yyyy + '-' + mm + '-' + dd;
+              let createdAtDate = this.currentUser.infos.created_at.split(' ')[0]
+              let createdAtTime = this.currentUser.infos.created_at.split(' ')[1].split(':')[0] + ':' + String(parseInt(this.currentUser.infos.created_at.split(' ')[1].split(':')[1] + 2))
+              if(today === createdAtDate && time < createdAtTime) {
+                this.showWelcomeAlert()
+              }
+              if(this.$store.state.user.currentUser.infos.role.includes('admin')){
+                this.$store.dispatch('messageWaiting')
+              }
+            })
+  },
   methods: {
+    showWelcomeAlert () {
+      this.$swal({
+        title: '<h2 style="color: deepskyblue;">Bienvenue !</h2>',
+        position: 'center',
+        html: `<p style="color: #2C3F5F;">Vous venez de vous inscrire sur notre réseau social !<br>
+        Pour vous aider à commencer à vous servir de ses fonctionnalités,<br>
+        voici quelques conseils : <br><br>
+        - Vous pouvez accéder à votre page profil en cliquant sur <i class="fas fa-user" style="color: white; background-color: #2C3F5F; padding: 2%;"></i><br><br>
+        - Si vous rencontrez un problème, rendez-vous sur la page FAQ<br><br>
+        - Si vous ne trouvez pas de réponse à votre problème sur la page FAQ, n'hésitez pas à nous contacter via la rubrique "Nous Contacter"<br><br>
+        <strong style="color: lightcoral;">- N'oubliez pas de rester courtois et poli lors de vos publications ou commentaires faute de quoi ceux ci pourront être modifiés ou supprimés par l'administrateur</strong><br><br>
+        - N'hésitez pas à signaler tout contenu déplacé ou désobligeant en cliquant sur <i class="far fa-flag" style="color: red;"></i><br><br>
+        Bonne navigation !</p>`,
+        showConfirmButton: true
+      })
+    },
     showAlertError (title, timer) {
       this.$swal({
         title: title,
@@ -134,11 +166,11 @@ export default {
 </script>
 
 <style scoped>
+  #wall{
+    box-shadow: 0 0 12px grey;
+  }
   .modal{
     font-family: Chewy;
-  }
-  .username{
-    flex: 0 0 80%;
   }
   a{
     display: flex;
@@ -152,57 +184,29 @@ export default {
     border: 4px solid #2C3F5F;
     box-shadow: 0 0 6px black;
   }
-  #searchBar{
-    border-top: 4px double #2C3F5F;
-    border-bottom: 4px double #2C3F5F;
-    margin: 4% auto;
-    display: flex;
-    flex: 0 0 100%;
-    justify-content: center;
-    align-items: baseline;
-    background-color: #b8ced4;
-    border-radius: 100px;
-  }
   .fa-search{
     font-size: 15px;
   }
   #barSearch{
-    margin: 1% 0;
-    flex: 0 0 50%;
-    box-shadow: 0 0 12px black;
-    text-align: center;
+    box-shadow: 0 0 6px black;
     color: #2C3F5F;
   }
   #btnSearch{
-    flex: 0 0 10%;
     background-color: #2C3F5F;
     color: white;
-    box-shadow: 0 0 12px black;
+    box-shadow: 0 0 6px black;
   }
   #btnSearch:hover{
     background-color: #0762a3;
-  }
-  #carousel-1{
-    margin: 5% auto 0 auto;
   }
   .container{
     box-shadow: 0 0 12px;
     background-color: #F7F7F7;
   }
-  .preWall{
-    margin: 0 auto 0 auto;
-    align-items: center;
-    justify-content: space-around;
-  }
   .divider{
     background-color: #2C3F5F;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-around;
     color: white;
     border-radius: 50px;
-    margin: 5% auto;
     box-shadow: 0 0 12px black;
   }
   .divider h2{
@@ -210,9 +214,17 @@ export default {
   }
   .divider img{
     max-width: 5%;
-    margin: 4%;
   }
   #divider_end{
     margin: 5%;
+  }
+  @media screen and (min-width: 768px){
+    #searchBarBg{
+      padding: 2%;
+      border: 4px double #2C3F5F;
+      border-radius: 50px 0;
+      background-color: rgba(176, 230, 255, 0.5);
+      box-shadow: 0 0 3px black;
+    }
   }
 </style>

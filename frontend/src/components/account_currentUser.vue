@@ -1,16 +1,16 @@
 <template>
-  <div class="container flex-column pt-4" id="containerbg">
-    <h1 class="titleConfig rounded-pill">Votre compte</h1>
+  <div class="col-lg-9 m-auto flex-column pt-4 pl-1 pr-1 p-3" id="containerbg">
+    <h1 class="titleConfig rounded-pill p-2 mb-4">Votre compte</h1>
 
     <!--USER INFO'S PART-->
-    <section class="container-fluid d-flex flex-column align-items-center col-12" id="userPart">
-      <div class="d-flex row m-auto col-12 justify-content-around align-items-center">
+    <section class="container-fluid d-flex flex-column align-items-center p-0 p-lg-3" id="userPart">
+      <div class="d-flex row m-auto justify-content-around align-items-center">
         <div class="d-flex flex-column align-items-center">
-          <img :src="currentUser.infos.url_profile_picture" class="userPhoto mb-5">
+          <img :src="currentUser.infos.url_profile_picture" class="userPhoto mt-4 mb-4 mb-md-5">
 
           <!--MODAL - EDIT INFO-->
-          <i class="far fa-edit" v-b-modal.updateProfile><span>Editer les informations</span></i>
-          <b-modal ok-title="Modifier" ok-variant="info" cancel-title="Annuler" cancel-variant="warning" id="updateProfile" title="Editer vos informations" @ok="updateUser">
+          <i class="far fa-edit mb-4 mb-md-0" v-b-modal.updateProfile><span>Editer les informations</span></i>
+          <b-modal centered ok-title="Modifier" ok-variant="info" cancel-title="Annuler" cancel-variant="warning" id="updateProfile" title="Editer vos informations" @ok="updateUser">
             <div class="my-4">
               <b-form-group
                 id="fieldset-1"
@@ -24,7 +24,7 @@
                 label="Mot de passe : "
                 label-for="input-2"
               >
-                <b-form-input id="input-2" v-model="userInfo.password"></b-form-input>
+                <b-form-input id="input-2" v-model="userInfo.newPassword"></b-form-input>
               </b-form-group>
               <b-form-group
                 id="fieldset-3"
@@ -43,146 +43,173 @@
               <b-form-file
                 v-model="file"
                 label="Image du profil : "
-                :state="Boolean(file)"
                 placeholder="Choisissez une nouvelle image de profil ..."
-                plain
               ></b-form-file>
             </div>
           </b-modal>
         </div>
 
         <!--USER INFO-->
-        <div id="userInfos" class="col-6">
-          <h2 class="mb-5">Vos informations</h2>
-          <div class="d-flex row mt-2 border-bottom"><p class="mr-4 infoTitle">Email : </p><p>{{ currentUser.infos.email }}</p></div>
-          <div class="d-flex row mt-2 border-bottom"><p class="mr-4 infoTitle">Mot de passe (ici masqué) : </p><p>{{ currentUser.infos.password }}</p></div>
-          <div class="d-flex row mt-2 border-bottom"><p class="mr-4 infoTitle">Nom d'utilisateur : </p><p>{{ currentUser.infos.username }}</p></div>
-          <div class="d-flex row mt-2" v-if="currentUser.infos.bio !== ''"><p class="mr-4 infoTitle">Bio : </p><p>{{ currentUser.infos.bio }}</p></div>
+        <div id="userInfos" class="col-md-6 mb-3 mb-md-0 m-md-2 text-break">
+          <h2 class="mb-2 mb-md-5">Vos informations</h2>
+          <div class="d-flex flex-column flex-md-row mt-2 border-bottom">
+            <p class="mr-md-4 infoTitle">Email : </p>
+            <p>{{ currentUser.infos.email }}</p>
+          </div>
+          <div class="d-flex flex-column flex-md-row mt-2 border-bottom">
+            <p class="mr-md-4 infoTitle">Mot de passe (ici masqué) : </p>
+            <p>{{ currentUser.infos.password }}</p>
+          </div>
+          <div class="d-flex flex-column flex-md-row mt-2 border-bottom">
+            <p class="mr-md-4 infoTitle">Nom d'utilisateur : </p>
+            <p>{{ currentUser.infos.username }}</p>
+          </div>
+          <div class="d-flex flex-column flex-md-row mt-2" v-if="currentUser.infos.bio !== ''">
+            <p class="mr-4 infoTitle">Bio : </p>
+            <p>{{ currentUser.infos.bio }}</p>
+          </div>
         </div>
       </div>
     </section>
 
     <!--USER'S POSTS-->
-    <section class="d-flex flex-column align-items-center container">
-      <h2 class="col-12 rounded-pill p-2 titleConfig">Vos publications</h2>
+    <section class="d-flex flex-column align-items-center container p-0 mt-4">
+      <h2 class="rounded-pill p-2 p-lg-3 titleConfig mb-4 col-12">Vos publications</h2>
 
       <!--NO POST PUBLISHED-->
       <div v-if="userPosts.length === 0" class="d-flex flex-column align-items-center justify-content-md-between allPosts">
-        <h3 class="m-auto pt-3">Vous n'avez rien posté pour le moment, Lancez-vous !</h3>
-        <p class="m-auto mt-2">Si vous ne savez pas comment faire, regardez le tutoriel dans le carrousel sur le <router-link to="/wall">mur principal</router-link> ou retrouvez nos astuces dans la section FAQ !!</p>
-        <img src="../assets/img/hello.gif" alt="hello gif" class="img-fluid imgPosts">
+        <h3 class="pt-md-3">Vous n'avez rien posté pour le moment, Lancez-vous !</h3>
+        <p>Si vous ne savez pas comment faire, regardez le tutoriel dans le carrousel sur le <router-link to="/wall">mur principal</router-link> ou retrouvez nos astuces dans la section FAQ !!</p>
+        <img src="../assets/img/hello.gif" alt="hello gif" class="img-fluid imgPosts mt-2 mb-5">
       </div>
 
       <!--ALL USER'S POSTS-->
-      <div class="d-flex container-fluid row align-items-center justify-content-md-between allPosts" v-for="(post, index) in userPosts" :key="index">
-        <div class="d-flex col-9 justify-content-center align-items-center formPart">
+      <div class="d-flex flex-column p-0 container-fluid flex-md-row align-items-center mb-md-3 pb-md-3 justify-content-md-between allPosts" v-for="(post, index) in userPosts" :key="index">
+        <div class="d-flex col-md-9 col-lg-8 mr-lg-auto ml-lg-auto justify-content-center align-items-center formPart">
 
           <!--POST TITLE + CONTENT + GIF-->
-          <div class="d-flex col-9 flex-column">
+          <div class="d-flex col-md-9 flex-column">
             <h3>{{ post.title }}</h3>
             <p v-html="getLinks(post.content)"></p>
-            <img :src="post.url_gif" v-if="post.url_gif" :alt="post.alt_gif" class="img-fluid imgPosts"/>
-            <div class="d-flex row m-auto col-6 justify-content-around">
+            <img :src="post.url_gif" v-if="post.url_gif" :alt="post.alt_gif" class="img-fluid m-auto imgPosts"/>
+            <div class="d-flex flex-md-row m-auto col-md-6 justify-content-around p-2">
 
               <!--COMMENTS ICON-->
-              <i v-if="!hasCommented(index)" v-b-modal="modalPostId(index, 'comments')" @click="getComments(index)" class="far fa-comments"><span>{{ post.Comments.length }}</span></i>
-              <i v-else v-b-modal="modalPostId(index, 'comments')" @click="getComments(index)" class="fas fa-comments"><span>{{ post.Comments.length }}</span></i>
+              <i v-if="!hasCommented(index)" v-b-modal="modalPostId(index, 'comments')" @click="getComments(index)" class="far fa-comments mt-2"><span>{{ post.Comments.length }}</span></i>
+              <i v-else v-b-modal="modalPostId(index, 'comments')" @click="getComments(index)" class="fas fa-comments mt-2"><span>{{ post.Comments.length }}</span></i>
 
               <!--MODAL - GET COMMENTS-->
-              <b-modal :id="'modalPost' + index + 'comments'" title="Commentaire(s) du post" @close="getUserPosts()" @cancel="getUserPosts()" @ok="getUserPosts()">
+              <b-modal centered ok-only ok-variant="info" ok-title="Fermer" :id="'modalPost' + index + 'comments'" title="Commentaire(s) du post" @close="getUserPosts()" @cancel="getUserPosts()" @ok="getUserPosts()">
                 <div class="my-4 commentsConfig" v-for="(comment, indexComment) in comments" :key="comment.id">
-                  <div class="d-flex justify-content-end flex-column" v-if="comment.PostId === userPosts[index].id">
-
-                    <!--REPORT COMMENT-->
-                    <i class="far fa-flag" v-b-modal="modalCommentId(index, indexComment, 'report')"></i>
-                    <b-modal :id="'modalComment' + index + indexComment + 'report'" title="Signaler le contenu du Commentaire" @close="getComments(index)" @cancel="getComments(index)" @ok="getComments(index)">
-                      <b-form-group class="d-flex flex-column col-12 mt-4">
-                        <b-form-textarea
-                          id="commentReport"
-                          label="Signalement :"
-                          placeholder="Expliquez nous le problème que vous rencontrez avec ce commentaire ..."
-                          label-for="commentReport"
-                          v-model="commentReport"
-                          class="postInput"
-                          required
-                          rows="3"
-                          max-rows="6"
-                        ></b-form-textarea>
-                        <b-button type="submit" @click.prevent="sendCommentReport(index, indexComment)" class="commentBtn">Envoyer</b-button>
-                      </b-form-group>
-                    </b-modal>
+                  <div class="d-flex flex-column" v-if="comment.PostId === userPosts[index].id">
 
                     <!--COMMENT AUTHOR + CONTENT-->
-                    <div class="col-12 row justify-content-sm-between align-items-center comment">
-                      <div class="userComment d-flex flex-column">
+                    <div class="d-flex flex-column flex-md-row justify-content-sm-between align-items-center comment">
+                      <div class="userComment d-flex flex-column align-items-center p-3">
                         <router-link :to="`/profile/${comment.UserId}`"><img :src="comment.User.url_profile_picture" :alt="comment.User.alt_profile_picture" class="img-fluid imgComment"/></router-link>
                         <h4>{{ comment.User.username}}</h4>
                       </div>
-                      <div class="commentText">{{ comment.comment }}</div>
+                      <div class="commentText text-center pb-2 col-md-8">{{ comment.comment }}</div>
                     </div>
-                    <!--PANEL IF CURRENT USER IS COMMENT AUTHOR-->
-                    <div class="d-flex row justify-content-center" v-if="comment.User.id === currentUser.id">
 
-                      <!--MODAL - DELETE COMMENT-->
-                      <i v-b-modal="modalCommentId(index, indexComment, 'delete')" class="fas fa-trash-alt"><span>Supprimer le commentaire</span></i>
-                      <b-modal ok-title="Supprimer" ok-variant="danger" cancel-title="Annuler" cancel-variant="info" :id="'modalComment' + index + indexComment + 'delete'" title="Suppression du Commenntaire" @ok="deleteComment(index, indexComment), showAlertSuccess('Commentaire supprimé !')">
+                    <!--COMMENTS OPTIONS-->
+                    <i v-b-toggle="'optionsBtn'+index+indexComment" class="fas fa-cogs p-2 text-center"><span>Options du commentaire</span></i>
+                    <b-collapse :id="'optionsBtn'+index+indexComment" class="border text-center pt-2">
+
+                      <!--MODAL - COMMENT REPORT-->
+                      <i class="far fa-flag" v-b-modal="modalCommentId(index, indexComment, 'report')" @click="isCommentReportClicked = true"><span>Signaler le commentaire</span></i>
+                      <b-modal v-if="isCommentReportClicked === true" centered :id="'modalComment' + index + indexComment + 'report'" ok-only ok-title="Fermer" ok-variant="info" title="Signaler le contenu du Commentaire" @close="getComments(index)" @cancel="getComments(index)" @ok="getComments(index)">
+                        <b-form-group
+                        class="d-flex flex-column text-center mt-4 p-0"
+                        label-for="commentReport"
+                        label="Signalement :">
+                          <b-form-textarea
+                                  id="commentReport"
+                                  placeholder="Expliquez nous le problème que vous rencontrez avec ce commentaire ..."
+                                  v-model="commentReport"
+                                  class="postInput"
+                                  required
+                                  rows="3"
+                                  max-rows="6"
+                          ></b-form-textarea>
+                          <b-button type="submit" @click.prevent="sendCommentReport(index, indexComment)" class="rounded-pill d-flex commentBtn">Envoyer</b-button>
+                        </b-form-group>
+                      </b-modal>
+
+                      <!--MODAL - DELETE COMMENT - IF USER IS COMMENT AUTHOR OR USER IS ADMIN-->
+                      <i v-b-modal="modalCommentId(index, indexComment, 'delete')" v-if="comment.User.id === currentUser.id || currentUser.infos.role.includes('admin')" class="fas fa-trash-alt mb-2 mt-2"><span>Supprimer le commentaire</span></i>
+                      <b-modal ok-title="Supprimer" centered ok-variant="danger" cancel-title="Annuler" cancel-variant="info" :id="'modalComment' + index + indexComment + 'delete'" title="Suppression du Commenntaire" @ok="deleteComment(index, indexComment), showAlertSuccess('Commentaire supprimé !')">
                         <div class="my-4">
                           Êtes vous sûr(e) de vouloir supprimer ce commentaire ?
                         </div>
                       </b-modal>
 
-                      <!--MODAL - EDIT COMMENT-->
-                      <i v-b-modal="modalCommentId(index, indexComment, 'update')" class="far fa-edit" @click="setCommentValue(indexComment, index)"><span>Modifier le commentaire</span></i>
-                      <b-modal ok-only ok-title="Cancel" :id="'modalComment' + index + indexComment + 'update'" title="Modification du Commentaire">
+                      <!--MODAL - UPDATE COMMENT - IF USER IS COMMENT AUTHOR OR USER IS ADMIN-->
+                      <i v-b-modal="modalCommentId(index, indexComment, 'update')" class="far fa-edit mt-2 mb-2" v-if="comment.User.id === currentUser.id || currentUser.infos.role.includes('admin')" @click="setCommentValue(indexComment, index), isClicked = true"><span>Modifier le commentaire</span></i>
+                      <b-modal v-if="isClicked === true" centered ok-only ok-title="Fermer" ok-variant="info" :id="'modalComment' + index + indexComment + 'update'" title="Modification du Commentaire">
                         <div class="my-4">
                           <b-form enctype="multipart/form-data">
-                            <b-form-group>
+                            <b-form-group
+                            label="Contenu du commentaire :"
+                            label-for="commentUpdate"
+                            class="text-center">
                               <b-form-textarea
-                                id="commentUpdate"
-                                label="Contenu de votre Commentaire :"
-                                label-for="commentUpdate"
-                                required
-                                v-model="userComment.comment"
-                                class="postInput"
-                                rows="3"
-                                max-rows="6"
+                                      id="commentUpdate"
+                                      v-model="userComment.comment"
+                                      class="postInput text-center"
+                                      rows="6"
+                                      max-rows="12"
                               ></b-form-textarea>
-                              <b-button type="submit" @click.prevent="updateComment(index, indexComment), showAlertSuccess('Commentaire modifié !')" class="commentBtn">Modifier</b-button>
+                              <b-button v-b-modal.emojisComment3 class="mt-2 rounded-pill d-flex mr-auto ml-auto" variant="dark">😃 Ajouter des emoticones !</b-button>
+                              <b-modal centered title="Emoticones" ok-only ok-title="Fermer" ok-variant="info" id="emojisComment3" triggers="hover" placement="top">
+                                <div class="d-flex row m-2">
+                                  <p v-for="(emoji, index) in emojis" :key="index" @click="getEmojiComment(index)">{{ emoji }}</p>
+                                </div>
+                              </b-modal>
+                              <b-button type="submit" @click.prevent="updateComment(index, indexComment), showAlertSuccess('Commentaire modifié !')" class="d-flex commentBtn rounded-pill">Modifier</b-button>
                             </b-form-group>
                           </b-form>
                         </div>
                       </b-modal>
-                    </div>
+                    </b-collapse>
                   </div>
                 </div>
                 <div>
 
                   <!--ADD COMMENT-->
-                  <button type="button" class="btn commentBtn" @click="showTextArea()">Ajouter un commentaire</button>
-                  <b-form-group v-if="userComment.clicked">
+                  <b-button type="button" class="commentBtn rounded-pill mb-4 d-flex mr-auto ml-auto" @click="showTextArea()">Ajouter un commentaire</b-button>
+                  <b-form-group
+                  v-if="userComment.clicked"
+                  label="Votre commentaire :"
+                  label-for="userComment"
+                  class="text-center">
                     <b-form-textarea
-                      label="Votre commentaire :"
-                      label-for="userComment"
-                      id="userComment"
-                      required
-                      v-model="userComment.comment"
-                      placeholder="Entrez votre commentaire ..."
-                      rows="3"
-                      max-rows="6"
+                            id="userComment"
+                            required
+                            v-model="userComment.comment"
+                            placeholder="Entrez votre commentaire ..."
+                            rows="3"
+                            max-rows="6"
                     ></b-form-textarea>
-                    <b-button type="submit" @click.prevent="addComment(index)" class="commentBtn">Commenter</b-button>
+                    <b-button v-b-modal.emojisComment4 class="mt-2 rounded-pill d-flex ml-auto mr-auto" variant="dark">😃 Ajouter des emoticones !</b-button>
+                    <b-modal centered title="Emoticones" ok-only ok-title="Fermer" ok-variant="info" id="emojisComment4" triggers="hover" placement="top">
+                      <div class="d-flex row m-2">
+                        <p v-for="(emoji, index) in emojis" :key="index" @click="getEmojiComment(index)">{{ emoji }}</p>
+                      </div>
+                    </b-modal>
+                    <b-button type="submit" @click.prevent="addComment(index)" class="d-flex mt-4 commentBtn rounded-pill">Commenter</b-button>
                   </b-form-group>
                 </div>
               </b-modal>
               <!--LIKES ICON-->
-              <i v-if="!hasAlreadyLiked(index)" v-b-modal="modalLikeId(index, 'like')" @click="getLikes(index)" class="far fa-thumbs-up"><span>{{ post.Likes.length }}</span></i>
-              <i v-else v-b-modal="modalLikeId(index, 'like')" @click="getLikes(index)" class="fas fa-thumbs-up"><span>{{ post.Likes.length }}</span></i>
+              <i v-if="!hasAlreadyLiked(index)" v-b-modal="modalLikeId(index, 'like')" @click="getLikes(index)" class="far fa-thumbs-up mt-2"><span>{{ post.Likes.length }}</span></i>
+              <i v-else v-b-modal="modalLikeId(index, 'like')" @click="getLikes(index)" class="fas fa-thumbs-up mt-2"><span>{{ post.Likes.length }}</span></i>
 
               <!--MODAL - GET LIKES-->
-              <b-modal ok-only ok-title="Fermer" ok-variant="warning" :id="'modalLike' + index + 'like'" title="Like(s) du post" @ok="getUserPosts()" @close="getUserPosts()">
-                <div class="my-4 d-flex row align-items-center col-12 justify-content-between" v-for="like in likes" :key="like.id" id="like">
+              <b-modal ok-only ok-title="Fermer" centered ok-variant="warning" :id="'modalLike' + index + 'like'" title="Like(s) du post" @ok="getUserPosts()" @close="getUserPosts()">
+                <div class="my-4 d-flex p-2 row align-items-center justify-content-between" v-for="like in likes" :key="like.id" id="like">
                   <router-link :to="`/profile/${like.id}`"><img :src="like.url_profile_picture" :alt="like.alt_profile_picture" class="img-fluid imgComment"/></router-link>
-                  <h4 class="d-flex username">{{ like.username }}</h4>
+                  <h4 class="d-flex username col-9">{{ like.username }}</h4>
                 </div>
                 <!--CHANGING BUTTON LIKE/DISLIKE-->
                 <b-btn pill class="d-flex m-auto" :variant="btnLikeVariant" @click="createLike(index), showAlertSuccess()">{{ btnLike }}</b-btn>
@@ -192,69 +219,84 @@
         </div>
 
         <!--POST INFO-->
-        <div class="d-flex flex-column postTools">
+        <div class="d-flex flex-column col-lg-3 mr-lg-auto ml-lg-auto postTools mt-2 mt-md-0 mb-5 mb-md-0">
           <p>Créé le {{ post.createdAt.split(' ')[0].split('-')[2] }}-{{ post.createdAt.split(' ')[0].split('-')[1] }}-{{ post.createdAt.split(' ')[0].split('-')[0] }} à {{ post.createdAt.split(' ')[1].split(':')[0] }}h{{ post.createdAt.split(':')[1].split(':')[0]  }}</p>
           <p>Modifié le {{ post.updatedAt.split(' ')[0].split('-')[2] }}-{{ post.updatedAt.split(' ')[0].split('-')[1] }}-{{ post.updatedAt.split(' ')[0].split('-')[0] }} à {{ post.updatedAt.split(' ')[1].split(':')[0] }}h{{ post.updatedAt.split(':')[1].split(':')[0]  }}</p>
 
-          <!--MODAL - DELETE POST-->
-          <i v-b-modal="modalPostId(index, 'delete')" class="fas fa-trash-alt"><span>Supprimer le post</span></i>
-          <b-modal ok-title="Supprimer" ok-variant="danger" cancel-title="Annuler" cancel-variant="info" :id="'modalPost' + index + 'delete'" title="Suppression du Post" @ok="deletePost(index), showAlertSuccess('Post supprimé !')">
-            <div class="my-4">
-              Êtes vous sûr(e) de vouloir supprimer ce post ?
-            </div>
-          </b-modal>
+          <!--POST OPTIONS-->
+          <i v-b-toggle="'postOptions' + index" class="fas fa-cogs mb-3"><span>Options du post</span></i>
+          <b-collapse :id="'postOptions' + index" class="mb-4 mb-md-0">
 
-          <!--MODAL - EDIT POST-->
-          <i v-b-modal="modalPostId(index, 'update')" class="far fa-edit" @click="setPostValue(index)"><span>Modifier le post</span></i>
-          <b-modal ok-only ok-title="Cancel" :id="'modalPost' + index + 'update'" title="Modification du Post" @close="url = ''" @ok="url = ''">
-            <div class="my-4">
-              <b-form enctype="multipart/form-data">
-                <b-form-group>
-                  <b-form-input
-                    id="titleUpdate"
-                    label="Titre de votre Post"
-                    label-for="userPostTitle"
-                    v-model="userPost.title"
-                    value="userPost.title"
-                    required
-                    class="postInput"
-                  ></b-form-input>
-                  <b-form-textarea
-                    id="contentUpdate"
-                    label="Contenu de votre Post :"
-                    label-for="userPostContent"
-                    v-model="userPost.content"
-                    required
-                    class="postInput"
-                    rows="3"
-                    max-rows="6"
-                  >{{ userPost.content }}</b-form-textarea>
-                  <div id="postUpdate">
-                    <!--PREVIEW NEW GIF-->
-                    <img :src="userPost.img" v-if="url.length === 0" class="img-fluid imgPosts d-flex" id="updateImg" :alt="userPost.altImg"/>
-                    <img v-else :src="url" class="img-fluid imgPosts d-flex" alt="Preview new image">
-                    <b-form-file v-model="file" class="mt-3" plain @change="onFileChanged"></b-form-file>
-                  </div>
-                  <b-button type="submit" @click.prevent="updatePost(index), showAlertSuccess('Post modifié !')" class="commentBtn">Modifier</b-button>
-                </b-form-group>
-              </b-form>
-            </div>
-          </b-modal>
+            <!--MODAL - DELETE POST-->
+            <i v-b-modal="modalPostId(index, 'delete')" class="fas fa-trash-alt mt-2 mb-3"><span>Supprimer le post</span></i>
+            <b-modal ok-title="Supprimer" centered ok-variant="danger" cancel-title="Annuler" cancel-variant="info" :id="'modalPost' + index + 'delete'" title="Suppression du Post" @ok="deletePost(index), showAlertSuccess('Post supprimé !')">
+              <div class="my-4">
+                Êtes vous sûr(e) de vouloir supprimer ce post ?
+              </div>
+            </b-modal>
+
+            <!--MODAL - EDIT POST-->
+            <i v-b-modal="modalPostId(index, 'update')" class="far fa-edit mb-4 mb-md-0" @click="setPostValue(index), isClicked = true"><span>Modifier le post</span></i>
+            <b-modal centered v-if="isClicked === true" ok-only ok-title="Fermer" ok-variant="info" :id="'modalPost' + index + 'update'" title="Modification du Post" @close="url = ''" @ok="url = ''">
+              <div class="my-4">
+                <b-form enctype="multipart/form-data">
+                  <b-form-group
+                  label="Titre du post :"
+                  label-for="titleUpdate"
+                  class="text-center">
+                    <b-form-input
+                            id="titleUpdate"
+                            v-model="userPost.title"
+                            value="userPost.title"
+                            required
+                            class="postInput"
+                    ></b-form-input>
+                  </b-form-group>
+                  <b-form-group
+                  label="Contenu du post :"
+                  label-for="contentUpdate"
+                  class="text-center">
+                    <b-form-textarea
+                            id="contentUpdate"
+                            v-model="userPost.content"
+                            required
+                            class="postInput mb-3"
+                            rows="3"
+                            max-rows="6"
+                    >{{ userPost.content }}</b-form-textarea>
+                    <b-button v-b-modal.emojis3 class="mt-1 mb-3 rounded-pill" variant="dark">😃 Ajouter des emoticones !</b-button>
+                    <b-modal centered title="Emoticones" ok-only ok-title="Fermer" ok-variant="info" id="emojis3" triggers="hover" placement="top">
+                      <div class="d-flex row m-2">
+                        <p v-for="(emoji, index) in emojis" :key="index" @click="getEmoji(index)">{{ emoji }}</p>
+                      </div>
+                    </b-modal>
+                    <div id="postUpdate">
+                      <!--PREVIEW NEW GIF-->
+                      <img :src="userPost.img" v-if="url.length === 0" class="img-fluid imgPosts d-flex m-auto" id="updateImg" :alt="userPost.altImg"/>
+                      <img v-else :src="url" class="img-fluid imgPosts d-flex" alt="Preview new image">
+                      <b-form-file v-model="file" class="mt-3 mb-3" @change="onFileChanged"></b-form-file>
+                    </div>
+                    <b-button type="submit" @click.prevent="updatePost(index), showAlertSuccess('Post modifié !')" class="d-flex rounded-pill commentBtn">Modifier</b-button>
+                  </b-form-group>
+                </b-form>
+              </div>
+            </b-modal>
+          </b-collapse>
         </div>
       </div>
     </section>
 
     <!--ACCOUNT PARAMETERS-->
     <section class="d-flex flex-column align-items-center container pb-5" id="accountParam">
-      <h2 class="col-12 rounded-pill p-2 titleConfig mb-5">Paramètres du compte</h2>
-      <div class="container-fluid d-flex justify-content-around mb-5">
+      <h2 class="rounded-pill p-2 titleConfig mb-5 mt-md-2 col-12">Paramètres du compte</h2>
+      <div class="container-fluid d-flex flex-column flex-md-row justify-content-around mb-5">
 
         <!--DOWNLOAD CURRENT USER INFO-->
-        <b-btn variant="info" @click="downloadInfo()" class="col-5">Télécharger les informations du compte</b-btn>
+        <b-btn variant="info" @click="downloadInfo()" class="col-md-5 mb-3 mb-md-0">Télécharger les informations du compte</b-btn>
 
         <!--MODAL - DELETE ACCOUNT-->
-        <b-btn v-b-modal.modalAccount variant="danger" class="col-5">Supprimer le compte</b-btn>
-        <b-modal ok-title="Supprimer" ok-variant="danger" cancel-title="Annuler" cancel-variant="info" id="modalAccount" title="Suppression du compte" @ok="deleteAccount">
+        <b-btn v-b-modal.modalAccount variant="danger" class="col-md-5">Supprimer le compte</b-btn>
+        <b-modal centered ok-title="Supprimer" ok-variant="danger" cancel-title="Annuler" cancel-variant="info" id="modalAccount" title="Suppression du compte" @ok="deleteAccount">
           <div class="my-4">
             Êtes vous sûr(e) de vouloir supprimer votre compte ?
           </div>
@@ -279,16 +321,12 @@
       </div>
       <b-button v-if="consentsHaveChanged" @click="updateUser()" variant="outline-info" pill>Valider les changements</b-button>
     </section>
-
-    <!--PANEL ADMIN IF CURRENT USER IS ADMIN -- SEE COMPONENT 'account_admin.vue'-->
-    <account-admin v-if="userRole.includes('admin')"></account-admin>
   </div>
 </template>
 
 <script>
 import pdfMake from 'pdfmake/build/pdfmake'
 import linkifyHTML from 'linkifyjs/html'
-import AccountAdmin from './account_admin'
 pdfMake.fonts = {
   Roboto: {
     normal: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf',
@@ -299,7 +337,6 @@ pdfMake.fonts = {
 }
 export default {
   name: 'accountCurrentUser',
-  components: {AccountAdmin},
   data () {
     return {
       newConsents: {
@@ -312,7 +349,8 @@ export default {
         email: this.$store.state.user.currentUser.infos.email,
         password: this.$store.state.user.currentUser.infos.password,
         username: this.$store.state.user.currentUser.infos.username,
-        bio: this.$store.state.user.currentUser.infos.bio
+        bio: this.$store.state.user.currentUser.infos.bio,
+        newPassword: ''
       },
       userPost: {
         title: '',
@@ -328,8 +366,11 @@ export default {
         comment: null,
         clicked: false
       },
+      emojis: this.$store.state.posts.emojis,
       commentReport: null,
-      consentsHaveChanged: false
+      consentsHaveChanged: false,
+      isClicked: false,
+      isCommentReportClicked: false
     }
   },
   computed: {
@@ -349,6 +390,34 @@ export default {
     }
   },
   methods: {
+    getEmoji (index) {
+      let emojiCode = this.emojis[index]
+      if(this.userPost.content === null) {
+        this.userPost.content = emojiCode
+      } else {
+        this.userPost.content += emojiCode
+      }
+      this.$swal({
+        title: '',
+        timer: '1000',
+        text: '✔ Ajouté !️',
+        showConfirmButton: false
+      })
+    },
+    getEmojiComment (index) {
+      let emojiCode = this.emojis[index]
+      if(this.userComment.comment === null) {
+        this.userComment.comment = emojiCode
+      } else {
+        this.userComment.comment += emojiCode
+      }
+      this.$swal({
+        title: '',
+        timer: '1000',
+        text: '✔ Ajouté !️',
+        showConfirmButton: false
+      })
+    },
     getLinks (el) {
       return linkifyHTML(el)
     },
@@ -373,7 +442,7 @@ export default {
     showAlertSuccess (title) {
       this.$swal({
         title: title,
-        position: 'top-end',
+        position: 'center',
         icon: 'success',
         showConfirmButton: false,
         timer: '1500'})
@@ -434,6 +503,7 @@ export default {
         id: postId,
         data: formData
       }
+      this.isClicked = false
       this.$store.dispatch('posts/updatePost', payload)
         .then(() => {
           this.file = null
@@ -595,6 +665,7 @@ export default {
         } else {
           payload.newReport.report = this.commentReport.toString()
         }
+        this.isCommentReportClicked = false
         this.showAlertSuccess('Commentaire signalé !')
         this.$store.dispatch('posts/sendCommentReport', payload)
           .then(() => {
@@ -645,32 +716,59 @@ export default {
       let formData = new FormData()
       formData.append('image', this.file)
       formData.append('email', this.userInfo.email)
-      formData.append('password', this.userInfo.password)
+      formData.append('password', this.userInfo.newPassword)
       formData.append('username', this.userInfo.username)
       formData.append('bio', this.userInfo.bio)
       formData.append('shareable', this.newConsents.shareable)
       formData.append('contactable', this.newConsents.contactable)
+      console.log(this.userInfo.password)
       let payload = {
         userId: this.$store.state.user.currentUser.id,
         formData: formData
       }
       this.$store.dispatch('user/updateUser', payload)
         .then(() => {
+          this.showAlertSuccess('Informations modifiées !')
           this.consentsHaveChanged = false
           this.$store.dispatch('user/getCurrentUser', this.$store.state.user.currentUser.id)
             .then(() => console.log(this.$store.state.user.currentUser))
         })
     },
     deleteAccount () {
-      this.$store.dispatch('user/deleteUser', this.$store.state.user.currentUser.id)
-        .then(() => {
-          this.$cookies.remove('user')
-          this.$store.state.user.currentUser = {
-            id: '',
-            infos: {}
-          }
-          this.$router.push({name: 'auth'})
-        })
+      if(this.currentUser.infos.role.includes('admin')){
+        this.$store.dispatch('user/getAllUser')
+          .then(response => {
+            let adminUser = []
+            response.data.users.forEach(user => {
+              if(user.role.includes('admin') && user.id !== this.currentUser.id){
+                adminUser.push(user)
+              }
+            })
+            if(adminUser.length !== 0){
+              this.$store.dispatch('user/deleteUser', this.$store.state.user.currentUser.id)
+                      .then(() => {
+                        this.$cookies.remove('user')
+                        this.$store.state.user.currentUser = {
+                          id: '',
+                          infos: {}
+                        }
+                        this.$router.push({name: 'auth'})
+                      })
+            } else {
+              this.showAlertError(`Vous devez donner le privilège "admin" a au moins un utilisateur avant de pouvoir supprimer votre compte !`, '5000')
+            }
+          })
+      } else {
+        this.$store.dispatch('user/deleteUser', this.$store.state.user.currentUser.id)
+                .then(() => {
+                  this.$cookies.remove('user')
+                  this.$store.state.user.currentUser = {
+                    id: '',
+                    infos: {}
+                  }
+                  this.$router.push({name: 'auth'})
+                })
+      }
     },
     downloadInfo () {
       this.$store.dispatch('user/getOneUser', this.$store.state.user.currentUser.id)
@@ -783,24 +881,21 @@ export default {
 </script>
 
 <style scoped>
-  .allPosts{
-    flex: 0 0 100%;
-  }
   .formPart{
     border: 4px solid #2C3F5F;
     box-shadow: 0 0 12px black;
-    padding: 2%;
-    margin: 2% 0;
   }
   .postTools{
-    flex: 0 0 15%;
     flex-grow: 1;
   }
-  i, i span{
+  .fa-cogs, .fa-cogs span{
     font-size: 20px;
   }
-  i span:hover{
-    text-shadow: 0 0 2px black;
+  i, i span{
+    font-size: 15px;
+  }
+  i:hover{
+    text-shadow: 0 0 1px #0080C0;
   }
   .modal i span {
     font-size: 15px
@@ -808,14 +903,10 @@ export default {
   button{
     box-shadow: 0 0 6px black;
   }
-  #containerbg{
-    box-shadow: 0 0 12px black;
-    background-color: #F7F7F7;
-  }
   #userPart{
-    margin: 2% 0;
-    padding: 2%;
-    flex: 0 0 20%;
+    background-image: url('../assets/img/bgUser.png');
+    background-size: cover;
+    border-radius: 25px;
   }
   .userPhoto{
     object-fit: cover;
@@ -827,17 +918,13 @@ export default {
   }
   #userInfos{
     font-size: 18px;
-    background-color: rgba(215, 215, 215, 0.2);
-    padding: 3%;
-    box-sizing: border-box;
-    word-break: break-word;
+    background-color: rgba(215, 215, 215, 1);
     border: 4px double #0762a3;
   }
   .infoTitle{
     color: #0762a3;
   }
   h1{
-    padding: 2% 0;
     font-size: 35px;
   }
   h2{
@@ -857,7 +944,5 @@ export default {
   .commentBtn{
     background-color: #2C3F5F;
     color: white;
-    display: flex;
-    margin: 5% auto 5% auto;
   }
 </style>
