@@ -4,10 +4,10 @@
 In construction
 
 ## *Environment* 
-### *Backend* 
+#### *Backend* 
 This project has been developed with [NodeJS](https://nodejs.org/en/), [Express](https://www.npmjs.com/package/express) v4.17.1, [Sequelize](https://www.npmjs.com/package/sequelize) v6.3.4 and [Mysql2](https://www.npmjs.com/package/mysql2) v2.1.0
 
-### *Frontend* 
+#### *Frontend* 
 This project has been developed with [VueJS](https://www.npmjs.com/package/vue) v2.6.11 and [Bootstrap-Vue](https://www.npmjs.com/package/bootstrap-vue) v2.17.3
 
 ## *Prerequisites*
