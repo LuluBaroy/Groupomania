@@ -1,13 +1,33 @@
 <template>
-  <div class="container-fluid row align-items-center p-2">
+  <div class="container-fluid flex-column flex-md-row justify-content-md-around align-items-center p-2 d-flex">
     <!--LINK RETURN-->
-    <router-link :to="{name: 'wall'}" class="col-1 p-0" :style="{visibility: visibilityTest ? 'visible' : 'hidden'}"><i class="far fa-arrow-alt-circle-left d-flex flex-column"><span class="mt-2">Retour</span></i></router-link>
-    <div class="container">
+    <router-link :to="{name: 'wall'}" class="col-md-3 p-0 d-none d-md-flex" :style="{visibility: visibilityTest ? 'visible' : 'hidden'}"><i class="far fa-arrow-alt-circle-left d-flex flex-column align-items-center"><span class="mt-2">Retour</span></i></router-link>
       <!--LOGO-->
-      <img src="../assets/img/logo.png" class="col-10" alt="Logo Groupomania">
-    </div>
+      <img src="../assets/img/logo.png" class="col-md-6 p-0" alt="Logo Groupomania">
     <!--DISCONNECTION BUTTON-->
-    <i :style="{visibility: this.$cookies.isKey('user') ? 'visible' : 'hidden'}" class="fas fa-power-off col-1 d-flex flex-column" @click.prevent="removeCookie"><span class="mt-2">Quitter</span></i>
+    <div class="d-flex col-md-3 justify-content-center m-auto" v-if="currentUser.infos.role !== undefined" :style="{visibility: this.$cookies.isKey('user') ? 'visible' : 'hidden'}">
+      <router-link :to="{name: 'admin'}" class="d-flex col-4 justify-content-center">
+        <i v-if="currentUser.infos.role.includes('admin')" class="fas fa-users-cog d-flex flex-column" id="admin">
+          <b-popover target="admin" triggers="hover" placement="bottom">
+            Administration
+          </b-popover>
+        </i>
+      </router-link>
+      <router-link :to="`/profile/${currentUser.id}`" class="d-flex col-4 justify-content-center">
+        <i class="fas fa-user d-flex flex-column justify-content-center" id="profileIcon">
+        <b-popover target="profileIcon" triggers="hover" placement="bottom">
+          Profil
+        </b-popover>
+        </i>
+      </router-link>
+      <router-link :to="{name: 'auth'}" class="d-flex col-4 justify-content-center">
+        <i class="fas fa-power-off p-0 d-flex flex-column justify-content-center" @click.prevent="removeCookie" id="signOff">
+          <b-popover target="signOff" triggers="hover" placement="bottom">
+            Quitter
+          </b-popover>
+        </i>
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -20,9 +40,14 @@ export default {
         return true
       } else if (this.$route.name === 'faq') {
         return true
+      } else if (this.$route.name === 'admin') {
+        return true
       } else {
         return false
       }
+    },
+    currentUser () {
+      return this.$store.state.user.currentUser
     }
   },
   methods: {
@@ -49,7 +74,7 @@ a:hover{
 }
 img{
   object-fit: scale-down;
-  max-width: 30%;
+  max-height: 60px;
 }
 i{
   font-size: 25px;

@@ -1,129 +1,184 @@
 //IF ADMIN
 require('dotenv').config();
 const models = require('../models');
-const bcrypt = require('bcryptjs');
 const jwtUtils = require('../middlewares/jwt');
-const {validationResult} = require('express-validator');
-const fs = require('fs');
 //const logger = require('../middleware/winston')
 'use strict';
 
+/**
+ * @api {get} /api/report Read All
+ * @apiName ReadAll
+ * @apiGroup Post Reports and Comments reports
+ *
+ * @apiDescription ⚠️Admin role needed
+ *
+ * @apiSuccess Object All posts and comments reports
+ *
+ * @apiSuccessExample Success-Response:
+ *HTTP/1.1 200 OK
+ *{
+ *	"postReports":[
+ *		{
+ *			"id":6,
+ *			"post_id":17,
+ *			"user_id":3,
+ *			"report":"123456789",
+ *			"status":"treated",
+ *			"created_at":"2020-09-30 15:14:45",
+ *			"updated_at":"2020-09-30 15:14:45",
+ *			"createdAt":"2020-09-30 15:14:45",
+ *			"updatedAt":"2020-09-30 15:14:45",
+ *			"UserId":3,"PostId":17
+ *		},
+ *		{
+ *			"id":5,
+ *			"post_id":7,
+ *			"user_id":2,
+ *			"report":"lokijuhytyrdftgyhujikolpkojihuyd",
+ *			"status":"pending",
+ *			"created_at":"2020-09-27 19:56:06",
+ *			"updated_at":"2020-09-29 19:02:00",
+ *			"createdAt":"2020-09-27 19:56:06",
+ *			"updatedAt":"2020-09-29 19:02:00",
+ *			"UserId":2,
+ *			"PostId":7
+ *		},
+ *		{
+ *			"id":4,
+ *			"post_id":1,
+ *			"user_id":2,
+ *			"report":"123456789",
+ *			"status":"pending",
+ *			"created_at":"2020-09-27 13:13:55",
+ *			"updated_at":"2020-09-29 19:02:00",
+ *			"createdAt":"2020-09-27 13:13:55",
+ *			"updatedAt":"2020-09-29 19:02:00",
+ *			"UserId":2,
+ *			"PostId":1
+ *		}
+ *	],
+ *	"commentReports":[]
+ *}
+ * @apiErrorExample Error-Response : User not allowed for this action
+ * HTTP/1.1 403 Forbidden
+ * {
+ *     "message": "You're not allowed to access this route"
+ * }
+ */
 exports.readAll = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	let userId = jwtUtils.getUserId(headerAuth);
-	models.Users.findOne({where: {id: userId}})
-		.then(admin => {
-			let role = JSON.parse(admin.role);
-			if (!role.includes('admin')) {
-				res.status(400).json({message: `You're not allowed for this route !`})
-			} else {
-				models.PostsReport.findAll({
-					order: [
-						['id', 'DESC']
-					]
-				})
-					.then(postReports => {
-						models.CommentsReport.findAll({
-							order: [
-								['id', 'DESC']
-							]
-						}).then(commentReports => {
-							res.status(200).json({postReports, commentReports})
+	if(!headerAuth){
+		res.status(400).json({message: `You're not authenticated, please log in !`})
+	} else {
+		models.Users.findOne({where: {id: userId}})
+			.then(admin => {
+				let role = JSON.parse(admin.role);
+				if (!role.includes('admin')) {
+					res.status(403).json({message: `You're not allowed for this route !`})
+				} else {
+					models.PostsReport.findAll({
+						order: [
+							['id', 'DESC']
+						]
+					})
+						.then(postReports => {
+							models.CommentsReport.findAll({
+								order: [
+									['id', 'DESC']
+								]
+							}).then(commentReports => {
+								res.status(200).json({postReports, commentReports})
+							}).catch(err => res.status(404).json({message: `No reports found`, err}))
 						}).catch(err => res.status(404).json({message: `No reports found`, err}))
-					}).catch(err => res.status(404).json({message: `No reports found`, err}))
-			}
-		}).catch(err => res.status(500).json(err))
+				}
+			}).catch(err => res.status(500).json(err))
+	}
 }
 
-exports.readAllPending = (req, res, next) => {
-	const headerAuth = req.headers['authorization'];
-	let userId = jwtUtils.getUserId(headerAuth);
-	models.Users.findOne({where: {id: userId}})
-		.then(admin => {
-			let role = JSON.parse(admin.role);
-			if (!role.includes('admin')) {
-				res.status(400).json({message: `You're not allowed for this route !`})
-			} else {
-				models.PostsReport.findAll({where: {status: 'pending'}}, {
-					order: [
-						['id', 'DESC']
-					]
-				})
-					.then(postReports => {
-						models.CommentsReport.findAll({where: {status: 'pending'}}, {
-							order: [
-								['id', 'DESC']
-							]
-						})
-							.then(commentsReports => {
-								res.status(200).json({postReports, commentsReports})
-							})
-							.catch(err => res.status(500).json(err))
-					}).catch(err => res.status(500).json(err))
-			}
-		}).catch(err => res.status(500).json(err))
-}
-
-exports.readOne = (req, res, next) => {
-	const headerAuth = req.headers['authorization'];
-	let userId = jwtUtils.getUserId(headerAuth);
-	models.Users.findOne({where: {id: userId}})
-		.then(admin => {
-			let role = JSON.parse(admin.role);
-			if (!role.includes('admin')) {
-				res.status(400).json({message: `You're not allowed for this route !`})
-			} else {
-				models.PostsReport.findOne({where: {id: req.params.id}})
-					.then(report => {
-						models.Users.findOne({where: {id: report.user_id}})
-							.then(user => {
-								models.Posts.findOne({where: {id: report.post_id}})
-									.then(post => {
-										let reportAuthor = {
-											username: user.username,
-											email: user.email
-										}
-										res.status(200).json({report, post, reportAuthor})
-									}).catch(err => res.status(500).json(err))
-							}).catch(err => res.status(500).json(err))
-					}).catch(err => res.status(500).json(err))
-			}
-		}).catch(err => res.status(500).json(err))
-}
-
-
-
+/**
+ * @api {put} /api/report/post/:id Update Post Report
+ *
+ * @apiParam {Number} PostReportId id(unique)
+ * @apiName UpdatePostReport
+ * @apiGroup Post Reports and Comments reports
+ *
+ * @apiDescription ⚠️Admin role needed
+ *
+ * @apiSuccess Message message
+ *
+ * @apiSuccessExample Success-Response:
+ *HTTP/1.1 200 OK
+ *{
+ *	"message":"Report 5 has been updated !"
+ *}
+ * @apiErrorExample Error-Response : User not allowed for this action
+ * HTTP/1.1 403 Forbidden
+ * {
+ *     "message": "You're not allowed to access this route"
+ * }
+ */
 exports.update = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	let userId = jwtUtils.getUserId(headerAuth);
-	models.Users.findOne({where: {id: userId}})
-		.then(admin => {
-			let role = JSON.parse(admin.role);
-			if (!role.includes('admin')) {
-				res.status(400).json({message: `You're not allowed for this route !`})
-			} else {
-				models.PostsReport.update({status: 'treated'}, {where: {id: req.params.id}})
-					.then(() => {
-						res.status(200).json({message: `Report ${req.params.id} has been updated !`})
-					}).catch((err) => res.status(500).json(err))
-			}
-		}).catch(err => res.status(500).json(err))
+	if(!headerAuth){
+		res.status(400).json({message: `You're not authenticated, please log in !`})
+	} else {
+		models.Users.findOne({where: {id: userId}})
+			.then(admin => {
+				let role = JSON.parse(admin.role);
+				if (!role.includes('admin')) {
+					res.status(400).json({message: `You're not allowed for this route !`})
+				} else {
+					models.PostsReport.update({status: 'treated'}, {where: {id: req.params.id}})
+						.then(() => {
+							res.status(200).json({message: `Report ${req.params.id} has been updated !`})
+						}).catch((err) => res.status(500).json(err))
+				}
+			}).catch(err => res.status(500).json(err))
+	}
 }
 
+/**
+ * @api {delete} /api/report/post/:id Delete Post Report
+ *
+ * @apiParam {Number} PostReportId id(unique)
+ * @apiName DeletePostReport
+ * @apiGroup Post Reports and Comments reports
+ *
+ * @apiDescription ⚠️Admin role needed
+ *
+ * @apiSuccess Message message
+ *
+ * @apiSuccessExample Success-Response:
+ *HTTP/1.1 200 OK
+ *{
+ *	"message":"This report has been deleted !"
+ *}
+ * @apiErrorExample Error-Response : User not allowed for this action
+ * HTTP/1.1 403 Forbidden
+ * {
+ *     "message": "You're not allowed to access this route"
+ * }
+ */
 exports.delete = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	let userId = jwtUtils.getUserId(headerAuth);
-	models.Users.findOne({where: {id: userId}})
-		.then(admin => {
-			let role = JSON.parse(admin.role);
-			if (!role.includes('admin')) {
-				res.status(400).json({message: `You're not allowed for this route !`})
-			} else {
-				models.PostsReport.destroy({where: {id: req.params.id}})
-					.then(() => {
-						res.status(200).json({message: `This report has been deleted !`})
-					})
-					.catch((err) => res.status(404).json({message: `No report found with ID ${req.params.id}`, err}))
-			}
-		}).catch(err => res.status(500).json(err))
+	if(!headerAuth){
+		res.status(400).json({message: `You're not authenticated, please log in !`})
+	} else {
+		models.Users.findOne({where: {id: userId}})
+			.then(admin => {
+				let role = JSON.parse(admin.role);
+				if (!role.includes('admin')) {
+					res.status(400).json({message: `You're not allowed for this route !`})
+				} else {
+					models.PostsReport.destroy({where: {id: req.params.id}})
+						.then(() => {
+							res.status(200).json({message: `This report has been deleted !`})
+						})
+						.catch((err) => res.status(404).json({message: `No report found with ID ${req.params.id}`, err}))
+				}
+			}).catch(err => res.status(500).json(err))
+	}
 }

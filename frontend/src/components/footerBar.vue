@@ -1,14 +1,14 @@
 <template>
-  <div class="container-fluid navbarbg">
+  <div class="container-fluid p-2 footerBg flex-column flex-md-row">
     <!--MODAL - COMING SOON - REPLACE WITH LINK TO COMPANY WEBSITE-->
-    <b-button v-b-modal.site class="col-3 btn"><img src="../assets/img/logoFooter.png" alt="Logo Groupomania"></b-button>
-    <b-modal ok-only ok-variant="info" ok-title="Fermer" id="site" title="Bientôt disponible !">
+    <b-button class="col-md-3" v-b-modal.site><img src="../assets/img/logoFooter.png" alt="Logo Groupomania" class="m-2"></b-button>
+    <b-modal centered ok-only ok-variant="info" ok-title="Fermer" id="site" title="Bientôt disponible !">
       <img src="../assets/img/comingSoon.png" alt="Le site de l'entreprise bientôt disponible !" class="img-fluid">
     </b-modal>
 
     <!--MODAL - CONTACT US - FOR ANY USER ISSUE-->
-    <b-button class="col-3 btn" @click="showModal()"><span>Nous contacter</span></b-button>
-    <b-modal ref="contact" title="Nous contacter" ok-only ok-title="Fermer" ok-variant="info">
+    <b-button class="col-md-3" @click="showModal()"><span>Nous contacter</span></b-button>
+    <b-modal centered ref="contact" title="Nous contacter" ok-only ok-title="Fermer" ok-variant="info">
       <p class="text-center mb-3">Pour vos différentes questions vous pouvez vous rendre sur notre rubrique FAQ<br>
         Si vous n'avez pas trouvé votre réponse, cliquez sur le bouton ci-dessous</p>
       <b-button id="showForm" class="d-flex m-auto" v-b-toggle.collapse-1 pill>Je n'ai pas trouvé ma réponse</b-button>
@@ -64,7 +64,7 @@
     </b-modal>
 
     <!--LINK TO FAQ-->
-    <b-button class="col-3 btn"><router-link :to="{name: 'faq'}"><span>FAQ</span></router-link></b-button>
+    <b-button class="col-md-3"><router-link :to="{name: 'faq'}"><span>FAQ</span></router-link></b-button>
   </div>
 </template>
 
@@ -110,7 +110,7 @@ export default {
     showAlertSuccess (title) {
       this.$swal({
         title: title,
-        position: 'top-end',
+        position: 'center',
         icon: 'success',
         showConfirmButton: false,
         timer: '2500'})
@@ -135,24 +135,32 @@ export default {
   #submitIssue:hover, #showForm:hover{
     background-color: grey;
   }
-  .navbarbg{
-    padding: 1%;
+  .footerBg{
     overflow-x: hidden;
     background-image: url("../assets/img/bgfooter.png");
     background-size: cover;
   }
-  a{
+  a, a:hover{
     text-decoration: none;
   }
   .btn{
     color: black;
     background-color: transparent;
     border: none;
+    height: 53px;
+  }
+  .modal-body .btn{
+    height: auto;
+  }
+  .card-body{
+    padding: 0;
+  }
+  .card{
+    border: none;
   }
   .btn img{
     object-fit: scale-down;
-    max-width: 45%;
-    margin: 2%;
+    max-width: 100%;
   }
   span{
     color: black;

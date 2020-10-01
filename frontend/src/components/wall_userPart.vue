@@ -1,59 +1,72 @@
 <template>
-  <div class="col-lg-12 row preWall" id="user">
+  <div class="row preWall align-items-center justify-content-center" id="user">
 
     <!--USERNAME + PROFILE PICTURE-->
-    <div class="userPart col-3 d-flex flex-column align-items-center">
+    <div class="col-md-3 mt-3 mb-5 mt-md-1 mb-md-4 mr-auto ml-auto d-flex flex-column align-items-center">
       <h1>Bonjour<br> {{ currentUser.infos.username }} !</h1>
       <div>
         <!--LINK TO CURRENT USER PROFILE-->
-        <router-link :to="`/profile/${currentUser.id}`" class="d-flex row align-items-center text-decoration-none"><img :src="currentUser.infos.url_profile_picture" :alt="currentUser.infos.alt_profile_picture" class="userPhoto">
+        <router-link :to="`/profile/${currentUser.id}`" class="d-flex flex-column align-items-center text-decoration-none">
+          <img :src="currentUser.infos.url_profile_picture" :alt="currentUser.infos.alt_profile_picture" class="userPhoto">
           <!--IF USER IS ADMIN => NOTIFICATION FOR USER MESSAGE & REPORTS-->
-          <i id="popover-content" v-if="currentUser.infos.role.includes('admin')" class="fas fa-envelope col-1" v-b-popover><span class="ml-1">{{ messageWaiting.total }}</span></i>
-          <b-popover target="popover-content" triggers="hover" placement="bottomright"><template v-slot:title>Notification(s) :</template>Message(s): {{ messageWaiting.issues.length }} en attente <br>Signalement(s): {{ messageWaiting.postReports.length + messageWaiting.commentReports.length }} en attente</b-popover>
+        </router-link>
+        <router-link :to="{name: 'admin'}" class="text-decoration-none">
+          <i id="messages" v-if="currentUser.infos.role && currentUser.infos.role.includes('admin')" class="fas fa-envelope mt-3 col-md-1 p-0" v-b-popover>
+            <span class="ml-1">{{ messageWaiting.total }}</span>
+          </i>
+          <b-popover target="messages" triggers="hover" placement="bottom" v-if="currentUser.infos.role && currentUser.infos.role.includes('admin') && messageWaiting"><template v-slot:title>Notification(s) :</template>Message(s): {{ messageWaiting.issues.length }} en attente <br>Signalement(s): {{ messageWaiting.postReports.length + messageWaiting.commentReports.length }} en attente</b-popover>
         </router-link>
       </div>
     </div>
 
     <!--FORM TO PUBLISH POST-->
-    <b-form class="formPart" enctype="multipart/form-data" novalidate>
-      <h2 id="posth2">Voulez-vous partager quelque chose ?</h2>
-      <b-row class="mb-2">
-        <b-col sm="3" class="mb-2">
-          <label for="title">Titre :</label>
-        </b-col>
-        <b-col sm="9">
+    <div class="formPart p-1 pt-md-4 pb-md-3 pr-md-5 pl-md-5 mb-md-4 d-flex flex-column m-auto col-md-8 col-lg-7">
+      <h2 class="mb-3 mb-md-5">Voulez-vous partager quelque chose ?</h2>
+      <b-form enctype="multipart/form-data" novalidate class="d-flex flex-column">
+        <b-form-group
+          label="Titre :"
+          label-for="title"
+          class="d-flex flex-md-row align-items-center text-left"
+          label-cols-md="3">
           <b-form-input
             id="title"
-            label="Titre :"
-            label-for="title"
             v-model="userPost.title"
-            class="postInput"
+            class="m-0"
             placeholder="Titre de votre publication ... "
           ></b-form-input>
-        </b-col>
-      </b-row>
-      <b-row class="mb-2">
-        <b-col sm="3">
-          <label for="content">Votre publication :</label>
-        </b-col>
-        <b-col sm="9">
+        </b-form-group>
+        <b-form-group
+          label="Publication :"
+          label-for="content"
+          class="d-flex flex-md-row text-left"
+          label-cols-md="3">
           <b-form-textarea
             id="content"
             v-model="userPost.content"
-            placeholder="Votre publication ..."
-            class="postInput"
+            placeholder="Contenu de votre publication ..."
+            class="col-md-12 m-0 text-center"
             rows="3"
             max-rows="6"
           ></b-form-textarea>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col sm="12" class="d-flex" id="buttonPart">
-          <b-form-file v-model="file" class="mt-3" plain accept=".jpg, .png, .gif, .jpeg"></b-form-file>
-          <b-button pill type="submit" id="submitPost" @click.prevent="publish()">Publier</b-button>
-        </b-col>
-      </b-row>
-    </b-form>
+          <b-button v-b-modal.emojis class="rounded-pill d-flex mr-auto ml-auto mt-3" variant="dark">😃 Ajouter des emoticones !</b-button>
+        </b-form-group>
+        <b-modal centered title="Emoticones" ok-only ok-title="Fermer" ok-variant="info" id="emojis" triggers="hover" placement="top">
+          <div class="d-flex row m-2">
+            <p v-for="(emoji, index) in emojis" :key="index" @click="getEmoji(index)">{{ emoji }}</p>
+          </div>
+        </b-modal>
+        <b-form-group
+        label="Votre GIF :"
+        label-for="fileInput"
+        class="d-flex flex-column flex-md-row text-left"
+        label-cols-md="3">
+          <b-form-file id="fileInput" v-model="file" accept=".jpg, .png, .gif, .jpeg" class="text-left mr-auto ml-auto"></b-form-file>
+        </b-form-group>
+        <b-button pill type="submit" id="submitPost" @click.prevent="publish()" class="mt-3 mb-3 mr-auto ml-auto">Publier</b-button>
+
+      </b-form>
+    </div>
+
   </div>
 </template>
 
@@ -66,7 +79,9 @@ export default {
         title: null,
         content: null
       },
-      file: null
+      file: null,
+      emojis: this.$store.state.posts.emojis
+
     }
   },
   computed: {
@@ -81,10 +96,24 @@ export default {
     showAlert (title, icon, timer) {
       this.$swal({
         title: title,
-        position: 'top-end',
+        position: 'center',
         icon: icon,
         showConfirmButton: false,
         timer: timer})
+    },
+    getEmoji (index) {
+      let emojiCode = this.emojis[index]
+      if(this.userPost.content === null) {
+        this.userPost.content = emojiCode
+      } else {
+        this.userPost.content += emojiCode
+      }
+      this.$swal({
+        title: '',
+        timer: '500',
+        text: '✔ Ajouté !️',
+        showConfirmButton: false
+      })
     },
     publish () {
       if (this.userPost.title === null || this.userPost.content === null || this.file === null) {
@@ -133,27 +162,28 @@ export default {
         }
       }
     }
-  },
-  beforeMount () {
-    this.$store.dispatch('messageWaiting')
-      .then(response => {
-        console.log(response.data)
-      })
   }
 }
 </script>
 
 <style>
+  #emojis p{
+    font-size: 20px;
+  }
+  .custom-file-input:lang(en) ~ .custom-file-label::after {
+    content: 'Rechercher' !important;
+  }
   .swal2-popup, .modal{
     font-family: 'Chewy';
   }
   .swal2-title{
     color: #2C3F5F;
   }
-  .userPart{
-    margin: 2% 0;
-    align-items: center;
-    justify-content: space-around;
+  .swal2-shown{
+    color: #2C3F5F;
+  }
+  #messages, #messages span{
+    font-size: 25px;
   }
   .userPhoto{
     object-fit: cover;
@@ -169,12 +199,6 @@ export default {
   }
   #submitPost:hover{
     background-color: grey;
-  }
-  #posth2{
-    margin-bottom: 5%;
-  }
-  #buttonPart{
-    align-items: baseline;
   }
   .fa-envelope{
     text-decoration: none;

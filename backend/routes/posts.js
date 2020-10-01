@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
-//const validator = require('../middlewares/validator');
 const postCtrl = require('../controllers/posts');
 const multer = require('../middlewares/multer-config');
-const auth = require('../middlewares/auth');
 'use strict';
 
 router.post('/', multer, postCtrl.create)

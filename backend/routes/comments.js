@@ -1,10 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const commentCtrl = require('../controllers/comments')
-/*const validator = require('../middleware/validator');
-const userCtrl = require('../controllers/users');
-const multer = require('../middleware/multer-config');
-const auth = require('../middleware/auth');*/
 'use strict';
 
 router.post('/:id/comments', commentCtrl.create)
