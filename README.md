@@ -31,9 +31,10 @@ Clone this repository, then :
  #### *Application*
  Open the application on `http://localhost:8080/`
  
- ##*Author*
+ ## *Author*
  Lucie Baroiller
  
- ##*Badges*
+ ## *Badges*
 Backend : <a href="https://snyk.io/test/github/LuluBaroy/Groupomania?targetFile=backend/package.json"><img src="https://snyk.io/test/github/LuluBaroy/Groupomania/badge.svg?targetFile=backend/package.json" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/LuluBaroy/Groupomania?targetFile=backend/package.json" style="max-width:100%;"></a>
+
 Frontend : <a href="https://snyk.io/test/github/LuluBaroy/Groupomania?targetFile=frontend/package.json"><img src="https://snyk.io/test/github/LuluBaroy/Groupomania/badge.svg?targetFile=frontend/package.json" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/LuluBaroy/Groupomania?targetFile=frontend/package.json" style="max-width:100%;"></a>
