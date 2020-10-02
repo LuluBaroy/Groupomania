@@ -1,7 +1,7 @@
+'use strict';
 const express = require('express');
 const router = express.Router();
 const commentCtrl = require('../controllers/comments')
-'use strict';
 
 router.post('/:id/comments', commentCtrl.create)
 

@@ -1,8 +1,8 @@
+'use strict';
 const express = require('express');
 const router = express.Router();
 const postCtrl = require('../controllers/posts');
 const multer = require('../middlewares/multer-config');
-'use strict';
 
 router.post('/', multer, postCtrl.create)
 

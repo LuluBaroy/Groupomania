@@ -1,10 +1,10 @@
+'use strict';
 require('dotenv').config();
 const models = require('../models');
 const path = require('path')
 const jwtUtils = require('../middlewares/jwt');
 const fs = require('fs');
 const logger = require('../middlewares/winston')
-'use strict';
 
 /**
  * @api {post} /api/posts Create
@@ -37,12 +37,15 @@ const logger = require('../middlewares/winston')
 exports.create = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
+		logger.info(`An unauthenticated user tried to access to function create(post)`)
 		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		if(!req.file){
+			logger.info(`An user tried to publish without file`)
 			res.status(400).json({ message: 'File is required !'})
 		} else {
 			if(path.extname(req.file.filename).includes('.undefined')) {
+				logger.info(`An user tried to published with a file containing an unauthorized extension`)
 				res.status(400).json({ message: 'This file extension is not allowed !'})
 			} else {
 				let userId = jwtUtils.getUserId(headerAuth);
@@ -50,8 +53,14 @@ exports.create = (req, res, next) => {
 				urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
 				altGif = "GIF partagé par l'utilisateur"
 				models.Posts.create({ title: req.body.title, UserId: userId, content: req.body.content, url_gif: urlGif, alt_gif: altGif })
-					.then((post) => res.status(201).json({ message: `You're post has been created !`, post}))
-					.catch((err) => res.status(500).json(err))
+					.then((post) => {
+						logger.info(`User ${userId} has published a post`)
+						res.status(201).json({message: `You're post has been created !`, post})
+					})
+					.catch((err) => {
+						logger.info(`Something went wrong when trying to create a post`)
+						res.status(500).json(err)
+					})
 			}
 		}
 	}
@@ -85,6 +94,7 @@ exports.create = (req, res, next) => {
 exports.createLike = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
+		logger.info(`An unauthenticated user tried to access to function createLike(post)`)
 		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
@@ -92,17 +102,32 @@ exports.createLike = (req, res, next) => {
 			.then(likes => {
 				if(likes){
 					models.Likes.destroy({ where: { user_id: userId, post_id: req.params.id}})
-						.then(() => res.status(200).json({ message: `Your like has been removed from that post !`}))
-						.catch(error => res.status(400).json({ error }))
+						.then(() => {
+							logger.info(`User ${userId} has disliked post ${req.params.id}`)
+							res.status(200).json({message: `Your like has been removed from that post !`})
+						})
+						.catch(error => {
+							logger.info(`Something went wrong when trying to dislike post ${req.params.id}`)
+							res.status(400).json({error})
+						})
 				} else {
 					models.Likes.create({
 						post_id: req.params.id,
 						user_id: userId
 					})
-						.then((like) => res.status(201).json(like))
-						.catch(error => res.status(400).json({ error }))
+						.then((like) => {
+							logger.info(`User ${userId} has liked post ${req.params.id}`)
+							res.status(201).json(like)
+						})
+						.catch(error => {
+							logger.info(`Something went wrong when trying to like post ${req.params.id}`)
+							res.status(400).json({error})
+						})
 				}
-			}).catch(err => res.status(500).json(err))
+			}).catch(err => {
+			logger.info(`Somethig went wrong when trying to find likes in function createLike(post)`)
+			res.status(500).json(err)
+		})
 	}
 
 }
@@ -143,6 +168,7 @@ exports.readLike = (req, res, next) => {
 	let userLiked = []
 	let userInfo = []
 	if(!headerAuth){
+		logger.info(`An unauthenticated user tried to access to function readLike(post)`)
 		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		models.Likes.findAll({ where: { post_id: req.params.id },
@@ -159,15 +185,23 @@ exports.readLike = (req, res, next) => {
 							.then((user => {
 								userInfo.push({id:user.id, username: user.username, url_profile_picture: user.url_profile_picture, alt_profile_picture: user.alt_profile_picture})
 								if(k === userLiked.length -1){
+									logger.info(`An user got likes for post ${req.params.id}`)
 									res.status(200).json(userInfo)
 								}
-							})).catch(err => res.status(500).json(err))
+							})).catch(err => {
+							logger.info(`Something went wrong when trying to find users in function readLike(post)`)
+							res.status(500).json(err)
+						})
 					}
 				} else {
+					logger.info(`an user got likes for post ${req.params.id} - here zero`)
 					res.status(200).json(likes)
 				}
 
-			}).catch(err => res.status(500).json(err))
+			}).catch(err => {
+			logger.info(`Something went wrong when trying to find all likes in function readLike(post)`)
+			res.status(500).json(err)
+		})
 	}
 
 }
@@ -195,6 +229,7 @@ exports.readLike = (req, res, next) => {
 exports.update = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
+		logger.info(`An unauthenticated user tried to access to function update(post)`)
 		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
@@ -219,15 +254,26 @@ exports.update = (req, res, next) => {
 						}
 						models.Posts.update({ ...req.body, url_gif: urlGif, alt_gif: altGif }, { where: { id: req.params.id }})
 							.then(() => {
+								logger.info(`User ${userId} has updated post ${req.params.id}`)
 								res.status(200).json({ message: `Your post has been updated !`})
 							})
-							.catch((err) => res.status(500).json(err))
+							.catch((err) => {
+								logger.info(`Something went wrong when trying to update post ${req.params.id}`)
+								res.status(500).json(err)
+							})
 					} else {
+						logger.info(`User ${userId} tried to update post ${req.params.id}`)
 						res.status(403).json({ message: `You're not allowed to update this post ! `})
 					}
 				})
-				.catch((err) => res.status(404).json({ message: `This post doesn't exist `, err}))
-			})
+				.catch((err) => {
+					logger.info(`Something went wrong when trying to find post ${req.params.id}`)
+					res.status(404).json({message: `This post doesn't exist `, err})
+				})
+			}).catch(err => {
+			logger.info(`Something went wrong when trying to find user in function update(post)`)
+			res.status(500).json(err)
+		})
 
 	}
 
@@ -256,6 +302,7 @@ exports.update = (req, res, next) => {
 exports.delete = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
+		logger.info(`An unauthenticated user tried to access to function delete(post)`)
 		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
@@ -280,18 +327,41 @@ exports.delete = (req, res, next) => {
 															.then(() => {
 																models.Posts.destroy({where: {id: post.id}})
 																	.then(() => {
+																		logger.info(`User ${userId} has deleted post ${req.params.id}`)
 																		res.status(200).json({message: 'Post deleted'})
-																	}).catch(err => res.status(500).json({err}))
-															}).catch(err => res.status(500).json(err))
-													}).catch(err => res.status(500).json(err))
-											}).catch(err => res.status(500).json(err))
-									}).catch(err => res.status(500).json(err))
+																	}).catch(err => {
+																	logger.info(`Something went wrong when trying to delete post ${req.params.id}`)
+																	res.status(500).json({err})
+																})
+															}).catch(err => {
+															logger.info(`Something went wrong when trying to delete postReports corresponding with post ${req.params.id}`)
+															res.status(500).json(err)
+														})
+													}).catch(err => {
+													logger.info(`Something went wrong when trying to delete likes corresponding with post ${req.params.id}`)
+													res.status(500).json(err)
+												})
+											}).catch(err => {
+											logger.info(`Something went wrong when trying to delete comments corresponding to post ${req.params.id}`)
+											res.status(500).json(err)
+										})
+									}).catch(err => {
+									logger.info(`something went wrong when trying to delete commentsReports corresponding to post ${req.params.id}`)
+									res.status(500).json(err)
+								})
 							})
 						} else {
+							logger.info(`User ${userId} tried to delete post ${req.params.id}`)
 							res.status(401).json({message: `You're not allowed to delete this post !`})
 						}
-					}).catch(err => res.status(404).json(err))
-			}).catch(err => res.status(500).json(err))
+					}).catch(err => {
+					logger.info(`something went wrong when trying to find post ${req.params.id}`)
+					res.status(404).json(err)
+				})
+			}).catch(err => {
+			logger.info(`something went wrong when trying to find user in function delete(post)`)
+			res.status(500).json(err)
+		})
 	}
 
 }
@@ -329,18 +399,19 @@ exports.delete = (req, res, next) => {
 exports.readOne = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
+		logger.info(`An unauthenticated user tried to access to function readOne(post)`)
 		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
-		if(userId){
-			models.Posts.findOne({ where: { id: req.params.id }})
-				.then((post) => {
-					res.status(200).json(post)
-				})
-				.catch((err) => res.status(404).json(err))
-		} else {
-			res.status(400).json({ message: `You're not authenticated, please log in ! `})
-		}
+		models.Posts.findOne({ where: { id: req.params.id }})
+			.then((post) => {
+				logger.info(`User ${userId} got post ${req.params.id} info`)
+				res.status(200).json(post)
+			})
+			.catch((err) => {
+				logger.info(`something went wrong when trying to find post ${req.params.id}`)
+				res.status(404).json(err)
+			})
 	}
 
 
@@ -449,6 +520,7 @@ exports.readOne = (req, res, next) => {
 exports.readAll = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
+		logger.info(`An unauthenticated user tried to access to function readAll(post)`)
 		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		models.Posts.findAll({ include: [models.Users, models.Comments, models.Likes],
@@ -457,9 +529,13 @@ exports.readAll = (req, res, next) => {
 			]
 		})
 			.then(posts => {
+				logger.info(`user got all posts infos`)
 				res.status(200).json(posts)
 			})
-			.catch(err => res.status(500).json(err))
+			.catch(err => {
+				logger.info(`something went wrong when trying to find all posts`)
+				res.status(500).json(err)
+			})
 	}
 
 }
@@ -540,6 +616,7 @@ exports.readAll = (req, res, next) => {
 exports.readAllFromUserId = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
+		logger.info(`An unauthenticated user tried to access to function ReadAllFromUserId`)
 		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		models.Posts.findAll({ where: { user_id: req.params.user_id }, include: [models.Likes, models.Comments]}, {
@@ -548,9 +625,13 @@ exports.readAllFromUserId = (req, res, next) => {
 			]
 		})
 			.then(posts => {
+				logger.info(`User got all posts from user ${req.params.user_id}`)
 				res.status(200).json(posts)
 			})
-			.catch(err => res.status(500).json(err))
+			.catch(err => {
+				logger.info(`something went wrong when trying to find all posts from user ${req.params.user_id}`)
+				res.status(500).json(err)
+			})
 	}
 
 }
@@ -585,6 +666,7 @@ exports.readAllFromUserId = (req, res, next) => {
 exports.createReport = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
+		logger.info(`An unauthenticated user tried to access to function createReport(post)`)
 		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
@@ -595,8 +677,12 @@ exports.createReport = (req, res, next) => {
 			status: 'pending'
 		})
 			.then((report) => {
+				logger.info(`User ${userId} has created a post report for post ${req.params.id}`)
 				res.status(201).json({ message: `Your report has been sent, we'll eventually contact you if we need more information !`, report })
-			}).catch((err) => res.status(500).json(err))
+			}).catch((err) => {
+			logger.info(`something went wrong when trying to create report for post ${req.params.id}`)
+			res.status(500).json(err)
+		})
 	}
 
 }

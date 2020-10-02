@@ -51,7 +51,7 @@
                     type="email"
                     v-model="user.email"
                     required
-                    @change="testInput('email')"
+                    @keyup="testInput('email')"
                     placeholder="abcd@efg.com"
                   ></b-form-input>
                   <div v-if="textEmail.length !== 0" style="color: red;">{{textEmail}}</div>
@@ -63,7 +63,7 @@
                     id="input-4"
                     required
                     v-model="user.username"
-                    @change="testInput('username')"
+                    @keyup="testInput('username')"
                     placeholder="Super Employee"
                   ></b-form-input>
                   <div v-if="textUsername.length !== 0" style="color: red;">{{textUsername}}</div>
@@ -80,7 +80,7 @@
                     v-model="user.password"
                     required
                     type="password"
-                    @change="testInput('password')"
+                    @keyup="testInput('password')"
                     placeholder="********"
                   ></b-form-input>
                   <div v-if="textPassword.length !== 0" style="color: red;">{{textPassword}}</div>
