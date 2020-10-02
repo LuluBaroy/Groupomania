@@ -1,7 +1,7 @@
 # Groupomania 
 ![alt-text](./frontend/src/assets/img/logoFooter.png)
 ## *API Documentation* 
-In construction
+Find the [API documentation here](https://lulubaroy.github.io/Groupomania_Documentation/)
 
 ## *Environment* 
 #### *Backend* 
