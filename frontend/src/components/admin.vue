@@ -361,11 +361,11 @@
         <h3>Utilisateurs</h3>
         <b-button @click="getAllUsers" v-b-modal.allUsers class="rounded-pill btnAdmin" variant="info">Voir tous les utilisateurs</b-button>
         <b-modal ok-only ok-title="Fermer" centered ok-variant="warning" id="allUsers" title="Tous les utilisateurs">
-          <div class="my-4 d-flex p-2 row align-items-center justify-content-between" v-for="user in allUsers" :key="user.id">
+          <div class="my-4 d-flex p-2 flex-column flex-md-row align-items-center justify-content-center justify-content-md-between" v-for="user in allUsers" :key="user.id">
             <router-link :to="`/profile/${user.id}`">
-              <img :src="user.url_profile_picture" :alt="user.alt_profile_picture" class="img-fluid imgComment"/>
+              <img :src="user.url_profile_picture" :alt="user.alt_profile_picture" class="imgComment"/>
             </router-link>
-            <h4 class="d-flex username col-9">{{ user.username }}</h4>
+            <h4 class="d-flex col-md-9 justify-content-center text-center">{{ user.username }}</h4>
           </div>
         </b-modal>
       </div>

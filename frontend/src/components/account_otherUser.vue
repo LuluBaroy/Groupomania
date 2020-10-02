@@ -45,7 +45,7 @@
                     <div class="d-flex flex-md-row flex-column justify-content-sm-between align-items-center p-2 comment">
                       <div class="userComment align-items-center justify-content-center d-flex flex-column">
                         <!--LINK TO AUTHOR PROFILE-->
-                        <router-link :to="`/profile/${comment.UserId}`"><img :src="comment.User.url_profile_picture" :alt="comment.User.alt_profile_picture" class="img-fluid imgComment"/></router-link>
+                        <router-link :to="`/profile/${comment.UserId}`"><img :src="comment.User.url_profile_picture" :alt="comment.User.alt_profile_picture" class="imgComment"/></router-link>
                         <h4>{{ comment.User.username}}</h4>
                       </div>
                       <div class="commentText text-break text-center col-md-8">{{ comment.comment }}</div>
@@ -151,9 +151,9 @@
 
               <!--MODAL - GET LIKES-->
               <b-modal centered ok-only ok-title="Fermer" ok-variant="warning" :id="'modalLike' + index + 'like'" title="Like(s) du post" @ok="getUserPosts()" @close="getUserPosts()">
-                <div class="my-4 d-flex p-2 row align-items-center justify-content-between" v-for="like in likes" :key="like.id" id="like">
-                  <router-link :to="`/profile/${like.id}`"><img :src="like.url_profile_picture" :alt="like.alt_profile_picture" class="img-fluid imgComment"/></router-link>
-                  <h4 class="d-flex username col-9">{{ like.username }}</h4>
+                <div class="my-4 d-flex p-2 flex-column flex-md-row align-items-center justify-content-center" v-for="like in likes" :key="like.id" id="like">
+                  <router-link :to="`/profile/${like.id}`"><img :src="like.url_profile_picture" :alt="like.alt_profile_picture" class="imgComment"/></router-link>
+                  <h4 class="d-flex col-9 justify-content-center justify-content-md-start">{{ like.username }}</h4>
                 </div>
                 <!--CHANGING BUTTON LIKE/DISLIKE-->
                 <b-btn pill class="d-flex m-auto" :variant="btnLikeVariant" @click="createLike(index), showAlertSuccess()">{{ btnLike }}</b-btn>

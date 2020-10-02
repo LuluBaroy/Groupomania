@@ -1,8 +1,8 @@
+'use strict';
 require('dotenv').config();
 const models = require('../models');
 const jwtUtils = require('../middlewares/jwt');
-//const logger = require('../middleware/winston')
-'use strict';
+const logger = require('../middlewares/winston')
 
 /**
  * @api {post} /api/posts/:id/comments Create
@@ -36,12 +36,14 @@ exports.create = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	const userId = jwtUtils.getUserId(headerAuth);
 	if(!headerAuth) {
+		logger.info(`an unauthenticated user tried to create a comment`)
 		res.status(400).json({message: `You're not authenticated, please log in!`})
 	} else {
 		models.Comments.create({ comment: req.body.comment, UserId: userId, PostId: req.params.id})
 			.then(comment => {
+				logger.info(`User ${userId} has commented post ${req.params.id}`)
 				res.status(201).json({ message: `Your comment has been sent !`, comment})
-			}).catch(err => res.status(500).json(err))
+			}).catch(err => {logger.info(`User ${userId} couldn't comment post ${req.params.id}`); res.status(500).json(err)})
 	}
 }
 
@@ -80,6 +82,7 @@ exports.createReport = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	let userId = jwtUtils.getUserId(headerAuth);
 	if(!headerAuth) {
+		logger.info(`An unauthenticated user tried to create a comment report`)
 		res.status(400).json({message: `You're not authenticated, please log in!`})
 	} else {
 		models.CommentsReport.create({
@@ -90,8 +93,9 @@ exports.createReport = (req, res, next) => {
 			status: 'pending'
 		})
 			.then((report) => {
+				logger.info(`User ${userId} has created a comment report about comment ${req.params.comment_id}`)
 				res.status(201).json({ message: `Your report has been sent, we'll eventually contact you if we need more information !`, report })
-			}).catch((err) => res.status(500).json(err))
+			}).catch((err) => {logger.info(`User ${userId} couldn't create a comment report about comment ${req.params.comment_id}`); res.status(500).json(err)})
 	}
 }
 
@@ -120,6 +124,7 @@ exports.update = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	let userId = jwtUtils.getUserId(headerAuth)
 	if(!headerAuth) {
+		logger.info(`an unauthenticated user tried to update a comment`)
 		res.status(400).json({message: `You're not authenticated, please log in!`})
 	} else {
 		models.Comments.findOne({ where: { id: req.params.comment_id }})
@@ -127,14 +132,16 @@ exports.update = (req, res, next) => {
 				if(comment && userId === comment.user_id){
 					models.Comments.update({ comment: req.body.comment }, { where: { id: req.params.comment_id }})
 						.then(() => {
+							logger.info(`User ${userId} has updated comment ${req.params.comment_id}`)
 							res.status(200).json({ message: `Your comment has been updated !`})
 						})
-						.catch((err) => res.status(500).json(err))
+						.catch((err) => {logger.info(`User ${userId} couldn't update comment ${req.params.comment_id}`); res.status(500).json(err)})
 				} else {
+					logger.info(`User ${userId} has tried to update comment ${req.params.comment_id}`)
 					res.status(403).json({ message: `You're not allowed to update this comment`})
 				}
 			})
-			.catch((err) => res.status(404).json({ message: `This comment doesn't exist `, err}))
+			.catch((err) => {logger.info(`Something went wrong when trying to search a comment (function updateComment)`); res.status(404).json({ message: `This comment doesn't exist `, err})})
 	}
 }
 
@@ -163,6 +170,7 @@ exports.delete = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	let userId = jwtUtils.getUserId(headerAuth);
 	if(!headerAuth) {
+		logger.info(`An unauthenticated user tried to delete a comment`)
 		res.status(400).json({message: `You're not authenticated, please log in!`})
 	} else {
 		models.Users.findOne({where: {id: userId}})
@@ -174,14 +182,18 @@ exports.delete = (req, res, next) => {
 							models.CommentsReport.destroy({where: {comment_id: req.params.comment_id}})
 								.then(() => {
 									models.Comments.destroy({where: {id: req.params.comment_id}})
-										.then(() => res.status(200).json({message: `Comment has been deleted !`}))
-										.catch(err => res.status(500).json(err))
-								}).catch(err => res.status(500).json(err))
+										.then(() => {
+											logger.info(`User ${userId} has deleted comment ${req.params.comment_id}`)
+											res.status(200).json({message: `Comment has been deleted !`})
+										})
+										.catch(err => {logger.info(`User ${userId} couldn't delete comment ${req.params.comment_id}`); res.status(500).json(err)})
+								}).catch(err => {logger.info(`User ${userId} couldn't delete a comment report (function delete comment)`); res.status(500).json(err)})
 						} else {
+							logger.info(`User ${userId} tried to delete comment ${req.params.comment_id}`)
 							res.status(403).json({ message: `You're not allowed to delete this comment`})
 						}
-					}).catch((err) => res.status(404).json({message: `This comment doesn't exist `, err}))
-			}).catch(err => res.status(500).json(err))
+					}).catch((err) => {logger.info(`Something went wrong when trying to search a comment`);res.status(404).json({message: `This comment doesn't exist `, err})})
+			}).catch(err => {logger.info(`Something went wrong when trying to search an user (function delete comment)`); res.status(500).json(err)})
 	}
 }
 
@@ -218,12 +230,14 @@ exports.delete = (req, res, next) => {
 exports.readOne = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth) {
+		logger.info(`An unauthenticated user tried to delete a comment`)
 		res.status(400).json({message: `You're not authenticated, please log in!`})
 	} else {
 		models.Comments.findOne({ where: { id: req.params.comment_id }})
 			.then(comment => {
+				logger.info(`User got comment ${req.params.comment_id}`)
 				res.status(200).json(comment)
-			}).catch(err => res.status(500).json(err))
+			}).catch(err => {logger.info(`Something went wrong when trying to search for a comment (function readOne comment)`); res.status(500).json(err)})
 	}
 }
 
@@ -301,6 +315,7 @@ exports.readOne = (req, res, next) => {
 exports.readAll = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth) {
+		logger.info(`An unauthenticated user tried to delete a comment`)
 		res.status(400).json({message: `You're not authenticated, please log in!`})
 	} else {
 		models.Comments.findAll({where: {PostId: req.params.id}, include: [models.Users],
@@ -309,7 +324,8 @@ exports.readAll = (req, res, next) => {
 			]
 		})
 			.then(comments => {
+				logger.info(`User got all comments from post ${req.params.id}`)
 				res.status(200).json(comments)
-			}).catch(err => res.status(500).json(err))
+			}).catch(err => {logger.info(`Something went wrong when trying to search for all comments from post ${req.params.id}`);res.status(500).json(err)})
 	}
 }

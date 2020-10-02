@@ -1,3 +1,4 @@
+'use strict';
 require('dotenv').config();
 const models = require('../models');
 const bcrypt = require('bcryptjs');
@@ -13,8 +14,6 @@ schema
 	.has().uppercase()
 	.has().lowercase()
 	.has().digits(1)
-
-'use strict';
 
 /**
  * @api {post} /api/auth/signup Sign Up
@@ -83,6 +82,7 @@ exports.signup = (req, res, next) => {
 									role: role,
 									consents: consents
 								}).then(user => {
+									logger.info('First user account created');
 									role = JSON.stringify(['user'])
 									bcrypt.hash(`${process.env.MDP_USER_DELETED}`, 10)
 										.then(hash => {
@@ -97,11 +97,15 @@ exports.signup = (req, res, next) => {
 												consents: consents
 											})
 												.then(()=>{
+													logger.info('Deleted user account created');
 													res.status(201).json({message: `New user created ! User ID: ${user.id}`})
-												}).catch(err => res.status(500).json(err))
-										}).catch(err => res.status(500).json(err))
-								}).catch(err => res.status(500).json(err))
-							}).catch(err => res.status(500).json(err))
+												}).catch(err => {
+												logger.info('Something went wrong when trying to create deleted user account');
+												res.status(500).json(err)
+											})
+										}).catch(err => {logger.info('Something went wrong with bcrypt hash for deleted user account'); res.status(500).json(err)})
+								}).catch(err => {logger.info('Something went wrong when trying to create first user'); res.status(500).json(err)})
+							}).catch(err => {logger.info('Something went wrong with bcrypt hash for first user'); res.status(500).json(err)})
 					} else {
 						role = JSON.stringify(['user'])
 						models.Users.findOne({ attributes: ['email'], where: { email: req.body.email }})
@@ -128,19 +132,22 @@ exports.signup = (req, res, next) => {
 												consents: consents
 											})
 												.then((newUser) => {
+													logger.info('New user has been created');
 													res.status(201).json({ message: `New user created ! User ID: ${newUser.id}`})
 												})
-												.catch((err) => {res.status(500).json(err)})
-											logger.info('New user has been created');
+												.catch((err) => {logger.info('Something went wrong when trying to create new user'); res.status(500).json(err)})
+
 										})
-										.catch(error => {/*logger.info(`Couldn't register new user`); */res.status(500).json({ error })});
+										.catch(error => {logger.info(`Something went wrong with bcrypt hash (function signup)`); res.status(500).json({ error })});
 								} else {
+									logger.info(`An user tried to sign up with an email already in DB`)
 									return res.status(401).json({message: 'This email is already in use !'})
 								}
-							})
+							}).catch(err => {logger.info(`Something went wrong when trying to search for all users (function signup)`); res.status(500).json(err)})
 					}
-				}).catch(err => res.status(500).json(err))
+				}).catch(err => {logger.info(`Something went wrong when trying to search for all users (function signup)`);res.status(500).json(err)})
 		} else {
+			logger.info(`An user tried to sign up with invalid password`)
 			res.status(400).json({ message: `Your password must contain at least 8 characters with at least one uppercase letter and a number`})
 		}
 	}
@@ -173,6 +180,7 @@ exports.login = (req, res, next) => {
 		models.Users.findOne({ where: { email: req.body.email }})
 			.then((user) => {
 				if(!user){
+					logger.info(`An user tried to log in but couldn't be found in DB`);
 					return res.status(404).json({ message: `This user couldn't be found`})
 				}
 				bcrypt.compare(req.body.password, user.password)
@@ -188,9 +196,9 @@ exports.login = (req, res, next) => {
 							token: jwtUtils.generateToken(user)
 						});
 					})
-					.catch((error) => {logger.info(`${req.params.id}: Couldn't connect a user on log in function`); res.status(500).json({ error })});
+					.catch((error) => {logger.info(`${req.params.id}: Couldn't connect an user on login function`); res.status(500).json({ error })});
 			})
-			.catch(error => {logger.info(`${req.params.id}: Couldn't connect a user on log in function`); res.status(500).json({ error })});
+			.catch(error => {logger.info(`${req.params.id}: Couldn't connect an user on login function`); res.status(500).json({ error })});
 	}
 
 }
@@ -262,16 +270,19 @@ exports.readOne = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	const userId = jwtUtils.getUserId(headerAuth);
 	if(!headerAuth){
+		logger.info(`An unauthenticated user tried to get user ${req.params.id}`);
 		res.status(400).json({message: `You're not authenticated, please log in !`})
 	} else {
 		models.Users.findOne({ where: { id: req.params.id }, include: [models.Posts, models.Comments, models.Likes]})
 			.then((user) => {
 				if(!user){
-					res.status(404).json({ message: `User with ID ${userId} not found !`})
+					logger.info(`User ${userId} tried to get info about user ${req.params.id} but it seems this user doesn't exist`);
+					res.status(404).json({ message: `User with ID ${req.params.id} not found !`})
 				} else {
+					logger.info(`User ${userId} got info about user ${req.params.id}`);
 					res.status(200).json(user)
 				}
-			}).catch(err => res.status(500).json(err))
+			}).catch(err => {logger.info(`Something went wrong when trying to search for user ${req.params.id} info`); res.status(500).json(err)})
 	}
 }
 
@@ -300,6 +311,7 @@ exports.delete = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	const userId = jwtUtils.getUserId(headerAuth);
 	if(!headerAuth){
+		logger.info(`An unauthenticated user tried to access delete (user) function`);
 		res.status(400).json({message: `You're not authenticated, please log in !`})
 	} else {
 		function deleting () {
@@ -325,6 +337,7 @@ exports.delete = (req, res, next) => {
 		models.Users.findOne({where: {id: req.params.id}})
 			.then(admin => {
 				if(!admin){
+					logger.info(`User ${res.params.id} couldn't be found in DB (function delete (user))`);
 					res.status(404).json({message: `User ${req.params.id} couldn't be found !`})
 				} else {
 					let role = JSON.parse(admin.role);
@@ -334,24 +347,47 @@ exports.delete = (req, res, next) => {
 							fs.unlink(`images/${filename}`, () => {
 								deleting()
 									.then(() => {
+										logger.info(`All posts/comments/likes/postsReports/commentsReports from user ${req.params.id} has been reassigned to user 2`);
 										models.Users.destroy({where: {id: req.params.id}})
-											.then(() => res.status(200).json({message: `User ${req.params.id} deleted !`}))
-											.catch(err => res.status(500).json(err))
-									}).catch(err => res.status(500).json(err))
+											.then(() => {
+												logger.info(`User ${req.params.id} has been deleted`);
+												res.status(200).json({message: `User ${req.params.id} deleted !`})
+											})
+											.catch(err => {
+												logger.info(`Couldn't delete user ${req.params.id}`);
+												res.status(500).json(err)
+											})
+									}).catch(err => {
+									logger.info(`Something went wrong in function deleting (function delete (user))`);
+									res.status(500).json(err)
+								})
 							})
 						} else {
 							deleting()
 								.then(() => {
 									models.Users.destroy({where: {id: req.params.id}})
-										.then(() => res.status(200).json({message: `User ${req.params.id} deleted !`}))
-										.catch(err => res.status(500).json(err))
-								}).catch(err => res.status(500).json(err))
+										.then(() => {
+											logger.info(`User ${req.params.id} has been deleted`);
+											res.status(200).json({message: `User ${req.params.id} deleted !`})
+										})
+										.catch(err => {
+											logger.info(`Couldn't delete user ${req.params.id}`);
+											res.status(500).json(err)
+										})
+								}).catch(err => {
+								logger.info(`Something went wrong in function deleting (function delete (user))`);
+								res.status(500).json(err)
+							})
 						}
 					} else {
+						logger.info(`User ${userId} tried to delete user ${req.params.id}`);
 						res.status(400).json({message: `You're not allowed for this action`})
 					}
 				}
-			}).catch(err => res.status(500).json(err))
+			}).catch(err => {
+			logger.info(`Something went wrong when trying to search user (function delete (user))`);
+			res.status(500).json(err)
+		})
 	}
 }
 
@@ -396,6 +432,7 @@ exports.update = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	const userId = jwtUtils.getUserId(headerAuth);
 	if(!headerAuth){
+		logger.info(`An unauthenticated user tried to access updateUser function`);
 		res.status(400).json({message: `You're not authenticated, please log in !`})
 	} else {
 		models.Users.findOne({ where: { id: req.params.id }})
@@ -420,12 +457,19 @@ exports.update = (req, res, next) => {
 						console.log(password)
 						models.Users.update({ ...req.body, password: password, url_profile_picture: urlProfilePicture, consents: JSON.stringify(consents) }, { where: { id: req.params.id }})
 							.then(() => {
+								logger.info(`User ${userId} has updated his info`);
 								models.Users.findOne({ where: { id: req.params.id }})
 									.then(user => {
 										res.status(200).json({message: `Your information have been updated !`, user})
-									}).catch(err=> res.status(500).json(err))
+									}).catch(err=> {
+									logger.info(`Something went wrong when trying to search for user in function updateUser`);
+									res.status(500).json(err)
+								})
 							})
-							.catch((err) => res.status(500).json(err))
+							.catch((err) => {
+								logger.info(`Something went wrong when trying to update user ${userId}`);
+								res.status(500).json(err)
+							})
 					} else {
 						bcrypt.hash(req.body.password, 10)
 							.then(hash => {
@@ -433,18 +477,32 @@ exports.update = (req, res, next) => {
 								console.log('bcrypt : ' + password)
 								models.Users.update({ ...req.body, password: password, url_profile_picture: urlProfilePicture, consents: JSON.stringify(consents) }, { where: { id: req.params.id }})
 									.then(() => {
+										logger.info(`User ${userId} has updated his info`);
 										models.Users.findOne({ where: { id: req.params.id }})
 											.then(user => {
 												res.status(200).json({message: `Your information have been updated !`, user})
-											}).catch(err=> res.status(500).json(err))
+											}).catch(err=> {
+											logger.info(`Something went wrong when trying to search for user in function updateUser`);
+											res.status(500).json(err)
+										})
 									})
-									.catch((err) => res.status(500).json(err))
-							}).catch(err => res.status(500).json(err))
+									.catch((err) => {
+										logger.info(`Something went wrong when trying to update User ${userId}`);
+										res.status(500).json(err)
+									})
+							}).catch(err => {
+							logger.info(`Something went wrong when trying to hash new password for user ${userId}`);
+							res.status(500).json(err)
+						})
 					}
 				} else {
+					logger.info(`User ${userId} tried to update user ${req.params.id} infos`);
 					res.status(403).json({message: `You're not allowed for this action !`})
 				}
-			}).catch(err=> res.status(500).json(err))
+			}).catch(err=> {
+			logger.info(`Something went wrong when searching for user in function updateUser`);
+			res.status(500).json(err)
+		})
 	}
 }
 
@@ -513,9 +571,14 @@ exports.readAll = (req, res, next) => {
 						role: allUsers[i].role
 					})
 				}
+				logger.info(`All users info has been asked`);
 				res.status(200).json({message: `Here are all users`, users})
-			}).catch((err) => res.status(500).json(err))
+			}).catch((err) => {
+			logger.info(`Something went wrong when trying to search for all users in function ReadAllUsers`);
+			res.status(500).json(err)
+		})
 	} else {
+		logger.info(`An unauthenticated user tried to get all users info`);
 		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	}
 
@@ -548,12 +611,14 @@ exports.updatePrivilege = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	let userId = jwtUtils.getUserId(headerAuth);
 	if(!headerAuth){
+		logger.info(`An unauthenticated user tried to access to function updatePrivilege`);
 		res.status(400).json({message: `You're not authenticated, please log in !`})
 	} else {
 		models.Users.findOne({where: {id: userId}})
 			.then(admin => {
 				let role = JSON.parse(admin.role);
 				if (!role.includes('admin')) {
+					logger.info(`User ${userId} tried to access to function updatePrivilege`);
 					res.status(403).json({message: `You're not allowed for this route !`})
 				} else {
 					models.Users.findOne({where: {id: req.params.id}})
@@ -567,10 +632,20 @@ exports.updatePrivilege = (req, res, next) => {
 							let newRole = JSON.stringify(roleUser)
 							models.Users.update({role: newRole}, {where: {id: req.params.id}})
 								.then(() => {
+									logger.info(`User ${userId} has updated user ${req.params.id} privilege`);
 									res.status(200).json({message: `This user's privilege has been updated to : ${roleUser} ! `})
-								}).catch(err => res.status(500).json(err))
-						}).catch(err => res.status(500).json(err))
+								}).catch(err => {
+								logger.info(`User ${userId} couldn't update user ${req.params.id} privilege`);
+								res.status(500).json(err)
+							})
+						}).catch(err => {
+						logger.info(`Something went wrong when trying to search for user ${userId} in function updatePrivilege`);
+						res.status(500).json(err)
+					})
 				}
-			}).catch(err => res.status(500).json(err))
+			}).catch(err => {
+			logger.info(`Something went wrong when trying to search for user ${userId} in function updatePrivilege`);
+			res.status(500).json(err)
+		})
 	}
 }

@@ -1,7 +1,8 @@
+'use strict';
 const express = require('express');
 const router = express.Router();
 const reportCtrl = require('../controllers/postsReports');
-'use strict';
+
 
 router.put('/post/:id', reportCtrl.update)
 

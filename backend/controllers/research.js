@@ -1,5 +1,6 @@
+'use strict';
 const models = require('../models');
-
+const logger = require('../middlewares/winston')
 /**
  * @api {post} /api/research Research
  * @apiName Research
@@ -50,9 +51,11 @@ const models = require('../models');
 exports.research = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
+		logger.info(`An unauthenticated user tried to access to function Research`)
 		res.status(400).json({message: `You're not authenticated, please log in !`})
 	} else {
 		if(req.body.research === '' || req.body.research === null) {
+			logger.info(`an user tried to use function Research without filling field`)
 			res.status(400).json({ message: `Please complete the field before clicking on the search button`})
 		} else {
 			let username = req.body.research.toUpperCase()
@@ -60,6 +63,7 @@ exports.research = (req, res, next) => {
 				.then(users => {
 					if(users.length === 0){
 						users = 'There is no user with this username'
+						logger.info(`User research didn't match any username`)
 						res.status(200).json(users)
 					} else {
 						let usersCorresponding = []
@@ -68,11 +72,15 @@ exports.research = (req, res, next) => {
 								usersCorresponding.push(users[i])
 							}
 							if(i == users.length -1){
+								logger.info(`User got all user which usernames are matching with his research`)
 								res.status(200).json(usersCorresponding)
 							}
 						}
 					}
-				}).catch(err => res.status(500).json(err))
+				}).catch(err => {
+				logger.info(`Something went wrong when trying to find all users in function research`)
+				res.status(500).json(err)
+			})
 		}
 	}
 }

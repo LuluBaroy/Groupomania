@@ -1,6 +1,6 @@
+'use strict';
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-'use strict';
 
 exports.generateToken = (user) => {
 	return jwt.sign(

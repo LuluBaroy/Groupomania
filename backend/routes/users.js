@@ -1,10 +1,10 @@
+'use strict';
 const express = require('express');
 const router = express.Router();
 const multer = require('../middlewares/multer-config')
 const userCtrl = require('../controllers/users');
 const bouncer = require('express-bouncer')(15000, 30000, 3);
 const validator = require('../middlewares/validator')
-'use strict';
 
 router.post('/signup', multer, validator.checkingSignup,userCtrl.signup);
 

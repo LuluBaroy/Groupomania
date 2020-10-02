@@ -106,7 +106,7 @@
                     <!--COMMENT AUTHOR + CONTENT-->
                     <div class="d-flex flex-column flex-md-row justify-content-sm-between align-items-center comment">
                       <div class="userComment d-flex flex-column align-items-center p-3">
-                        <router-link :to="`/profile/${comment.UserId}`"><img :src="comment.User.url_profile_picture" :alt="comment.User.alt_profile_picture" class="img-fluid imgComment"/></router-link>
+                        <router-link :to="`/profile/${comment.UserId}`"><img :src="comment.User.url_profile_picture" :alt="comment.User.alt_profile_picture" class="imgComment"/></router-link>
                         <h4>{{ comment.User.username}}</h4>
                       </div>
                       <div class="commentText text-center pb-2 col-md-8">{{ comment.comment }}</div>
@@ -207,9 +207,9 @@
 
               <!--MODAL - GET LIKES-->
               <b-modal ok-only ok-title="Fermer" centered ok-variant="warning" :id="'modalLike' + index + 'like'" title="Like(s) du post" @ok="getUserPosts()" @close="getUserPosts()">
-                <div class="my-4 d-flex p-2 row align-items-center justify-content-between" v-for="like in likes" :key="like.id" id="like">
-                  <router-link :to="`/profile/${like.id}`"><img :src="like.url_profile_picture" :alt="like.alt_profile_picture" class="img-fluid imgComment"/></router-link>
-                  <h4 class="d-flex username col-9">{{ like.username }}</h4>
+                <div class="my-4 d-flex p-2 flex-column flex-md-row align-items-center justify-content-center" v-for="like in likes" :key="like.id" id="like">
+                  <router-link :to="`/profile/${like.id}`"><img :src="like.url_profile_picture" :alt="like.alt_profile_picture" class="imgComment"/></router-link>
+                  <h4 class="d-flex col-md-9 justify-content-center justify-content-md-start">{{ like.username }}</h4>
                 </div>
                 <!--CHANGING BUTTON LIKE/DISLIKE-->
                 <b-btn pill class="d-flex m-auto" :variant="btnLikeVariant" @click="createLike(index), showAlertSuccess()">{{ btnLike }}</b-btn>
@@ -721,7 +721,6 @@ export default {
       formData.append('bio', this.userInfo.bio)
       formData.append('shareable', this.newConsents.shareable)
       formData.append('contactable', this.newConsents.contactable)
-      console.log(this.userInfo.password)
       let payload = {
         userId: this.$store.state.user.currentUser.id,
         formData: formData

@@ -19,9 +19,16 @@ export default {
       return this.$store.state.user.currentUser
     }
   },
-  beforeMount () {
+  beforeCreate () {
     if (!this.$cookies.isKey('user')) {
       this.$router.push({name: 'auth'})
+    } else {
+      this.$store.dispatch('user/getCurrentUser')
+      .catch(error => {
+        if(error.message.split('code ')[1].includes('404')) {
+          this.$router.push({name: 'auth'})
+        }
+      })
     }
   }
 }

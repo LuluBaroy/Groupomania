@@ -33,7 +33,10 @@
             v-model="userPost.title"
             class="m-0"
             placeholder="Titre de votre publication ... "
+            @keyup="testInput('title')"
           ></b-form-input>
+          <div v-if="textTitle.length !== 0" style="color: red;">{{textTitle}}</div>
+          <div v-if="isValidTitle === true" class="d-flex mr-auto ml-auto mt-2 justify-content-center"><i class="far fa-check-circle"></i></div>
         </b-form-group>
         <b-form-group
           label="Publication :"
@@ -47,7 +50,10 @@
             class="col-md-12 m-0 text-center"
             rows="3"
             max-rows="6"
+            @keyup="testInput('content')"
           ></b-form-textarea>
+          <div v-if="textContent.length !== 0" style="color: red;">{{textContent}}</div>
+          <div v-if="isValidContent === true" class="d-flex mr-auto ml-auto mt-2 justify-content-center"><i class="far fa-check-circle"></i></div>
           <b-button v-b-modal.emojis class="rounded-pill d-flex mr-auto ml-auto mt-3" variant="dark">😃 Ajouter des emoticones !</b-button>
         </b-form-group>
         <b-modal centered title="Emoticones" ok-only ok-title="Fermer" ok-variant="info" id="emojis" triggers="hover" placement="top">
@@ -60,9 +66,12 @@
         label-for="fileInput"
         class="d-flex flex-column flex-md-row text-left"
         label-cols-md="3">
-          <b-form-file id="fileInput" v-model="file" accept=".jpg, .png, .gif, .jpeg" class="text-left mr-auto ml-auto"></b-form-file>
+          <img v-if="url.length > 0" :src="url" alt="GIF choisi par l'utilisateur" class="img-fluid imgPosts d-flex mb-2"/>
+          <b-form-file id="fileInput" v-model="file" accept=".jpg, .png, .gif, .jpeg" class="text-left mr-auto ml-auto" @change="onFileChanged" @input="testInput('file')"></b-form-file>
+          <div v-if="textFile.length !== 0" style="color: red;">{{textFile}}</div>
+          <div v-if="isValidFile === true" class="d-flex justify-content-center mt-2"><i class="far fa-check-circle"></i></div>
         </b-form-group>
-        <b-button pill type="submit" id="submitPost" @click.prevent="publish()" class="mt-3 mb-3 mr-auto ml-auto">Publier</b-button>
+        <b-button pill type="submit" id="submitPost" @click.prevent="testForm(), publish()" class="mt-3 mb-3 mr-auto ml-auto">Publier</b-button>
 
       </b-form>
     </div>
@@ -76,12 +85,18 @@ export default {
   data () {
     return {
       userPost: {
-        title: null,
-        content: null
+        title: '',
+        content: ''
       },
       file: null,
-      emojis: this.$store.state.posts.emojis
-
+      emojis: this.$store.state.posts.emojis,
+      textTitle: '',
+      textContent: '',
+      textFile: '',
+      isValidTitle: false,
+      isValidContent: false,
+      isValidFile: false,
+      url: ''
     }
   },
   computed: {
@@ -93,6 +108,39 @@ export default {
     }
   },
   methods: {
+    onFileChanged (e) {
+      const file = e.target.files[0]
+      this.url = URL.createObjectURL(file)
+    },
+    testInput (text) {
+      if(text === 'title') {
+        if (this.userPost.title.length > 0) {
+          this.textTitle = ''
+          this.isValidTitle = true
+        } else {
+          this.isValidTitle = false
+        }
+      } else if (text === 'content') {
+        if (this.userPost.content.length > 0) {
+          this.textContent = ''
+          this.isValidContent = true
+        } else {
+          this.isValidContent = false
+        }
+      } else if(text === 'file') {
+        if (this.file !== null) {
+          this.textFile = ''
+          this.isValidFile = true
+        } else {
+          this.isValidFile = false
+        }
+      }
+    },
+    testForm () {
+      this.userPost.title.length === 0 ? this.textTitle = '* Champ requis' : this.textTitle = ''
+      this.userPost.content.length === 0 ? this.textContent = '* Champ requis' : this.textContent = ''
+      this.file === null ? this.textFile = '* Champ requis' : this.textFile = ''
+    },
     showAlert (title, icon, timer) {
       this.$swal({
         title: title,
@@ -116,7 +164,7 @@ export default {
       })
     },
     publish () {
-      if (this.userPost.title === null || this.userPost.content === null || this.file === null) {
+      if (this.userPost.content.length === 0|| this.userPost.title.length === 0 || this.file === null) {
         this.showAlert('Merci de renseigner les différents champs', 'error', '1500')
       } else {
         let authorizedFile = ['jpg', 'jpeg', 'gif', 'png']
@@ -152,6 +200,11 @@ export default {
               this.userPost.title = ''
               this.userPost.content = ''
               this.file = null
+              this.isValidContent = false
+              this.isValidFile = false
+              this.isValidTitle = false
+              this.url = ''
+              console.log(this.userPost.title.length)
             }).catch(error => {
               if (error.message.split('code ')[1].includes('400')) {
                 this.showAlert(`Vous devez ajouter une image au format JPG, JPEG, PNG ou GIF !`, 'error', '2500')
@@ -167,6 +220,10 @@ export default {
 </script>
 
 <style>
+  .imgPosts{
+    box-shadow: 0 0 10px #2C3F5F;
+    border: 4px solid white;
+  }
   #emojis p{
     font-size: 20px;
   }

@@ -120,7 +120,7 @@
                   <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center p-2 m-0 comment">
                     <div class="align-items-lg-stretch justify-content-center d-flex flex-column col-md-3">
                       <!--LINK TO COMMENT AUTHOR PROFILE-->
-                      <router-link :to="`/profile/${comment.UserId}`"><img :src="comment.User.url_profile_picture" :alt="comment.User.alt_profile_picture" class="img-fluid imgComment"/></router-link>
+                      <router-link :to="`/profile/${comment.UserId}`"><img :src="comment.User.url_profile_picture" :alt="comment.User.alt_profile_picture" class="imgComment"/></router-link>
                       <h4>{{ comment.User.username}}</h4>
                     </div>
                     <div class="text-break col-md-9">{{ comment.comment }}</div>
@@ -226,10 +226,12 @@
             <i v-else v-b-modal="modalLikeId(index, 'like')" @click="getLikes(index)" class="fas fa-thumbs-up"><span>{{ post.Likes.length }}</span></i>
 
             <!--MODAL - GET LIKES-->
-            <b-modal ok-only ok-title="Fermer" centered ok-variant="warning" :id="'modalLike' + index + 'like'" title="Like(s) du post" @ok="getPosts(index)" @close="getPosts(index)">
-              <div class="my-4 d-flex row justify-content-center align-items-center" v-for="like in likes" :key="like.id" id="like">
-                <router-link :to="`/profile/${like.id}`"><img :src="like.url_profile_picture" :alt="like.alt_profile_picture" class="img-fluid imgComment"/></router-link>
-                <h4 class="d-flex username col-9">{{ like.username }}</h4>
+            <b-modal ok-only ok-title="Fermer" centered ok-variant="warning" :id="'modalLike' + index + 'like'" title="Like(s) du post" @ok="getPosts()" @close="getPosts()">
+              <div class="my-4 d-flex flex-column flex-md-row justify-content-center align-items-center" v-for="like in likes" :key="like.id" id="like">
+                <router-link :to="`/profile/${like.id}`">
+                  <img :src="like.url_profile_picture" :alt="like.alt_profile_picture" class="imgComment"/>
+                </router-link>
+                <h4 class="d-flex col-md-9 justify-content-center justify-content-md-start">{{ like.username }}</h4>
               </div>
               <!--CHANGING BUTTON LIKE/DISLIKE-->
               <b-btn pill class="d-flex m-auto" :variant="btnLikeVariant" @click="createLike(index), showAlertSuccess()">{{ btnLike }}</b-btn>
@@ -669,14 +671,6 @@ export default {
 </script>
 
 <style>
-  a{
-    display: flex;
-    flex: 0 0 20%;
-    justify-content: center;
-  }
-  .username{
-    flex: 0 0 80%;
-  }
   .formPart{
     border: 4px solid #2C3F5F;
     box-shadow: 0 0 12px black;

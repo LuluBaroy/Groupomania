@@ -77,6 +77,14 @@ export default {
       this.$router.push({name: 'auth'})
     } else {
       this.$store.dispatch('user/getCurrentUser')
+        .catch(error => {
+          if(error.message.split('code ')[1].includes('404')){
+            this.$router.push({name: 'auth'})
+            .then(() => {
+              this.$cookies.remove('user')
+            })
+          }
+        })
     }
   },
   beforeMount() {
@@ -91,7 +99,14 @@ export default {
               let time = hour + ':' + minutes
               today = yyyy + '-' + mm + '-' + dd;
               let createdAtDate = this.currentUser.infos.created_at.split(' ')[0]
-              let createdAtTime = this.currentUser.infos.created_at.split(' ')[1].split(':')[0] + ':' + String(parseInt(this.currentUser.infos.created_at.split(' ')[1].split(':')[1] + 2))
+              let createdAtTime = this.currentUser.infos.created_at.split(' ')[1].split(':')[0] + ':'
+              let minutesAdded = parseInt(this.currentUser.infos.created_at.split(' ')[1].split(':')[1]) + 2
+              if(String(minutesAdded).length === 1){
+                minutesAdded = '0' + minutesAdded
+              } else {
+                minutesAdded = String(minutesAdded)
+              }
+              createdAtTime += minutesAdded
               if(today === createdAtDate && time < createdAtTime) {
                 this.showWelcomeAlert()
               }
