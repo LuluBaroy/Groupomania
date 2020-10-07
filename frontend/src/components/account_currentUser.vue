@@ -77,20 +77,20 @@
       <h2 class="rounded-pill p-2 p-lg-3 titleConfig mb-4 col-12">Vos publications</h2>
 
       <!--NO POST PUBLISHED-->
-      <div v-if="userPosts.length === 0" class="d-flex flex-column align-items-center justify-content-md-between allPosts">
+      <article v-if="userPosts.length === 0" class="d-flex flex-column align-items-center justify-content-md-between allPosts">
         <h3 class="pt-md-3">Vous n'avez rien posté pour le moment, Lancez-vous !</h3>
         <p>Si vous ne savez pas comment faire, regardez le tutoriel dans le carrousel sur le <router-link to="/wall">mur principal</router-link> ou retrouvez nos astuces dans la section FAQ !!</p>
         <img src="../assets/img/hello.gif" alt="hello gif" class="img-fluid imgPosts mt-2 mb-5">
-      </div>
+      </article>
 
       <!--ALL USER'S POSTS-->
-      <div class="d-flex flex-column p-0 container-fluid flex-md-row align-items-center mb-md-3 pb-md-3 justify-content-md-between allPosts" v-for="(post, index) in userPosts" :key="index">
+      <article class="d-flex flex-column p-0 container-fluid flex-md-row align-items-center mb-md-3 pb-md-3 justify-content-md-between allPosts" v-for="(post, index) in userPosts" :key="index">
         <div class="d-flex col-md-9 col-lg-8 mr-lg-auto ml-lg-auto justify-content-center align-items-center formPart">
 
           <!--POST TITLE + CONTENT + GIF-->
           <div class="d-flex col-md-9 flex-column">
             <h3>{{ post.title }}</h3>
-            <p v-html="getLinks(post.content)"></p>
+            <p>{{ post.content }}</p>
             <img :src="post.url_gif" v-if="post.url_gif" :alt="post.alt_gif" class="img-fluid m-auto imgPosts"/>
             <div class="d-flex flex-md-row m-auto col-md-6 justify-content-around p-2">
 
@@ -273,7 +273,7 @@
                     <div id="postUpdate">
                       <!--PREVIEW NEW GIF-->
                       <img :src="userPost.img" v-if="url.length === 0" class="img-fluid imgPosts d-flex m-auto" id="updateImg" :alt="userPost.altImg"/>
-                      <img v-else :src="url" class="img-fluid imgPosts d-flex" alt="Preview new image">
+                      <img v-else :src="url" class="img-fluid ml-auto mr-auto imgPosts d-flex" alt="Preview new image">
                       <b-form-file v-model="file" class="mt-3 mb-3" @change="onFileChanged"></b-form-file>
                     </div>
                     <b-button type="submit" @click.prevent="updatePost(index), showAlertSuccess('Post modifié !')" class="d-flex rounded-pill commentBtn">Modifier</b-button>
@@ -283,13 +283,13 @@
             </b-modal>
           </b-collapse>
         </div>
-      </div>
+      </article>
     </section>
 
     <!--ACCOUNT PARAMETERS-->
     <section class="d-flex flex-column align-items-center container pb-5" id="accountParam">
       <h2 class="rounded-pill p-2 titleConfig mb-5 mt-md-2 col-12">Paramètres du compte</h2>
-      <div class="container-fluid d-flex flex-column flex-md-row justify-content-around mb-5">
+      <article class="container-fluid d-flex flex-column flex-md-row justify-content-around mb-5">
 
         <!--DOWNLOAD CURRENT USER INFO-->
         <b-btn variant="info" @click="downloadInfo()" class="col-md-5 mb-3 mb-md-0">Télécharger les informations du compte</b-btn>
@@ -301,10 +301,10 @@
             Êtes vous sûr(e) de vouloir supprimer votre compte ?
           </div>
         </b-modal>
-      </div>
+      </article>
 
       <!--CONSENTS-->
-      <div class="container-fluid d-flex flex-column m-auto justify-content-around">
+      <article class="container-fluid d-flex flex-column m-auto justify-content-around">
         <h3 id="consentsTitle">Consentements pour le traitement de vos données</h3>
         <div>
           <b-form-group label="Acceptez-vous que nous partagions vos informations avec nos partenaires commerciaux ?">
@@ -318,7 +318,7 @@
             <b-form-radio v-model="newConsents.contactable" name="contactable" value=false @change="consentsHaveChanged = true">Non</b-form-radio>
           </b-form-group>
         </div>
-      </div>
+      </article>
       <b-button v-if="consentsHaveChanged" @click="updateUser()" variant="outline-info" pill>Valider les changements</b-button>
     </section>
   </div>
@@ -326,7 +326,6 @@
 
 <script>
 import pdfMake from 'pdfmake/build/pdfmake'
-import linkifyHTML from 'linkifyjs/html'
 pdfMake.fonts = {
   Roboto: {
     normal: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf',
@@ -417,9 +416,6 @@ export default {
         text: '✔ Ajouté !️',
         showConfirmButton: false
       })
-    },
-    getLinks (el) {
-      return linkifyHTML(el)
     },
     hasAlreadyLiked (index) {
       if (this.userPosts[index].Likes.filter(like => like.user_id === this.currentUser.id).length !== 0) {

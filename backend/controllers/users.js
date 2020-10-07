@@ -3,8 +3,7 @@ require('dotenv').config();
 const models = require('../models');
 const bcrypt = require('bcryptjs');
 const jwtUtils = require('../middlewares/jwt');
-const {validationResult} = require('express-validator');
-const bouncer = require('express-bouncer')(0,0);
+const validator = require('validator')
 const fs = require('fs');
 const logger = require('../middlewares/winston');
 const passwordValidator = require('password-validator');
@@ -50,10 +49,9 @@ schema
  *
  */
 exports.signup = (req, res, next) => {
-	const errors = validationResult(req);
-	if(!errors.isEmpty()){
-		logger.info('User tried to sign up with invalid email and/or password');
-		return res.status(422).json({ errors: errors.array() });
+	if(!validator.isEmail(req.body.email) || validator.matches(req.body.username, /[\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/) || validator.matches(req.body.bio, /[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/)){
+		logger.info('User tried to sign up with invalid email or fields containing symbols');
+		return res.status(422).json({ message: `Wrong format - Please don't use : |/*+&#{([]})<>$£€%=^` });
 	} else {
 		if(schema.validate(req.body.password)) {
 			let role;
@@ -80,7 +78,8 @@ exports.signup = (req, res, next) => {
 									alt_profile_picture: altProfilePicture,
 									bio: req.body.bio,
 									role: role,
-									consents: consents
+									consents: consents,
+									lastLogin: 'none'
 								}).then(user => {
 									logger.info('First user account created');
 									role = JSON.stringify(['user'])
@@ -94,7 +93,8 @@ exports.signup = (req, res, next) => {
 												alt_profile_picture: altProfilePicture,
 												bio: null,
 												role: role,
-												consents: consents
+												consents: consents,
+												lastLogin: 'none'
 											})
 												.then(()=>{
 													logger.info('Deleted user account created');
@@ -129,7 +129,8 @@ exports.signup = (req, res, next) => {
 												alt_profile_picture: altProfilePicture,
 												bio: req.body.bio,
 												role: role,
-												consents: consents
+												consents: consents,
+												lastLogin: 'none'
 											})
 												.then((newUser) => {
 													logger.info('New user has been created');
@@ -172,10 +173,9 @@ exports.signup = (req, res, next) => {
  *}
  */
 exports.login = (req, res, next) => {
-	const errors = validationResult(req);
-	if(!errors.isEmpty()){
-		logger.info('User tried to log in with invalid email and/or password');
-		return res.status(422).json({ errors: errors.array() });
+	if(!validator.isEmail(req.body.email)){
+		logger.info('User tried to log in with invalid email');
+		return res.status(422).json({ message: 'Invalid Email, please try with a valid one' });
 	} else {
 		models.Users.findOne({ where: { email: req.body.email }})
 			.then((user) => {
@@ -189,12 +189,21 @@ exports.login = (req, res, next) => {
 							logger.warn("User didn't use correct password");
 							return res.status(401).json({ error: 'Wrong password !' });
 						}
-						bouncer.reset(req);
 						logger.info('Registered user connected');
-						res.status(200).json({
-							user_id: user.id,
-							token: jwtUtils.generateToken(user)
-						});
+						if(user.lastLogin === '0000-00-00 00:00:00'){
+							res.status(200).json({
+								user_id: user.id,
+								token: jwtUtils.generateToken(user)
+							});
+						} else {
+							models.Users.update({ lastLogin: new Date() }, {where: {id: user.id}})
+								.then(() => {
+									res.status(200).json({
+										user_id: user.id,
+										token: jwtUtils.generateToken(user)
+									});
+								}).catch(err => res.status(500).json(err))
+						}
 					})
 					.catch((error) => {logger.info(`${req.params.id}: Couldn't connect an user on login function`); res.status(500).json({ error })});
 			})
@@ -428,6 +437,7 @@ exports.delete = (req, res, next) => {
  *}
  */
 exports.update = (req, res, next) => {
+	let regex = /[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/
 	let urlProfilePicture;
 	const headerAuth = req.headers['authorization'];
 	const userId = jwtUtils.getUserId(headerAuth);
@@ -435,47 +445,41 @@ exports.update = (req, res, next) => {
 		logger.info(`An unauthenticated user tried to access updateUser function`);
 		res.status(400).json({message: `You're not authenticated, please log in !`})
 	} else {
-		models.Users.findOne({ where: { id: req.params.id }})
-			.then(user => {
-				if(user.id === userId){
-					if(req.file){
-						const filename = user.url_profile_picture.split('/images/')[1];
-						fs.unlink(`images/${filename}`, () => {
-							//
-						})
-						urlProfilePicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-					} else {
-						urlProfilePicture = user.url_profile_picture;
-					}
-					let consents = {
-						shareable: req.body.shareable,
-						contactable: req.body.contactable
-					};
-					let password
-					if(req.body.password === ''){
-						password = user.password
-						console.log(password)
-						models.Users.update({ ...req.body, password: password, url_profile_picture: urlProfilePicture, consents: JSON.stringify(consents) }, { where: { id: req.params.id }})
-							.then(() => {
-								logger.info(`User ${userId} has updated his info`);
-								models.Users.findOne({ where: { id: req.params.id }})
-									.then(user => {
-										res.status(200).json({message: `Your information have been updated !`, user})
-									}).catch(err=> {
-									logger.info(`Something went wrong when trying to search for user in function updateUser`);
-									res.status(500).json(err)
-								})
-							})
-							.catch((err) => {
-								logger.info(`Something went wrong when trying to update user ${userId}`);
+		if(req.body.email && !validator.isEmail(req.body.email)
+			|| req.body.username && validator.matches(req.body.username, regex) ||
+			req.body.bio && validator.matches(req.body.username, regex)) {
+			res.status(422).json({message: `Wrong format - Please don't use : |/*+&#{([]})<>$£€%=^`})
+		} else {
+			models.Users.findOne({ where: { id: req.params.id }})
+				.then(user => {
+					if(user.id === userId){
+						let lastLogin
+						if(req.body.lastLogin === ''){
+							lastLogin = new Date()
+							models.Users.update({lastLogin: lastLogin}, { where: { id: req.params.id }})
+								.then(() => {
+									res.status(200).json({message: 'User updated'})
+								}).catch(err => {
 								res.status(500).json(err)
 							})
-					} else {
-						bcrypt.hash(req.body.password, 10)
-							.then(hash => {
-								password = hash
-								console.log('bcrypt : ' + password)
-								models.Users.update({ ...req.body, password: password, url_profile_picture: urlProfilePicture, consents: JSON.stringify(consents) }, { where: { id: req.params.id }})
+						} else {
+							if(req.file){
+								const filename = user.url_profile_picture.split('/images/')[1];
+								fs.unlink(`images/${filename}`, () => {
+									//
+								})
+								urlProfilePicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+							} else {
+								urlProfilePicture = user.url_profile_picture;
+							}
+							let consents = {
+								shareable: req.body.shareable,
+								contactable: req.body.contactable
+							};
+							let password
+							if(req.body.password === ''){
+								password = user.password
+								models.Users.update({ ...req.body, password: password, url_profile_picture: urlProfilePicture, consents: JSON.stringify(consents)}, { where: { id: req.params.id }})
 									.then(() => {
 										logger.info(`User ${userId} has updated his info`);
 										models.Users.findOne({ where: { id: req.params.id }})
@@ -487,22 +491,48 @@ exports.update = (req, res, next) => {
 										})
 									})
 									.catch((err) => {
-										logger.info(`Something went wrong when trying to update User ${userId}`);
+										logger.info(`Something went wrong when trying to update user ${userId}`);
 										res.status(500).json(err)
 									})
-							}).catch(err => {
-							logger.info(`Something went wrong when trying to hash new password for user ${userId}`);
-							res.status(500).json(err)
-						})
+							} else {
+								if(schema.validate(req.body.password)) {
+									bcrypt.hash(req.body.password, 10)
+										.then(hash => {
+											password = hash
+											models.Users.update({ ...req.body, password: password, url_profile_picture: urlProfilePicture, consents: JSON.stringify(consents) }, { where: { id: req.params.id }})
+												.then(() => {
+													logger.info(`User ${userId} has updated his info`);
+													models.Users.findOne({ where: { id: req.params.id }})
+														.then(user => {
+															res.status(200).json({message: `Your information have been updated !`, user})
+														}).catch(err=> {
+														logger.info(`Something went wrong when trying to search for user in function updateUser`);
+														res.status(500).json(err)
+													})
+												})
+												.catch((err) => {
+													logger.info(`Something went wrong when trying to update User ${userId}`);
+													res.status(500).json(err)
+												})
+										}).catch(err => {
+										logger.info(`Something went wrong when trying to hash new password for user ${userId}`);
+										res.status(500).json(err)
+									})
+								} else {
+									logger.info(`An user tried to update his password with invalid password`)
+									res.status(400).json({ message: `Your password must contain at least 8 characters with at least one uppercase letter and a number`})
+								}
+							}
+						}
+					} else {
+						logger.info(`User ${userId} tried to update user ${req.params.id} infos`);
+						res.status(403).json({message: `You're not allowed for this action !`})
 					}
-				} else {
-					logger.info(`User ${userId} tried to update user ${req.params.id} infos`);
-					res.status(403).json({message: `You're not allowed for this action !`})
-				}
-			}).catch(err=> {
-			logger.info(`Something went wrong when searching for user in function updateUser`);
-			res.status(500).json(err)
-		})
+				}).catch(err=> {
+				logger.info(`Something went wrong when searching for user in function updateUser`);
+				res.status(500).json(err)
+			})
+		}
 	}
 }
 

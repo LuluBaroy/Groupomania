@@ -47,6 +47,10 @@ module.exports = (sequelize, Datatypes) => {
 			type: Datatypes.STRING,
 			allowNull: false
 		},
+		lastLogin: {
+			type: Datatypes.DATE,
+			allowNull: false
+		},
 		created_at: {
 			type: Datatypes.DATE,
 			required: true

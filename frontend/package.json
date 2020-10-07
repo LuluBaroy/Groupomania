@@ -15,6 +15,7 @@
     "linkifyjs": "^2.1.9",
     "pdfmake": "^0.1.68",
     "vue": "^2.6.11",
+    "vue-awesome-countdown": "^1.1.2",
     "vue-cookies": "^1.7.4",
     "vue-router": "^3.4.3",
     "vue-sweetalert2": "^3.0.8",

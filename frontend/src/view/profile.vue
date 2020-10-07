@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <main>
     <!--ACCOUNT CURRENT USER - SEE COMPONENT 'account_currentUser.vue'-->
     <account-current-user v-if="currentUser.id == this.$route.params.id"></account-current-user>
 
     <!--ACCOUNT OTHER USER - SEE COMPONENT 'account_otherUser.vue'-->
     <account-other-user v-else></account-other-user>
-  </div>
+  </main>
 </template>
 
 <script>

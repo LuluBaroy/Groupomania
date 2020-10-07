@@ -1,7 +1,7 @@
 'use strict';
 require('dotenv').config();
 const models = require('../models');
-const path = require('path')
+const validator = require('validator');
 const jwtUtils = require('../middlewares/jwt');
 const fs = require('fs');
 const logger = require('../middlewares/winston')
@@ -36,35 +36,31 @@ const logger = require('../middlewares/winston')
  */
 exports.create = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
+	let regex = /[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/
 	if(!headerAuth){
 		logger.info(`An unauthenticated user tried to access to function create(post)`)
 		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
 		if(!req.file){
-			logger.info(`An user tried to publish without file`)
-			res.status(400).json({ message: 'File is required !'})
+			res.status(400).json({message: `File is required`})
+		} else if (validator.matches(req.body.title, regex) || validator.matches(req.body.content, regex)) {
+			res.status(422).json({message: `Wrong format - Please don't use : |/*+&#{([]})<>$£€%=^`})
 		} else {
-			if(path.extname(req.file.filename).includes('.undefined')) {
-				logger.info(`An user tried to published with a file containing an unauthorized extension`)
-				res.status(400).json({ message: 'This file extension is not allowed !'})
-			} else {
-				let userId = jwtUtils.getUserId(headerAuth);
-				let urlGif, altGif;
-				urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-				altGif = "GIF partagé par l'utilisateur"
-				models.Posts.create({ title: req.body.title, UserId: userId, content: req.body.content, url_gif: urlGif, alt_gif: altGif })
-					.then((post) => {
-						logger.info(`User ${userId} has published a post`)
-						res.status(201).json({message: `You're post has been created !`, post})
-					})
-					.catch((err) => {
-						logger.info(`Something went wrong when trying to create a post`)
-						res.status(500).json(err)
-					})
-			}
+			let userId = jwtUtils.getUserId(headerAuth);
+			let urlGif, altGif;
+			urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+			altGif = "GIF partagé par l'utilisateur"
+			models.Posts.create({ title: req.body.title, UserId: userId, content: req.body.content, url_gif: urlGif, alt_gif: altGif })
+				.then((post) => {
+					logger.info(`User ${userId} has published a post`)
+					res.status(201).json({message: `You're post has been created !`, post})
+				})
+				.catch((err) => {
+					logger.info(`Something went wrong when trying to create a post`)
+					res.status(500).json(err)
+				})
 		}
 	}
-
 }
 
 /**
@@ -227,53 +223,62 @@ exports.readLike = (req, res, next) => {
  *}
  */
 exports.update = (req, res, next) => {
+	let regex = /[\|\/\\\*\+&#\{\(\[\]\}\)<>$£%=\^`]/
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
 		logger.info(`An unauthenticated user tried to access to function update(post)`)
 		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
-		let userId = jwtUtils.getUserId(headerAuth);
-		models.Users.findOne({where: {id: userId}})
-			.then((user) => {
-				models.Posts.findOne({ where: { id: req.params.id }})
-				.then((post) => {
-					if(post && userId === post.user_id || JSON.parse(user.role).includes('admin')){
-						let urlGif, altGif;
-						if(req.file){
-							if(post.url_gif !== null){
-								const filename = post.url_gif.split('/images/')[1];
-								fs.unlink(`images/${filename}`, () => {
-									//
-								})
+		if (req.body.title && validator.matches(req.body.title, regex) || req.body.content && validator.matches(req.body.content, regex)) {
+			res.status(422).json({message: `Wrong format - Please don't use : |/*+&#{([]})<>$£€%=^`})
+		} else {
+			let userId = jwtUtils.getUserId(headerAuth);
+			models.Users.findOne({where: {id: userId}})
+				.then((user) => {
+					models.Posts.findOne({where: {id: req.params.id}})
+						.then((post) => {
+							if (post && userId === post.user_id || JSON.parse(user.role).includes('admin')) {
+								let urlGif, altGif;
+								if (req.file) {
+									if (post.url_gif !== null) {
+										const filename = post.url_gif.split('/images/')[1];
+										fs.unlink(`images/${filename}`, () => {
+											//
+										})
+									}
+									urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+									altGif = "GIF partagé par l'utilisateur"
+								} else {
+									urlGif = post.url_gif;
+									altGif = "GIF partagé par l'utilisateur"
+								}
+								models.Posts.update({
+									...req.body,
+									url_gif: urlGif,
+									alt_gif: altGif
+								}, {where: {id: req.params.id}})
+									.then(() => {
+										logger.info(`User ${userId} has updated post ${req.params.id}`)
+										res.status(200).json({message: `Your post has been updated !`})
+									})
+									.catch((err) => {
+										logger.info(`Something went wrong when trying to update post ${req.params.id}`)
+										res.status(500).json(err)
+									})
+							} else {
+								logger.info(`User ${userId} tried to update post ${req.params.id}`)
+								res.status(403).json({message: `You're not allowed to update this post ! `})
 							}
-							urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-							altGif = "GIF partagé par l'utilisateur"
-						} else {
-							urlGif = post.url_gif;
-							altGif = "GIF partagé par l'utilisateur"
-						}
-						models.Posts.update({ ...req.body, url_gif: urlGif, alt_gif: altGif }, { where: { id: req.params.id }})
-							.then(() => {
-								logger.info(`User ${userId} has updated post ${req.params.id}`)
-								res.status(200).json({ message: `Your post has been updated !`})
-							})
-							.catch((err) => {
-								logger.info(`Something went wrong when trying to update post ${req.params.id}`)
-								res.status(500).json(err)
-							})
-					} else {
-						logger.info(`User ${userId} tried to update post ${req.params.id}`)
-						res.status(403).json({ message: `You're not allowed to update this post ! `})
-					}
-				})
-				.catch((err) => {
-					logger.info(`Something went wrong when trying to find post ${req.params.id}`)
-					res.status(404).json({message: `This post doesn't exist `, err})
-				})
-			}).catch(err => {
-			logger.info(`Something went wrong when trying to find user in function update(post)`)
-			res.status(500).json(err)
-		})
+						})
+						.catch((err) => {
+							logger.info(`Something went wrong when trying to find post ${req.params.id}`)
+							res.status(404).json({message: `This post doesn't exist `, err})
+						})
+				}).catch(err => {
+				logger.info(`Something went wrong when trying to find user in function update(post)`)
+				res.status(500).json(err)
+			})
+		}
 
 	}
 
@@ -664,25 +669,35 @@ exports.readAllFromUserId = (req, res, next) => {
  *}
  */
 exports.createReport = (req, res, next) => {
+	let regex = /[\|\/\\\*\+&#\{\(\[\]\}\)<>$£%=\^`]/
 	const headerAuth = req.headers['authorization'];
 	if(!headerAuth){
 		logger.info(`An unauthenticated user tried to access to function createReport(post)`)
 		res.status(400).json({ message: `You're not authenticated, please log in ! `})
 	} else {
-		let userId = jwtUtils.getUserId(headerAuth);
-		models.PostsReport.create({
-			PostId: req.params.id,
-			UserId: userId,
-			report: req.body.report,
-			status: 'pending'
-		})
-			.then((report) => {
-				logger.info(`User ${userId} has created a post report for post ${req.params.id}`)
-				res.status(201).json({ message: `Your report has been sent, we'll eventually contact you if we need more information !`, report })
-			}).catch((err) => {
-			logger.info(`something went wrong when trying to create report for post ${req.params.id}`)
-			res.status(500).json(err)
-		})
+		if (req.body.report === null) {
+			res.status(400).json({ message: `Report is required`})
+		} else if (validator.matches(req.body.report, regex)) {
+			res.status(422).json({message: `Wrong format - Please don't use : |/*+&#{([]})<>$£€%=^`})
+		} else {
+			let userId = jwtUtils.getUserId(headerAuth);
+			models.PostsReport.create({
+				PostId: req.params.id,
+				UserId: userId,
+				report: req.body.report,
+				status: 'pending'
+			})
+				.then((report) => {
+					logger.info(`User ${userId} has created a post report for post ${req.params.id}`)
+					res.status(201).json({
+						message: `Your report has been sent, we'll eventually contact you if we need more information !`,
+						report
+					})
+				}).catch((err) => {
+				logger.info(`something went wrong when trying to create report for post ${req.params.id}`)
+				res.status(500).json(err)
+			})
+		}
 	}
 
 }

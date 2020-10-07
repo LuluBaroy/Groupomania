@@ -1,5 +1,5 @@
 <template>
-  <div class="row preWall align-items-center justify-content-center" id="user">
+  <section class="row preWall align-items-center justify-content-center" id="user">
 
     <!--USERNAME + PROFILE PICTURE-->
     <div class="col-md-3 mt-3 mb-5 mt-md-1 mb-md-4 mr-auto ml-auto d-flex flex-column align-items-center">
@@ -66,7 +66,7 @@
         label-for="fileInput"
         class="d-flex flex-column flex-md-row text-left"
         label-cols-md="3">
-          <img v-if="url.length > 0" :src="url" alt="GIF choisi par l'utilisateur" class="img-fluid imgPosts d-flex mb-2"/>
+          <img v-if="url.length > 0" :src="url" alt="GIF choisi par l'utilisateur" class="img-fluid imgPosts d-flex mr-auto ml-auto mb-3"/>
           <b-form-file id="fileInput" v-model="file" accept=".jpg, .png, .gif, .jpeg" class="text-left mr-auto ml-auto" @change="onFileChanged" @input="testInput('file')"></b-form-file>
           <div v-if="textFile.length !== 0" style="color: red;">{{textFile}}</div>
           <div v-if="isValidFile === true" class="d-flex justify-content-center mt-2"><i class="far fa-check-circle"></i></div>
@@ -76,7 +76,7 @@
       </b-form>
     </div>
 
-  </div>
+  </section>
 </template>
 
 <script>

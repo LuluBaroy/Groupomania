@@ -1,14 +1,14 @@
 <template>
-  <div class="d-flex flex-column m-lg-auto">
+  <section class="d-flex flex-column m-lg-auto">
     <!--NO POST-->
-    <div v-if="posts.length === 0" class="col-md-8 m-auto">
+    <article v-if="posts.length === 0" class="col-md-8 m-auto">
       <h3 class="mt-3">Aucun post n'a encore été publié ! Lancez vous !</h3>
       <p>Si vous ne savez pas comment faire, regardez le tutoriel dans le carrousel en haut de page ou retrouvez nos astuces dans la section FAQ !!</p>
       <img src="../assets/img/hello.gif" alt="hello gif" class="m-auto img-fluid imgPosts">
-    </div>
+    </article>
 
     <!--ALL POSTS-->
-    <div id="postPart" class="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-around mt-4 pb-4" v-for="(post, index) in posts" :key="post.id">
+    <article id="postPart" class="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-around mt-4 pb-4" v-for="(post, index) in posts" :key="post.id">
       <div class="d-flex col-md-2 justify-content-center align-items-center flex-column">
 
         <!--POST AUTHOR-->
@@ -79,7 +79,7 @@
       <!--POST CONTENT-->
       <div class="d-flex formPart flex-column col-md-8 p-3 m-md-4">
         <h4>{{ post.title }}</h4>
-        <p v-html="getLinks(post.content)" class="text-break"></p>
+        <p class="text-break">{{ post.content }}</p>
         <img :src="post.url_gif" :alt="post.alt_gif" class="img-fluid m-auto imgPosts"/>
         <div class="d-flex row justify-content-around mt-3">
 
@@ -239,12 +239,11 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </article>
+  </section>
 </template>
 
 <script>
-import linkifyHTML from 'linkifyjs/html'
 export default {
   name: 'postsPart',
   data () {
@@ -354,9 +353,6 @@ export default {
         .catch(() => {
           this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
         })
-    },
-    getLinks (el) {
-      return linkifyHTML(el)
     },
     setPostValue (index) {
       let postId = this.posts[index].id

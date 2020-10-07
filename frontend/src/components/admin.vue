@@ -3,11 +3,14 @@
     <h2 class="rounded-pill p-2 titleConfig mb-5 mt-4">Administrateur</h2>
     <div class="d-flex flex-column mt-md-3 col-12">
       <!--ADMIN PANEL IF USER IS ADMIN-->
-      <div class="d-flex flex-column justify-content-around">
+      <article class="d-flex flex-column justify-content-around">
         <h3>Messages de la rubrique "Nous Contacter"</h3>
 
         <!--MODAL - GET USER ISSUES FROM "Nous Contacter"-->
-        <b-button v-b-modal.allIssues @click="getIssues(), getPending()" variant="info" class="mr-auto ml-auto rounded-pill btnAdmin mb-3 mb-md-0">Voir les messages</b-button>
+        <b-button v-b-modal.allIssues @click="getIssues(), getPending()" variant="info" class="mr-auto ml-auto rounded-pill btnAdmin mb-3 mb-md-0">
+          Voir les messages
+          <b-badge variant="dark" pill v-if="messageWaiting.issues">{{messageWaiting.issues.length}} en attente</b-badge>
+        </b-button>
         <b-modal id="allIssues" centered title="Messages" ok-only ok-title="Fermer">
           <b-tabs>
 
@@ -31,7 +34,7 @@
                         <!--USERS ISSUES INFO-->
                         <p>Créé le : {{ issue.createdAt.split(' ')[0].split('-')[2] }}-{{ issue.createdAt.split(' ')[0].split('-')[1] }}-{{ issue.createdAt.split(' ')[0].split('-')[0] }} à {{ issue.createdAt.split(' ')[1].split(':')[0] }}h{{ issue.createdAt.split(':')[1].split(':')[0] }}</p>
                         <p>Prénom / Nom : {{ issue.firstName }} {{ issue.lastName }}</p>
-                        <p>Email: {{ issue.email }}</p>
+                        <a :href="`mailto:${issue.email}`">Email: {{ issue.email }}</a>
                         <p>Sa / Ses question(s) : {{ issue.issue }}</p>
                         <p>Actuellement : <span v-if="issue.status === 'pending'" class="pending">En attente de traitement</span><span v-else class="treated">Traité</span></p>
                         <b-button class="d-flex m-auto" v-if="issue.status === 'pending'" pill variant="info" @click="updateIssue(index)">Mettre à jour le statut du message</b-button>
@@ -64,7 +67,7 @@
                         <!--USERS ISSUES INFO-->
                         <p>Créé le : {{ pending.createdAt.split(' ')[0].split('-')[2] }}-{{ pending.createdAt.split(' ')[0].split('-')[1] }}-{{ pending.createdAt.split(' ')[0].split('-')[0] }} à {{ pending.createdAt.split(' ')[1].split(':')[0] }}h{{ pending.createdAt.split(':')[1].split(':')[0] }}</p>
                         <p>Prénom / Nom : {{ pending.firstName }} {{ pending.lastName }}</p>
-                        <p>Email: {{ pending.email }}</p>
+                        <a :href="`mailto:${pending.email}`">Email: {{ pending.email }}</a>
                         <p>Sa / Ses question(s) : {{ pending.issue }}</p>
                         <p>Actuellement : <span class="pending">En attente de traitement</span></p>
                         <b-button class="d-flex m-auto" pill variant="info" @click="updateIssue(index)">Mettre à jour le statut du message</b-button>
@@ -79,12 +82,15 @@
             </b-tab>
           </b-tabs>
         </b-modal>
-      </div>
+      </article>
 
       <!--MODAL - GET REPORTS-->
-      <div class="mt-md-5">
+      <article class="mt-md-5">
         <h3>Signalements de contenu</h3>
-        <b-button v-b-modal.allReports @click="getAllReports(), isClicked = true" variant="info" class="mb-3 mb-md-0 rounded-pill btnAdmin">Voir les signalements</b-button>
+        <b-button v-b-modal.allReports @click="getAllReports(), isClicked = true" variant="info" class="mb-3 mb-md-0 rounded-pill btnAdmin">
+          Voir les signalements
+          <b-badge variant="dark" pill v-if="messageWaiting.postReports && messageWaiting.commentReports">{{messageWaiting.postReports.length + messageWaiting.commentReports.length}} en attente</b-badge>
+        </b-button>
         <b-modal ok-only centered @ok="getUserPosts" @close="getUserPosts" title="Signalements" id="allReports" v-if="isClicked">
           <b-tabs>
 
@@ -115,7 +121,7 @@
                           <b-collapse :id="'user' + index">
                             <div class="userComment d-flex flex-column flex-md-row align-items-center justify-content-md-center mb-5 mt-3">
                               <!--LINK TO AUTHOR PROFILE-->
-                              <router-link :to="`/profile/${userInfo.id}`"><img :src="userInfo.profile_picture" :alt="userInfo.alt_picture" class="img-fluid imgComment"/></router-link>
+                              <router-link :to="`/profile/${userInfo.id}`"><img :src="userInfo.profile_picture" :alt="userInfo.alt_picture" class="imgComment"/></router-link>
                               <h5>{{ userInfo.username}}</h5>
                             </div>
                           </b-collapse>
@@ -356,19 +362,44 @@
             </b-tab>
           </b-tabs>
         </b-modal>
-      </div>
-      <div class="mt-md-5">
+      </article>
+
+      <!--ALL USERS-->
+      <article class="mt-md-5">
         <h3>Utilisateurs</h3>
-        <b-button @click="getAllUsers" v-b-modal.allUsers class="rounded-pill btnAdmin" variant="info">Voir tous les utilisateurs</b-button>
-        <b-modal ok-only ok-title="Fermer" centered ok-variant="warning" id="allUsers" title="Tous les utilisateurs">
-          <div class="my-4 d-flex p-2 flex-column flex-md-row align-items-center justify-content-center justify-content-md-between" v-for="user in allUsers" :key="user.id">
-            <router-link :to="`/profile/${user.id}`">
-              <img :src="user.url_profile_picture" :alt="user.alt_profile_picture" class="imgComment"/>
-            </router-link>
-            <h4 class="d-flex col-md-9 justify-content-center text-center">{{ user.username }}</h4>
+        <b-button @click="getAllUsers" v-b-modal.allUsers class="rounded-pill btnAdmin" variant="info">
+          Voir tous les utilisateurs
+          <b-badge variant="dark" pill>Total : {{allUsers.length}}</b-badge>
+        </b-button>
+
+        <!--MODAL - GET ALL USERS + USER RESEARCH-->
+        <b-modal ok-only ok-title="Fermer" centered ok-variant="warning" id="allUsers" title="Tous les utilisateurs" @hidden="clearResearch">
+          <div id="searchBarBg" class="d-flex flex-column">
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center">
+              <b-form-input placeholder="Rechercher un utilisateur" id="barSearch" v-model="userResearch" class="col-md-9 col-lg-8 mt-md-1 mb-md-1" @keyup="research()"></b-form-input>
+              <b-button id="btnSearch" type="submit" @click.prevent="research()" class="col-md-2"><i class="fas fa-search"></i></b-button>
+            </div>
+            <div v-if="userResearch.length > 0" class="text-center mt-2">Résultat de la recherche : {{ userResult.length }} utilisateur(s) correspond(ent)</div>
+          </div>
+          <div>
+            <div v-if="userResearch.length > 0" class="d-flex flex-column">
+              <div v-if="userResult.length === 0" class="text-center mt-2">Oups ! Pas de correspondance pour "{{ userResearch }}"</div>
+              <div v-else class="my-2 my-md-4 d-flex p-md-2 flex-column flex-md-row align-items-center justify-content-center" v-for="user in userResult" :key="user.id" id="userResearch">
+                <router-link :to="`/profile/${user.id}`"><img :src="user.url_profile_picture" class=" d-flex imgResearch"/></router-link>
+                <h4 class="d-flex text-center text-break col-8">{{ user.username }}</h4>
+              </div>
+            </div>
+          </div>
+          <div v-if="userResearch.length === 0">
+            <div class="my-4 d-flex p-md-2 flex-column flex-md-row align-items-center justify-content-center" v-for="user in allUsers" :key="user.id">
+              <router-link :to="`/profile/${user.id}`">
+                <img :src="user.url_profile_picture" :alt="user.alt_profile_picture" class="imgComment"/>
+              </router-link>
+              <h4 class="d-flex col-md-9 justify-content-center text-center">{{ user.username }}</h4>
+            </div>
           </div>
         </b-modal>
-      </div>
+      </article>
     </div>
   </section>
 </template>
@@ -377,6 +408,8 @@ export default {
   name: 'accountAdmin',
   data () {
     return {
+      userResearch: '',
+      userResult: '',
       allUsers: '',
       allIssues: '',
       allPending: '',
@@ -417,7 +450,46 @@ export default {
       showDeleteToggle: false
     }
   },
+  computed: {
+    messageWaiting () {
+      return this.$store.state.issues.messageWaiting
+    }
+  },
   methods: {
+    clearResearch () {
+      this.showModal = false
+      this.userResearch = ''
+      this.userResult = ''
+    },
+    research () {
+      if(this.userResearch.length !== 0){
+        // eslint-disable-next-line no-useless-escape
+        let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
+        let newResearch = ''
+        let data = {
+          research: null
+        }
+        if (regex.test(this.userResearch)) {
+          newResearch = this.userResearch.replace(regex, '')
+        }
+        if (newResearch.length !== 0) {
+          data.research = newResearch.toString()
+        } else {
+          data.research = this.userResearch.toString()
+        }
+        this.showModal = true
+        this.$store.dispatch('researchUser', data)
+                .then(() => {
+                  this.userResult = this.$store.state.research.resultResearch
+                }).catch(error => {
+          if (error.message.split('code ')[1].includes('500')) {
+            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+          } else if (error.message.split('code ')[1].includes('400')) {
+            this.showAlertError(`Merci de renseigner un nom avant de cliquer sur le bouton de recherche`, '4000')
+          }
+        })
+      }
+    },
     getEmoji (index) {
       let emojiCode = this.emojis[index]
       if(this.userPost.content === null) {
@@ -450,6 +522,7 @@ export default {
       this.$store.dispatch('user/getAllUser')
         .then(response => {
           this.allUsers = response.data.users
+          console.log(this.allUsers)
         })
     },
     getUserPosts () {
@@ -482,6 +555,7 @@ export default {
         .then(() => {
           this.getIssues()
           this.getPending()
+          this.$store.dispatch("messageWaiting")
         })
     },
     deleteIssue (index) {
@@ -490,6 +564,7 @@ export default {
           this.showAlertSuccess('Message supprimé !', '1500')
           this.getIssues()
           this.getPending()
+          this.$store.dispatch('messageWaiting')
         })
     },
     issueId (index) {
@@ -526,6 +601,7 @@ export default {
         .then(() => {
           this.showAlertSuccess('Le signalement a été mis à jour !', '2000')
           this.getAllReports()
+          this.$store.dispatch('messageWaiting')
         })
     },
     deletePostReport (index) {
@@ -534,6 +610,7 @@ export default {
         .then(() => {
           this.showAlertSuccess('Signalement supprimé', '1500')
           this.getAllReports()
+          this.$store.dispatch('messageWaiting')
         })
     },
     getComment (indexComment) {
@@ -607,6 +684,7 @@ export default {
                 this.isClicked = false
                 this.getAllReports()
                 this.isClicked = true
+                this.$store.dispatch('messageWaiting')
               }).catch(error => {
         if (error.message.split('code ')[1].includes('500')) {
           this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
@@ -623,6 +701,7 @@ export default {
               .then(() => {
                 this.showAlertSuccess('Le signalement a été mis à jour !', '2000')
                 this.getAllReports()
+                this.$store.dispatch('messageWaiting')
               })
     },
     deleteCommentReport (indexComment) {
@@ -631,6 +710,7 @@ export default {
               .then(() => {
                 this.showAlertSuccess('Signalement supprimé', '1500')
                 this.getAllReports()
+                this.$store.dispatch('messageWaiting')
               })
     },
     showAlertSuccess (title, timer) {
@@ -758,7 +838,7 @@ export default {
         })
     }
   },
-  beforeMount () {
+  beforeCreate () {
     if (!this.$cookies.isKey('user')) {
       this.$router.push({name: 'auth'})
     } else {
@@ -769,6 +849,12 @@ export default {
               .then(() => {
                 this.showAlertError(`Vous n'avez pas les droits nécessaires pour accéder à cette page !`, '3500')
               })
+          } else {
+            this.$store.dispatch('user/getAllUser')
+                    .then(response => {
+                      this.allUsers = response.data.users
+                      this.$store.dispatch('messageWaiting')
+                    })
           }
         })
     }
@@ -776,6 +862,13 @@ export default {
 }
 </script>
 <style scoped>
+  .imgResearch{
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    border: 4px solid #2C3F5F;
+    box-shadow: 0 0 6px black;
+  }
   .btnUserReport{
     margin: 3% auto;
   }
@@ -808,5 +901,38 @@ export default {
   }
   .card-body{
     padding: 0;
+  }
+  .btn .badge{
+    font-size: 1em;
+    top: -15px;
+    right: -10px;
+    box-shadow: 0 0 4px white;
+  }
+  #barSearch{
+    box-shadow: 0 0 6px black;
+    color: #2C3F5F;
+  }
+  #btnSearch{
+    background-color: #2C3F5F;
+    color: white;
+    box-shadow: 0 0 6px black;
+  }
+  #btnSearch:hover{
+    background-color: #0762a3;
+  }
+  @media screen and (max-width: 567px){
+    .btn .badge{
+      top: 0;
+      right: 0;
+    }
+  }
+  @media screen and (min-width: 768px){
+    #searchBarBg{
+      padding: 2%;
+      border: 4px double #2C3F5F;
+      border-radius: 50px 0;
+      background-color: rgba(176, 230, 255, 0.5);
+      box-shadow: 0 0 3px black;
+    }
   }
 </style>

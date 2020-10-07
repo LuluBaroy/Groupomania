@@ -1,7 +1,7 @@
 <template>
-  <div id="wall" class="col-lg-9 m-auto">
+  <main id="wall" class="col-lg-9 m-auto">
     <div class="col-md-12 flex-column">
-      <div class="d-none d-lg-flex flex-column col-lg-8 ml-auto mr-auto mt-5">
+      <section class="d-none d-lg-flex flex-column col-lg-8 ml-auto mr-auto mt-5">
 
         <!--WELCOMING CAROUSEL-->
         <b-carousel
@@ -15,10 +15,10 @@
           <b-carousel-slide img-src="http://localhost:3000/images/Slide1.gif"></b-carousel-slide>
           <b-carousel-slide img-src="http://localhost:3000/images/Slide2.png"></b-carousel-slide>
         </b-carousel>
-      </div>
+      </section>
 
       <!--SEARCH BAR-->
-      <div id="searchBarBg" class="mt-5 mb-5 d-flex flex-column ml-auto mr-auto flex-md-row align-items-center justify-content-center">
+      <section id="searchBarBg" class="mt-5 mb-5 d-flex flex-column ml-auto mr-auto flex-md-row align-items-center justify-content-center">
         <b-form-input placeholder="Rechercher un utilisateur" id="barSearch" v-model="userResearch" class="col-md-9 col-lg-8 mt-md-1 mb-md-1"></b-form-input>
         <b-button v-b-modal.researchModal id="btnSearch" type="submit" @click.prevent="research()" class="col-md-2"><i class="fas fa-search"></i></b-button>
           <b-modal centered v-if="showModal" id="researchModal" title="Utilisateur(s) correspondant(s) à votre recherche :" ok-only ok-variant="info" @hidden="clearResearch()">
@@ -28,15 +28,15 @@
               <h4 class="d-flex text-break col-8">{{ user.username }}</h4>
             </div>
           </b-modal>
-      </div>
+      </section>
 
       <!--USER PART - SEE COMPONENT 'wall_userPart.vue'-->
       <user-part></user-part>
 
       <!--DIVIDER-->
-      <div class="divider col-12 mt-3 d-flex flex-column flex-md-row justify-content-md-center align-items-md-center">
+      <div class="divider col-12 mt-3 p-3 p-md-0 d-flex flex-column flex-md-row justify-content-md-center align-items-md-center">
           <img src="../assets/img/divider.png" alt="logo groupomania" class="d-none d-md-flex m-2 pr-2"/>
-          <h2>Dernières actualités</h2>
+          <h2>Der&shy;nières actua&shy;lités</h2>
           <img src="../assets/img/divider.png" alt="logo groupomania" class="d-none d-md-flex m-2 pl-2"/>
       </div>
 
@@ -50,7 +50,7 @@
       <img src="../assets/img/divider_end.png" alt="divider" class="img-fluid"/>
       <p v-if="posts.length !== 0">Fin des posts</p>
     </div>
-  </div>
+  </main>
 </template>
 
 <script>
@@ -64,7 +64,8 @@ export default {
       userResearch: '',
       posts: this.$store.state.posts.allPosts,
       userResult: '',
-      showModal: false
+      showModal: false,
+      firstConnexion: false
     }
   },
   computed: {
@@ -90,24 +91,7 @@ export default {
   beforeMount() {
     this.$store.dispatch('posts/getAllPosts')
             .then(() => {
-              let today = new Date()
-              let dd = String(today.getDate()).padStart(2, '0');
-              let mm = String(today.getMonth() + 1).padStart(2, '0');
-              let yyyy = today.getFullYear();
-              let hour = String(today.getHours()).padStart(2, '0')
-              let minutes = String(today.getMinutes()).padStart(2, '0')
-              let time = hour + ':' + minutes
-              today = yyyy + '-' + mm + '-' + dd;
-              let createdAtDate = this.currentUser.infos.created_at.split(' ')[0]
-              let createdAtTime = this.currentUser.infos.created_at.split(' ')[1].split(':')[0] + ':'
-              let minutesAdded = parseInt(this.currentUser.infos.created_at.split(' ')[1].split(':')[1]) + 2
-              if(String(minutesAdded).length === 1){
-                minutesAdded = '0' + minutesAdded
-              } else {
-                minutesAdded = String(minutesAdded)
-              }
-              createdAtTime += minutesAdded
-              if(today === createdAtDate && time < createdAtTime) {
+              if(this.$store.state.user.currentUser.infos.lastLogin === '0000-00-00 00:00:00'){
                 this.showWelcomeAlert()
               }
               if(this.$store.state.user.currentUser.infos.role.includes('admin')){
@@ -130,6 +114,14 @@ export default {
         - N'hésitez pas à signaler tout contenu déplacé ou désobligeant en cliquant sur <i class="far fa-flag" style="color: red;"></i><br><br>
         Bonne navigation !</p>`,
         showConfirmButton: true
+      }).then(() => {
+        let formData = new FormData
+        formData.append('lastLogin', '')
+        let payload = {
+          userId: this.currentUser.id,
+          formData: formData
+        }
+        this.$store.dispatch('user/updateUser', payload)
       })
     },
     showAlertError (title, timer) {

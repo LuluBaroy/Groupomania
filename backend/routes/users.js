@@ -3,12 +3,18 @@ const express = require('express');
 const router = express.Router();
 const multer = require('../middlewares/multer-config')
 const userCtrl = require('../controllers/users');
-const bouncer = require('express-bouncer')(15000, 30000, 3);
-const validator = require('../middlewares/validator')
+const rateLimit = require('express-rate-limit')
 
-router.post('/signup', multer, validator.checkingSignup,userCtrl.signup);
+router.post('/signup', rateLimit({
+	windowMs: 60 * 60 * 1000,
+	max: 3,
+	message:"Too many accounts created from this IP, please try again after an hour"
+}), multer, userCtrl.signup);
 
-router.post('/login', bouncer.block, validator.checkingSignup, userCtrl.login);
+router.post('/login', rateLimit({
+	windowMs: 60000,
+	max: 3
+}), userCtrl.login);
 
 router.get('/:id', userCtrl.readOne);
 

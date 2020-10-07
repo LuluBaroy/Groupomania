@@ -2,7 +2,9 @@
 require('dotenv').config();
 const models = require('../models');
 const jwtUtils = require('../middlewares/jwt');
-const logger = require('../middlewares/winston')
+const logger = require('../middlewares/winston');
+const validator = require('validator')
+
 /**
  * @api {post} /api/issue Create
  * @apiName Create
@@ -28,18 +30,26 @@ const logger = require('../middlewares/winston')
  *}
  */
 exports.create = (req, res, next) => {
-	models.UserIssues.create({
-		...req.body,
-		status: 'pending'
-	})
-		.then(issue => {
-			logger.info('An user has created a new issue')
-			res.status(201).json(issue)
+	if(validator.matches(req.body.lastName, /[\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`0-9]/) || validator.matches(req.body.firstName, /[\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`0-9]/) ) {
+		return res.status(422).json({ message: `Last name and first name must contain only letters, spaces, hyphens or apostrophe`})
+	} else if (validator.matches(req.body.issue, /[\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/)) {
+		return res.status(422).json({ message: `Issue must not contain |/*+&#{[]})<>$£€%=^`})
+	} else if (!validator.isEmail(req.body.email)){
+		return res.status(422).json({ message: `Email must be a valid email`})
+	} else {
+		models.UserIssues.create({
+			...req.body,
+			status: 'pending'
 		})
-		.catch(err => {
-			logger.info('Something went wrong when an user tried to create an issue')
-			res.status(500).json(err)
-		})
+			.then(issue => {
+				logger.info('An user has created a new issue')
+				res.status(201).json(issue)
+			})
+			.catch(err => {
+				logger.info('Something went wrong when an user tried to create an issue')
+				res.status(500).json(err)
+			})
+	}
 }
 
 /**
