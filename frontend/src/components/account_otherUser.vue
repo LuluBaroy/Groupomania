@@ -2,33 +2,33 @@
   <div class="col-lg-9 m-auto pb-2 pb-md-0 p-md-2" id="containerbg">
     <!--OTHER USER INFO-->
     <h1 class="titleConfig rounded-pill pt-3 pb-3">Compte utilisateur</h1>
-    <div class="d-flex flex-column flex-md-row align-items-center justify-content-md-center ml-0 mr-0 mb-4 p-md-3" id="userPart">
+    <section class="d-flex flex-column flex-md-row align-items-center justify-content-md-center ml-0 mr-0 mb-4 p-md-3" id="userPart">
       <img :src="infos.url_profile_picture" class="userPhoto">
       <div class="d-flex flex-column col-md-6 justify-content-around align-items-center">
         <h2>Vous êtes sur le profil de</h2>
         <h3>{{ infos.username }}</h3>
       </div>
-    </div>
+    </section>
 
     <!--OTHER USER POSTS-->
-    <div class="d-flex flex-column align-items-center p-0">
+    <section class="d-flex flex-column align-items-center p-0">
       <h2 class="titleConfig rounded-pill p-2 mb-2 mb-md-3 col-12">Ses publications</h2>
 
       <!--NO POST PUBLISHED-->
-      <div v-if="userPosts.length === 0" class="d-flex flex-column mb-5 align-items-center justify-content-md-between col-md-10">
+      <article v-if="userPosts.length === 0" class="d-flex flex-column mb-5 align-items-center justify-content-md-between col-md-10">
         <h3 class="m-auto pt-3">{{ infos.username }} n'a rien posté !</h3>
         <p class="m-auto mt-2">Retrouvez toutes les publications sur le <router-link to="/wall">mur principal !</router-link></p>
         <img src="../assets/img/hello.gif" alt="hello gif" class="img-fluid imgPosts mt-2">
-      </div>
+      </article>
 
       <!--ALL USER'S POSTS-->
-      <div class="d-flex mb-5 container-fluid flex-column flex-md-row allPosts justify-content-center align-items-center" v-for="(post, index) in userPosts" :key="index">
+      <article class="d-flex mb-5 container-fluid flex-column flex-md-row allPosts justify-content-center align-items-center" v-for="(post, index) in userPosts" :key="index">
         <div class="d-flex col-md-9 col-lg-8 justify-content-center m-auto align-items-center p-md-3 mt-2 mb-2 formPart">
           <div class="d-flex col-md-9 flex-column">
 
             <!--POST TITLE + CONTENT + GIF-->
             <h3>{{ post.title }}</h3>
-            <p v-html="getLinks(post.content)" class="text-break"></p>
+            <p class="text-break">{{ post.content }}</p>
             <img :src="post.url_gif" v-if="post.url_gif" :alt="post.alt_gif" class="img-fluid imgPosts m-auto"/>
             <div class="d-flex row col-md-6 justify-content-around m-md-auto mr-auto ml-auto mb-3">
 
@@ -237,7 +237,7 @@
                         <div id="postUpdate">
                           <!--PREVIEW NEW GIF-->
                           <img :src="userPost.img" v-if="url.length === 0" class="img-fluid imgPosts d-flex m-auto" id="updateImg" :alt="userPost.altImg"/>
-                          <img v-else :src="url" class="img-fluid imgPosts d-flex" alt="Preview new image">
+                          <img v-else :src="url" class="img-fluid mr-auto ml-auto imgPosts d-flex" alt="Preview new image">
                           <b-form-file v-model="file" class="mt-3 mb-3" @change="onFileChanged"></b-form-file>
                         </div>
                         <b-button type="submit" @click.prevent="updatePost(index), showAlertSuccess('Post modifié !')" class="d-flex rounded-pill commentBtn">Modifier</b-button>
@@ -249,11 +249,11 @@
             </div>
           </b-collapse>
         </div>
-      </div>
-    </div>
+      </article>
+    </section>
 
     <!--ADMIN PANEL IF CURRENT USER IS ADMIN-->
-    <div v-if="currentUser.infos.role && currentUser.infos.role.includes('admin')" class="d-flex flex-column align-items-center mb-5">
+    <section v-if="currentUser.infos.role && currentUser.infos.role.includes('admin')" class="d-flex flex-column align-items-center mb-5">
       <h2 class="titleConfig rounded-pill p-2 mb-5 col-12">Options pour {{ infos.username }}</h2>
       <div class="d-flex flex-column flex-md-row align-items-center justify-content-between col-md-12">
         <div class="d-flex flex-column mb-3 col-md-4">
@@ -275,13 +275,11 @@
           </div>
         </b-modal>
       </div>
-    </div>
+    </section>
   </div>
 </template>
 
 <script>
-import linkifyHTML from 'linkifyjs/html'
-
 export default {
   name: 'accountOtherUser',
   data () {
@@ -451,9 +449,6 @@ export default {
               this.userRole = JSON.parse(response.data.role).join(', ')
             })
         })
-    },
-    getLinks (el) {
-      return linkifyHTML(el)
     },
     hasAlreadyLiked (index) {
       if (this.userPosts[index].Likes.filter(like => like.user_id === this.currentUser.id).length !== 0) {

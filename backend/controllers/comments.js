@@ -2,7 +2,8 @@
 require('dotenv').config();
 const models = require('../models');
 const jwtUtils = require('../middlewares/jwt');
-const logger = require('../middlewares/winston')
+const logger = require('../middlewares/winston');
+const validator = require('validator')
 
 /**
  * @api {post} /api/posts/:id/comments Create
@@ -33,17 +34,27 @@ const logger = require('../middlewares/winston')
  *}
  */
 exports.create = (req, res, next) => {
+	let regex = /[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/
 	const headerAuth = req.headers['authorization'];
 	const userId = jwtUtils.getUserId(headerAuth);
 	if(!headerAuth) {
 		logger.info(`an unauthenticated user tried to create a comment`)
 		res.status(400).json({message: `You're not authenticated, please log in!`})
 	} else {
-		models.Comments.create({ comment: req.body.comment, UserId: userId, PostId: req.params.id})
-			.then(comment => {
-				logger.info(`User ${userId} has commented post ${req.params.id}`)
-				res.status(201).json({ message: `Your comment has been sent !`, comment})
-			}).catch(err => {logger.info(`User ${userId} couldn't comment post ${req.params.id}`); res.status(500).json(err)})
+		if(req.body.comment === null) {
+			res.status(400).json({message: 'Comment is required'})
+		} else if (validator.matches(req.body.comment, regex)){
+			res.status(422).json({message: `Wrong format - Please don't use : |/*+&#{([]})<>$£€%=^`})
+		} else {
+			models.Comments.create({ comment: req.body.comment, UserId: userId, PostId: req.params.id})
+				.then(comment => {
+					logger.info(`User ${userId} has commented post ${req.params.id}`)
+					res.status(201).json({ message: `Your comment has been sent !`, comment})
+				}).catch(err => {
+					logger.info(`User ${userId} couldn't comment post ${req.params.id}`);
+					res.status(500).json(err)
+				})
+		}
 	}
 }
 
@@ -79,23 +90,34 @@ exports.create = (req, res, next) => {
  *}
  */
 exports.createReport = (req, res, next) => {
+	let regex = /[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/
 	const headerAuth = req.headers['authorization'];
 	let userId = jwtUtils.getUserId(headerAuth);
 	if(!headerAuth) {
 		logger.info(`An unauthenticated user tried to create a comment report`)
 		res.status(400).json({message: `You're not authenticated, please log in!`})
 	} else {
-		models.CommentsReport.create({
-			CommentId: req.params.comment_id,
-			PostId: req.params.id,
-			UserId: userId,
-			report: req.body.report,
-			status: 'pending'
-		})
-			.then((report) => {
-				logger.info(`User ${userId} has created a comment report about comment ${req.params.comment_id}`)
-				res.status(201).json({ message: `Your report has been sent, we'll eventually contact you if we need more information !`, report })
-			}).catch((err) => {logger.info(`User ${userId} couldn't create a comment report about comment ${req.params.comment_id}`); res.status(500).json(err)})
+		if(req.body.report === null){
+			res.status(400).json({ message: 'Report is required'})
+		} else if (validator.matches(req.body.report, regex)){
+			res.status(422).json({message: `Wrong format - Please don't use : |/*+&#{([]})<>$£€%=^`})
+		} else {
+			models.CommentsReport.create({
+				CommentId: req.params.comment_id,
+				PostId: req.params.id,
+				UserId: userId,
+				report: req.body.report,
+				status: 'pending'
+			})
+				.then((report) => {
+					logger.info(`User ${userId} has created a comment report about comment ${req.params.comment_id}`)
+					res.status(201).json({ message: `Your report has been sent, we'll eventually contact you if we need more information !`, report })
+				}).catch((err) => {
+					logger.info(`User ${userId} couldn't create a comment report about comment ${req.params.comment_id}`);
+					res.status(500).json(err)
+				})
+		}
+
 	}
 }
 
@@ -121,27 +143,40 @@ exports.createReport = (req, res, next) => {
  * }
  */
 exports.update = (req, res, next) => {
+	let regex = /[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/
 	const headerAuth = req.headers['authorization'];
 	let userId = jwtUtils.getUserId(headerAuth)
 	if(!headerAuth) {
 		logger.info(`an unauthenticated user tried to update a comment`)
 		res.status(400).json({message: `You're not authenticated, please log in!`})
 	} else {
-		models.Comments.findOne({ where: { id: req.params.comment_id }})
-			.then((comment) => {
-				if(comment && userId === comment.user_id){
-					models.Comments.update({ comment: req.body.comment }, { where: { id: req.params.comment_id }})
-						.then(() => {
-							logger.info(`User ${userId} has updated comment ${req.params.comment_id}`)
-							res.status(200).json({ message: `Your comment has been updated !`})
-						})
-						.catch((err) => {logger.info(`User ${userId} couldn't update comment ${req.params.comment_id}`); res.status(500).json(err)})
-				} else {
-					logger.info(`User ${userId} has tried to update comment ${req.params.comment_id}`)
-					res.status(403).json({ message: `You're not allowed to update this comment`})
-				}
-			})
-			.catch((err) => {logger.info(`Something went wrong when trying to search a comment (function updateComment)`); res.status(404).json({ message: `This comment doesn't exist `, err})})
+		if(req.body.comment === null){
+			res.status(400).json({ message: 'Comment is required'})
+		} else if(validator.matches(req.body.comment, regex)){
+			res.status(422).json({message: `Wrong format - Please don't use : |/*+&#{([]})<>$£€%=^`})
+		} else {
+			models.Comments.findOne({ where: { id: req.params.comment_id }})
+				.then((comment) => {
+					if(comment && userId === comment.user_id){
+						models.Comments.update({ comment: req.body.comment }, { where: { id: req.params.comment_id }})
+							.then(() => {
+								logger.info(`User ${userId} has updated comment ${req.params.comment_id}`)
+								res.status(200).json({ message: `Your comment has been updated !`})
+							})
+							.catch((err) => {
+								logger.info(`User ${userId} couldn't update comment ${req.params.comment_id}`);
+								res.status(500).json(err)
+							})
+					} else {
+						logger.info(`User ${userId} has tried to update comment ${req.params.comment_id}`)
+						res.status(403).json({ message: `You're not allowed to update this comment`})
+					}
+				})
+				.catch((err) => {
+					logger.info(`Something went wrong when trying to search a comment (function updateComment)`);
+					res.status(404).json({ message: `This comment doesn't exist `, err})
+				})
+		}
 	}
 }
 
@@ -186,14 +221,26 @@ exports.delete = (req, res, next) => {
 											logger.info(`User ${userId} has deleted comment ${req.params.comment_id}`)
 											res.status(200).json({message: `Comment has been deleted !`})
 										})
-										.catch(err => {logger.info(`User ${userId} couldn't delete comment ${req.params.comment_id}`); res.status(500).json(err)})
-								}).catch(err => {logger.info(`User ${userId} couldn't delete a comment report (function delete comment)`); res.status(500).json(err)})
+										.catch(err => {
+											logger.info(`User ${userId} couldn't delete comment ${req.params.comment_id}`);
+											res.status(500).json(err)
+										})
+								}).catch(err => {
+									logger.info(`User ${userId} couldn't delete a comment report (function delete comment)`);
+									res.status(500).json(err)
+								})
 						} else {
 							logger.info(`User ${userId} tried to delete comment ${req.params.comment_id}`)
 							res.status(403).json({ message: `You're not allowed to delete this comment`})
 						}
-					}).catch((err) => {logger.info(`Something went wrong when trying to search a comment`);res.status(404).json({message: `This comment doesn't exist `, err})})
-			}).catch(err => {logger.info(`Something went wrong when trying to search an user (function delete comment)`); res.status(500).json(err)})
+					}).catch((err) => {
+						logger.info(`Something went wrong when trying to search a comment`);
+						res.status(404).json({message: `This comment doesn't exist `, err})
+					})
+			}).catch(err => {
+				logger.info(`Something went wrong when trying to search an user (function delete comment)`);
+				res.status(500).json(err)
+			})
 	}
 }
 

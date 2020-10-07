@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid p-2 footerBg flex-column flex-md-row">
+  <footer class="container-fluid p-2 footerBg flex-column flex-md-row">
     <!--MODAL - COMING SOON - REPLACE WITH LINK TO COMPANY WEBSITE-->
     <b-button class="col-md-3" v-b-modal.site><img src="../assets/img/logoFooter.png" alt="Logo Groupomania" class="m-2"></b-button>
     <b-modal centered ok-only ok-variant="info" ok-title="Fermer" id="site" title="Bientôt disponible !">
@@ -78,7 +78,7 @@
 
     <!--LINK TO FAQ-->
     <b-button class="col-md-3"><router-link :to="{name: 'faq'}"><span>FAQ</span></router-link></b-button>
-  </div>
+  </footer>
 </template>
 
 <script>

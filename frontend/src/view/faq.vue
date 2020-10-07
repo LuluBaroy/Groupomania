@@ -263,7 +263,7 @@
               <b-collapse id="accordion-14" accordion="my-accordion" role="tabpanel">
                 <b-card-body>
                   <b-card-text class="m-auto">
-                    Pour accéder à votre compte, cliquez simplement sur votre photo de profil : <br><br>
+                    Pour accéder à votre compte, cliquez sur l'icône : <i class="fas fa-user" style="color: white; padding: 2%; background-color: #2C3F5F; font-size: 1.3em;"></i> dans la barre de navigation ou bien cliquez simplement sur votre photo de profil : <br><br>
                     <img src="../assets/img/account.png" alt="Accès compte" class="img-fluid"/>
                   </b-card-text>
                 </b-card-body>

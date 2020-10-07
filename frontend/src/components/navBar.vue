@@ -1,15 +1,17 @@
 <template>
-  <div class="container-fluid flex-column flex-md-row justify-content-md-around align-items-center p-2 d-flex">
+  <header class="container-fluid flex-column flex-md-row justify-content-md-around align-items-center p-2 d-flex">
     <!--LINK RETURN-->
     <div class="d-flex col-md-3 justify-content-center m-auto">
-      <router-link :to="{name: 'wall'}" class="col-md-3 p-0" :style="{display: visibilityTest ? 'flex' : 'none'}">
+      <router-link :to="{name: 'wall'}" class="d-none d-md-flex col-md-3 justify-content-center p-0" :style="{visibility: visibilityTest ? 'visible' : 'hidden'}">
         <i class="far fa-arrow-alt-circle-left d-flex flex-column align-items-center">
           <span class="mt-2">Retour</span>
         </i>
       </router-link>
     </div>
       <!--LOGO-->
-      <img src="../assets/img/logo.png" class="col-md-6 p-0" alt="Logo Groupomania">
+    <router-link :to="{name: 'wall'}" class="col-md-6">
+      <img src="../assets/img/logo.png" tabindex="0" class="p-0" alt="Logo Groupomania" id="navBarLogo">
+    </router-link>
     <!--DISCONNECTION BUTTON-->
     <div class="col-md-3 justify-content-center m-auto">
       <div v-if="currentUser.infos.role !== undefined" :style="{display: this.$cookies.isKey('user') ? 'flex' : 'none'}">
@@ -38,7 +40,7 @@
         </router-link>
       </div>
     </div>
-  </div>
+  </header>
 </template>
 
 <script>
@@ -74,11 +76,17 @@ export default {
   background-color: #2C3F5F;
   margin: 0;
 }
+#navBarLogo:focus{
+  border-top: 1px solid whitesmoke;
+  border-bottom: 1px solid whitesmoke;
+  transition: 250ms ease-in-out;
+  outline: none;
+}
 a{
   color: white;
   text-decoration: none;
 }
-a:hover{
+a:hover, a:focus{
   color: lightgray;
   text-decoration: none;
 }
@@ -90,7 +98,7 @@ i{
   font-size: 25px;
   color: white;
 }
-i:hover{
+i:hover, i:focus{
   color: grey;
 }
 </style>

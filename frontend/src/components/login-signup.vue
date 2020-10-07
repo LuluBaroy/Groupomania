@@ -20,6 +20,8 @@
                     v-model="user.email"
                     required
                     placeholder="abcd@efg.com"
+                    class="inputFocus"
+                    :state="stateEmail"
                   ></b-form-input>
                 </b-form-group>
 
@@ -30,10 +32,17 @@
                     required
                     type="password"
                     placeholder="********"
+                    class="inputFocus"
+                    :state="statePassword"
                   ></b-form-input>
                 </b-form-group>
               </b-form>
-              <b-button pill type="submit" href="#" @click.prevent="logMe" class="rounded-pill m-auto text-decoration-none" variant="light">Connexion</b-button>
+              <b-button pill v-if="error === false" id="connexionBtn" type="submit" href="#" @click.prevent="logMe" class="rounded-pill m-auto text-decoration-none" variant="light">Connexion</b-button>
+              <countdown v-else :end-time="new Date().getTime() + 60000" @finish="error = false">
+                <template v-slot:process="countdown">
+                  <span>{{ `Merci de patienter ${countdown.timeObj.ceil.s} secondes` }}</span>
+                </template>
+              </countdown>
             </div>
           </b-tab>
 
@@ -51,24 +60,28 @@
                     type="email"
                     v-model="user.email"
                     required
+                    :state="stateEmail"
                     @keyup="testInput('email')"
                     placeholder="abcd@efg.com"
                   ></b-form-input>
+                  <b-form-invalid-feedback id="input-3">
+                    Merci de renseigner un email valide
+                  </b-form-invalid-feedback>
                   <div v-if="textEmail.length !== 0" style="color: red;">{{textEmail}}</div>
-                  <div v-if="validation.email.length !== 0" class="mt-2" style="color: red;"><i class="far fa-times-circle"></i> {{ validation.email }}</div>
-                  <div v-if="isValidEmail === true" class="mt-2"><i class="far fa-check-circle"></i></div>
                 </b-form-group>
                 <b-form-group id="input-group-4" label="Nom d'utilisateur :" label-for="input-4">
                   <b-form-input
                     id="input-4"
                     required
                     v-model="user.username"
+                    :state="stateUsername"
                     @keyup="testInput('username')"
                     placeholder="Super Employee"
                   ></b-form-input>
+                  <b-form-invalid-feedback id="input-4">
+                    Merci de renseigner un nom d'utilisateur contenant au minimum 6 caractères ne contenant que des lettres et/ou chiffres (espace(s) accepté(s))
+                  </b-form-invalid-feedback>
                   <div v-if="textUsername.length !== 0" style="color: red;">{{textUsername}}</div>
-                  <div v-if="validation.username.length !== 0" class="mt-2" style="color: red;"><i class="far fa-times-circle"></i> {{ validation.username }}</div>
-                  <div v-if="isValidUsername === true" class="mt-2"><i class="far fa-check-circle"></i></div>
                 </b-form-group>
 
                 <b-form-group
@@ -81,11 +94,13 @@
                     required
                     type="password"
                     @keyup="testInput('password')"
+                    :state="statePassword"
                     placeholder="********"
                   ></b-form-input>
+                  <b-form-invalid-feedback id="input-5">
+                    Merci de renseigner un mot de passe contenant au moins 8 caractères dont une majuscule et un chiffre
+                  </b-form-invalid-feedback>
                   <div v-if="textPassword.length !== 0" style="color: red;">{{textPassword}}</div>
-                  <div v-if="validation.password.length !== 0" class="mt-2" style="color: red;"><i class="far fa-times-circle"></i> {{ validation.password }}</div>
-                  <div v-if="isValidPassWord === true" class="mt-2"><i class="far fa-check-circle"></i></div>
                 </b-form-group>
 
                 <b-form-group id="input-group-6" label="Biographie (optionnel) :" label-for="input-6">
@@ -137,7 +152,43 @@ export default {
       isValidUsername: false,
       textEmail: '',
       textPassword: '',
-      textUsername: ''
+      textUsername: '',
+      error: false
+    }
+  },
+  computed: {
+    stateEmail () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
+      if(regex.test(this.user.email)){
+        return true
+      } else if (!regex.test(this.user.email) && this.user.email.length !== 0) {
+        return false
+      } else {
+        return null
+      }
+    },
+    statePassword () {
+      let regex = new RegExp(/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,32}/)
+      if(this.user.password.length < 8 && this.user.password.length > 0 || this.user.password.length > 0 && !regex.test(this.user.password)){
+        return false
+      } else if (this.user.password.length > 8 && regex.test(this.user.password) || this.user.password.length === 8 && regex.test(this.user.password)){
+        return true
+      } else {
+        return null
+      }
+    },
+    stateUsername () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`.]/)
+      let regex2 = new RegExp(/[a-zA-Z0-9_ ]{6,16}/)
+      if (this.user.username.length > 0 && this.user.username.length < 6 || this.user.username.length > 0 && regex.test(this.user.username) || this.user.username.length > 0 && !regex2.test(this.user.username)){
+        return false
+      } else if (this.user.username.length > 6 && regex2.test(this.user.username) && !regex.test(this.user.username) || this.user.username.length === 6 && regex2.test(this.user.username) && !regex.test(this.user.username)){
+        return true
+      } else {
+        return null
+      }
     }
   },
   beforeMount () {
@@ -148,54 +199,18 @@ export default {
   methods: {
     testInput (text) {
       if(text === 'email'){
-        // eslint-disable-next-line no-useless-escape
-        let regex = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
         if(this.textEmail.length > 0){
           this.textEmail = ''
         }
-        if(!regex.test(this.user.email)) {
-          this.validation.email = `Merci de renseigner un email valide`
-          document.getElementById('input-3').style.border = '3px solid red'
-          this.isValidEmail = false
-        } else {
-          this.validation.email = ''
-          document.getElementById('input-3').style.border = '3px solid lightseagreen'
-          this.isValidEmail = true
-        }
-
       } else if (text === 'username') {
-        // eslint-disable-next-line no-useless-escape
-        let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`.]/)
-        let regex2 = new RegExp(/[a-zA-Z0-9_]{3,16}/)
         if(this.textUsername.length > 0){
           this.textUsername = ''
         }
-        if(regex.test(this.user.username) || !regex2.test(this.user.username)){
-          this.validation.username = `Merci de renseigner un nom d'utilisateur contenant au minimum 6 caractères ne contenant que des lettres et des chiffres (espace(s) accepté(s))`
-          document.getElementById('input-4').style.border = '3px solid red'
-          this.isValidUsername = false
-        } else {
-          this.validation.username = ''
-          document.getElementById('input-4').style.border = '3px solid lightseagreen'
-          this.isValidUsername = true
-        }
-
       } else if (text === 'password') {
         if(this.textPassword.length > 0){
           this.textPassword = ''
         }
-        let regex = new RegExp(/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,32}/)
-        if (!regex.test(this.user.password)) {
-          this.validation.password = `Merci de renseigner un mot de passe contenant au moins 8 caractères dont une majuscule et un chiffre`
-          document.getElementById('input-5').style.border = '3px solid red'
-          this.isValidPassWord = false
-        } else {
-          this.validation.password = ''
-          document.getElementById('input-5').style.border = '3px solid lightseagreen'
-          this.isValidPassWord = true
-        }
       }
-
     },
     testForm () {
       this.user.email.length === 0 ? this.textEmail = '* Champ requis' : this.textEmail = ''
@@ -247,6 +262,7 @@ export default {
       if (this.user.email.length === 0 || this.user.password.length === 0) {
         this.showAlertError('Merci de renseigner les différents champs', '1500')
       } else {
+        this.state = true
         let data = {
           email: this.user.email,
           password: this.user.password
@@ -261,7 +277,8 @@ export default {
             if (error.message.split('code ')[1].includes('401')) {
               this.showAlertError('Email ou mot de passe erroné !', '1500')
             } else if (error.message.split('code ')[1].includes('429')) {
-              this.showAlertError('Trop de tentatives de connexion, merci de patienter 20 secondes avant de réessayer', '2500')
+              this.error = true
+              this.showAlertError('Trop de tentatives de connexion, merci de patienter 1 minute avant de réessayer', '2500')
             } else if (error.message.split('code ')[1].includes('404')) {
               this.showAlertError(`Aucun compte n'est associé à cet email`, '2000')
             } else if (error.message.split('code ')[1].includes('422')) {
@@ -275,16 +292,20 @@ export default {
 </script>
 
 <style>
+  .nav-link:focus, .nav-link:hover{
+    background-color: #0080C0;
+    color: whitesmoke;
+  }
+  .nav-tabs .nav-link.active:focus, .nav-tabs .nav-link.active:hover{
+    background-color: #0080C0;
+    color: whitesmoke;
+  }
   #login{
     flex-grow: 1;
   }
-  .fa-check-circle{
-    color: lightseagreen;
-    font-size: 1.3em;
-  }
-  .fa-times-circle{
-    color: red;
-    font-size: 1.3em;
+  .invalid-feedback{
+    font-size: 1em !important;
+    color: #f17884;
   }
   h1{
     color: #2C3F5F;

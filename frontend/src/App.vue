@@ -6,10 +6,8 @@
       <!--ROUTER - SEE 'router/index.js'-->
       <router-view></router-view>
 
-      <footer>
-         <!--FOOTERBAR - SEE COMPONENT 'footerBar.vue'-->
-        <footerBar></footerBar>
-      </footer>
+      <!--FOOTERBAR - SEE COMPONENT 'footerBar.vue'-->
+      <footerBar></footerBar>
     </div>
 </template>
 
