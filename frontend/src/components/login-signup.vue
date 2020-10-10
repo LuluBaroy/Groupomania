@@ -110,16 +110,19 @@
                     :placeholder="`Exemple : Je m'appelle ${user.username || '...'} J'occupe le poste de ... `"
                     rows="3"
                     max-rows="6"
+                    :state="stateBio"
                   ></b-form-textarea>
+                  <b-form-invalid-feedback>
+                    Merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                  </b-form-invalid-feedback>
                 </b-form-group>
 
-                <b-form-group id="input-group-7" label="Photo de profil (optionnel) :" label-for="input-7">
-                  <b-form-file
-                    v-model="file"
-                    placeholder="Choisissez votre photo de profil"
-                    drop-placeholder="Déposez votre photo de profil"
-                    browse-text="Rechercher"
-                  ></b-form-file>
+                <b-form-group
+                        label="Photo de profil (optionnel) :"
+                        label-for="input-7">
+                  <img v-if="url.length > 0" :src="url" alt="Prévisualisation de la photo de profil" class="userPhoto d-flex mr-auto ml-auto mb-3"/>
+                  <b-form-file id="fileInput" v-model="file" accept=".jpg, .png, .gif, .jpeg" class="text-left mr-auto ml-auto" @change="onFileChanged"></b-form-file>
+                  <small>Fichiers acceptés : 'jpg', 'jpeg', 'gif', 'png'</small>
                 </b-form-group>
               </b-form>
               <b-button pill type="submit" @click.prevent="testForm(), registerMe()" class="d-flex rounded-pill m-auto" variant="light">Inscription</b-button>
@@ -147,13 +150,11 @@ export default {
         password: ''
       },
       file: null,
-      isValidEmail: false,
-      isValidPassWord: false,
-      isValidUsername: false,
       textEmail: '',
       textPassword: '',
       textUsername: '',
-      error: false
+      error: false,
+      url: ''
     }
   },
   computed: {
@@ -169,6 +170,7 @@ export default {
       }
     },
     statePassword () {
+      // eslint-disable-next-line no-useless-escape
       let regex = new RegExp(/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,32}/)
       if(this.user.password.length < 8 && this.user.password.length > 0 || this.user.password.length > 0 && !regex.test(this.user.password)){
         return false
@@ -181,11 +183,23 @@ export default {
     stateUsername () {
       // eslint-disable-next-line no-useless-escape
       let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`.]/)
+      // eslint-disable-next-line no-useless-escape
       let regex2 = new RegExp(/[a-zA-Z0-9_ ]{6,16}/)
       if (this.user.username.length > 0 && this.user.username.length < 6 || this.user.username.length > 0 && regex.test(this.user.username) || this.user.username.length > 0 && !regex2.test(this.user.username)){
         return false
       } else if (this.user.username.length > 6 && regex2.test(this.user.username) && !regex.test(this.user.username) || this.user.username.length === 6 && regex2.test(this.user.username) && !regex.test(this.user.username)){
         return true
+      } else {
+        return null
+      }
+    },
+    stateBio () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/)
+      if(this.user.bio.length > 0 && !regex.test(this.user.bio)){
+        return true
+      } else if (this.user.bio.length > 0 && regex.test(this.user.bio) || regex.test(this.user.bio)){
+        return false
       } else {
         return null
       }
@@ -197,6 +211,15 @@ export default {
     }
   },
   methods: {
+    onFileChanged (e) {
+      let authorizedFile = ['jpg', 'jpeg', 'gif', 'png']
+      const file = e.target.files[0]
+      if (!authorizedFile.includes(file.name.split('.')[1])) {
+        this.url = 'http://localhost:3000/images/wrongExtension.png'
+      } else {
+        this.url = URL.createObjectURL(file)
+      }
+    },
     testInput (text) {
       if(text === 'email'){
         if(this.textEmail.length > 0){
@@ -226,8 +249,9 @@ export default {
         timer: timer})
     },
     registerMe () {
-      if (this.user.email.length === 0 || this.user.password.length === 0 || this.user.username.length === 0) {
-        this.showAlertError('Merci de renseigner les différents champs', '1500')
+      let authorizedFile = ['jpg', 'jpeg', 'gif', 'png']
+      if (this.stateEmail !== true || this.stateUsername !== true || this.statePassword !== true || this.file !== null && !authorizedFile.includes(this.file.name.split('.')[1]) || this.stateBio === false) {
+        this.showAlertError('Merci de renseigner les différents champs au bon format', '1500')
         this.testForm()
       } else {
         let formData = new FormData()
@@ -291,7 +315,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
   .nav-link:focus, .nav-link:hover{
     background-color: #0080C0;
     color: whitesmoke;
@@ -323,5 +347,13 @@ export default {
   input{
     text-align: center;
     box-shadow: 0 0 3px lavender;
+  }
+  .userPhoto{
+    object-fit: cover;
+    width: 150px;
+    height: 150px;
+    border-radius: 100%;
+    border: 4px solid white;
+    box-shadow: 0 0 12px white;
   }
 </style>

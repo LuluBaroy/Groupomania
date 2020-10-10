@@ -3,7 +3,8 @@
 require('dotenv').config();
 const models = require('../models');
 const jwtUtils = require('../middlewares/jwt');
-const logger = require('../middlewares/winston')
+const logger = require('../middlewares/winston');
+const hateoasReport = require('../services/hateoasIssueReport')
 
 /**
  * @api {get} /api/report Read All
@@ -17,48 +18,172 @@ const logger = require('../middlewares/winston')
  * @apiSuccessExample Success-Response:
  *HTTP/1.1 200 OK
  *{
- *	"postReports":[
- *		{
- *			"id":6,
- *			"post_id":17,
- *			"user_id":3,
- *			"report":"123456789",
- *			"status":"treated",
- *			"created_at":"2020-09-30 15:14:45",
- *			"updated_at":"2020-09-30 15:14:45",
- *			"createdAt":"2020-09-30 15:14:45",
- *			"updatedAt":"2020-09-30 15:14:45",
- *			"UserId":3,"PostId":17
- *		},
- *		{
- *			"id":5,
- *			"post_id":7,
- *			"user_id":2,
- *			"report":"lokijuhytyrdftgyhujikolpkojihuyd",
- *			"status":"pending",
- *			"created_at":"2020-09-27 19:56:06",
- *			"updated_at":"2020-09-29 19:02:00",
- *			"createdAt":"2020-09-27 19:56:06",
- *			"updatedAt":"2020-09-29 19:02:00",
- *			"UserId":2,
- *			"PostId":7
- *		},
- *		{
- *			"id":4,
- *			"post_id":1,
- *			"user_id":2,
- *			"report":"123456789",
- *			"status":"pending",
- *			"created_at":"2020-09-27 13:13:55",
- *			"updated_at":"2020-09-29 19:02:00",
- *			"createdAt":"2020-09-27 13:13:55",
- *			"updatedAt":"2020-09-29 19:02:00",
- *			"UserId":2,
- *			"PostId":1
- *		}
- *	],
- *	"commentReports":[]
- *}
+    "postReports": [
+        {
+            "id": 8,
+            "post_id": 17,
+            "user_id": 23,
+            "report": "123",
+            "status": "pending",
+            "created_at": "2020-10-09 00:26:25",
+            "updated_at": "2020-10-09 00:26:25",
+            "createdAt": "2020-10-09 00:26:25",
+            "updatedAt": "2020-10-09 00:26:25",
+            "UserId": 23,
+            "PostId": 17,
+            "_links": {
+                "self": {
+                    "method": "GET",
+                    "href": "http://localhost:3000/api/report"
+                },
+                "update": {
+                    "method": "PUT",
+                    "href": "http://localhost:3000/api/report/8"
+                },
+                "delete": {
+                    "method": "DELETE",
+                    "href": "http://localhost:3000/api/report/8"
+                },
+                "allWaiting": {
+                    "method": "GET",
+                    "href": "http://localhost:3000/api/issue/all/messageWaiting"
+                }
+            }
+        },
+        {
+            "id": 7,
+            "post_id": 16,
+            "user_id": 1,
+            "report": "123456789",
+            "status": "pending",
+            "created_at": "2020-10-08 20:17:20",
+            "updated_at": "2020-10-08 20:17:20",
+            "createdAt": "2020-10-08 20:17:20",
+            "updatedAt": "2020-10-08 20:17:20",
+            "UserId": 1,
+            "PostId": 16,
+            "_links": {
+                "self": {
+                    "method": "GET",
+                    "href": "http://localhost:3000/api/report"
+                },
+                "update": {
+                    "method": "PUT",
+                    "href": "http://localhost:3000/api/report/7"
+                },
+                "delete": {
+                    "method": "DELETE",
+                    "href": "http://localhost:3000/api/report/7"
+                },
+                "allWaiting": {
+                    "method": "GET",
+                    "href": "http://localhost:3000/api/issue/all/messageWaiting"
+                }
+            }
+        }
+    ],
+    "commentReports": [
+        {
+            "id": 10,
+            "comment_id": 14,
+            "user_id": 23,
+            "post_id": 17,
+            "report": "123456",
+            "status": "pending",
+            "created_at": "2020-10-09 00:29:11",
+            "updated_at": "2020-10-09 00:29:11",
+            "createdAt": "2020-10-09 00:29:11",
+            "updatedAt": "2020-10-09 00:29:11",
+            "UserId": 23,
+            "PostId": 17,
+            "CommentId": 14,
+            "_links": {
+                "self": {
+                    "method": "GET",
+                    "href": "http://localhost:3000/api/report"
+                },
+                "update": {
+                    "method": "PUT",
+                    "href": "http://localhost:3000/api/report/comment/10"
+                },
+                "delete": {
+                    "method": "DELETE",
+                    "href": "http://localhost:3000/api/report/comment/10"
+                },
+                "allWaiting": {
+                    "method": "GET",
+                    "href": "http://localhost:3000/api/issue/all/messageWaiting"
+                }
+            }
+        },
+        {
+            "id": 9,
+            "comment_id": 12,
+            "user_id": 1,
+            "post_id": 15,
+            "report": "123456789",
+            "status": "treated",
+            "created_at": "2020-10-08 19:31:09",
+            "updated_at": "2020-10-08 19:32:34",
+            "createdAt": "2020-10-08 19:31:09",
+            "updatedAt": "2020-10-08 19:32:34",
+            "UserId": 1,
+            "PostId": 15,
+            "CommentId": 12,
+            "_links": {
+                "self": {
+                    "method": "GET",
+                    "href": "http://localhost:3000/api/report"
+                },
+                "update": {
+                    "method": "PUT",
+                    "href": "http://localhost:3000/api/report/comment/9"
+                },
+                "delete": {
+                    "method": "DELETE",
+                    "href": "http://localhost:3000/api/report/comment/9"
+                },
+                "allWaiting": {
+                    "method": "GET",
+                    "href": "http://localhost:3000/api/issue/all/messageWaiting"
+                }
+            }
+        },
+        {
+            "id": 8,
+            "comment_id": 5,
+            "user_id": 1,
+            "post_id": 12,
+            "report": "123456",
+            "status": "treated",
+            "created_at": "2020-10-08 17:01:03",
+            "updated_at": "2020-10-08 19:41:38",
+            "createdAt": "2020-10-08 17:01:03",
+            "updatedAt": "2020-10-08 19:41:38",
+            "UserId": 1,
+            "PostId": 12,
+            "CommentId": 5,
+            "_links": {
+                "self": {
+                    "method": "GET",
+                    "href": "http://localhost:3000/api/report"
+                },
+                "update": {
+                    "method": "PUT",
+                    "href": "http://localhost:3000/api/report/comment/8"
+                },
+                "delete": {
+                    "method": "DELETE",
+                    "href": "http://localhost:3000/api/report/comment/8"
+                },
+                "allWaiting": {
+                    "method": "GET",
+                    "href": "http://localhost:3000/api/issue/all/messageWaiting"
+                }
+            }
+        }
+    ]
+}
  * @apiErrorExample Error-Response : User not allowed for this action
  * HTTP/1.1 403 Forbidden
  * {
@@ -84,13 +209,15 @@ exports.readAll = (req, res, next) => {
 							['id', 'DESC']
 						]
 					})
-						.then(postReports => {
+						.then(postReport => {
 							models.CommentsReport.findAll({
 								order: [
 									['id', 'DESC']
 								]
-							}).then(commentReports => {
+							}).then(commentReport => {
 								logger.info(`User ${userId} got all reports`)
+								let postReports = hateoasReport(req, postReport, 'api/report')
+								let commentReports = hateoasReport(req, commentReport, 'api/report/comment')
 								res.status(200).json({postReports, commentReports})
 							}).catch(err => {
 								logger.info(`Something went wrong when trying to find all commentsReports in function readAll`)

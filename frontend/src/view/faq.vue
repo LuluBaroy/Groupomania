@@ -1,9 +1,9 @@
 <template>
-  <div id="faq">
+  <main id="faq">
     <!--FAQ VIEW-->
     <h1>Bienvenue sur notre section Foire aux Questions !</h1>
     <h2>Quel est votre problème ?</h2>
-    <div class="d-flex align-items-center justify-content-center col-xl-7 m-md-auto">
+    <section class="d-flex align-items-center justify-content-center col-xl-7 m-md-auto">
       <b-tabs content-class="mt-3" id="tab2" class="col-12" align="center">
 
         <!--LOGIN/SIGNUP ISSUES-->
@@ -390,8 +390,8 @@
           </b-card>
         </b-tab>
       </b-tabs>
-    </div>
-  </div>
+    </section>
+  </main>
 </template>
 
 <script>

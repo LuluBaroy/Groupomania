@@ -2,6 +2,7 @@
 const models = require('../models');
 const logger = require('../middlewares/winston');
 const validator = require('validator');
+const xss = require('xss')
 /**
  * @api {post} /api/research Research
  * @apiName Research
@@ -63,7 +64,7 @@ exports.research = (req, res, next) => {
 			if(validator.matches(req.body.research, regex)){
 				res.status(422).json({message: `Wrong format - Please don't use : |/*+&#{([]})<>$£€%=^`})
 			} else {
-				let username = req.body.research.toUpperCase()
+				let username = xss(req.body.research).toUpperCase()
 				models.Users.findAll()
 					.then(users => {
 						if(users.length === 0){

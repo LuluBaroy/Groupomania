@@ -164,6 +164,8 @@ export default {
               this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
             } else if (error.message.split('code ')[1].includes('400')) {
               this.showAlertError(`Merci de renseigner un nom avant de cliquer sur le bouton de recherche`, '4000')
+            } else if (error.message.split('code ')[1].includes('422')) {
+              this.showAlertError(`Merci de ne pas utiliser les caractères suivant : |/*+&#{([]})<>$£€%=^ `, '4000')
             }
           })
       }

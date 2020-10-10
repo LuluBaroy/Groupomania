@@ -8,6 +8,8 @@ const fs = require('fs');
 const logger = require('../middlewares/winston');
 const passwordValidator = require('password-validator');
 const schema = new passwordValidator();
+const xss = require('xss')
+const hateoasUsers = require('../services/hateoasUser')
 schema
 	.is().min(8)
 	.has().uppercase()
@@ -49,6 +51,7 @@ schema
  *
  */
 exports.signup = (req, res, next) => {
+	console.log(req.body)
 	if(!validator.isEmail(req.body.email) || validator.matches(req.body.username, /[\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/) || validator.matches(req.body.bio, /[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/)){
 		logger.info('User tried to sign up with invalid email or fields containing symbols');
 		return res.status(422).json({ message: `Wrong format - Please don't use : |/*+&#{([]})<>$£€%=^` });
@@ -71,12 +74,12 @@ exports.signup = (req, res, next) => {
 									altProfilePicture = "Photo de profil de l'utilisateur"
 								}
 								models.Users.create({
-									email: req.body.email,
+									email: xss(req.body.email),
 									password: hash,
-									username: req.body.username,
+									username: xss(req.body.username),
 									url_profile_picture: urlProfilePicture,
 									alt_profile_picture: altProfilePicture,
-									bio: req.body.bio,
+									bio: xss(req.body.bio),
 									role: role,
 									consents: consents,
 									lastLogin: 'none'
@@ -122,12 +125,12 @@ exports.signup = (req, res, next) => {
 												altProfilePicture = "Photo de profil de l'utilisateur"
 											}
 											models.Users.create({
-												email: req.body.email,
+												email: xss(req.body.email),
 												password: hash,
-												username: req.body.username,
+												username: xss(req.body.username),
 												url_profile_picture: urlProfilePicture,
 												alt_profile_picture: altProfilePicture,
-												bio: req.body.bio,
+												bio: xss(req.body.bio),
 												role: role,
 												consents: consents,
 												lastLogin: 'none'
@@ -224,50 +227,110 @@ exports.login = (req, res, next) => {
  * @apiSuccessExample Success-Response:
  *HTTP/1.1 200 OK
  *{
- *     "id":2,
- *     "email":"deletedUser@admin.fr",
- *     "password":"$2a$10$BvS4N1seTASRfWlmRcBDN.LpKwwUp7Y/D92I..o/3xcNDyXkr58qu",
- *     "username":"Utilisateur supprimé",
- *     "role":"[\"user\"]",
- *     "bio":null,
- *     "url_profile_picture":"http://localhost:3000/images/deletedUser.png",
- *     "alt_profile_picture":"Photo de profil de l'utilisateur",
- *     "consents":"{\"shareable\":false,\"contactable\":false}",
- *     "created_at":"2020-09-24 17:33:09",
- *     "updated_at":"2020-09-24 17:33:09",
- *     "createdAt":"2020-09-24 17:33:09",
- *     "updatedAt":"2020-09-24 17:33:09",
- *     "Posts":[
- *     		{
- *     		"id":1,
- *     		"title":"123",
- *     		"content":"123456🤪",
- *     		"user_id":2,
- *     		"url_gif":"http://localhost:3000/images/7932182674.gif",
- *     		"alt_gif":"GIF partagé par l'utilisateur",
- *     		"created_at":"2020-09-24 17:59:11",
- *     		"updated_at":"2020-09-29 16:51:26",
- *     		"createdAt":"2020-09-24 17:59:11",
- *     		"updatedAt":"2020-09-29 16:51:26",
- *     		"UserId":2
- *     		},
- *     		{
- *     		"id":5,
- *     		"title":"132",
- *     		"content":"khghfwsdfgthyhujikoljnhg 😧",
- *     		"user_id":2,
- *     		"url_gif":"http://localhost:3000/images/579015870.gif",
- *     		"alt_gif":"GIF partagé par l'utilisateur",
- *     		"created_at":"2020-09-27 15:06:02",
- *     		"updated_at":"2020-09-29 17:28:51",
- *     		"createdAt":"2020-09-27 15:06:02",
- *     		"updatedAt":"2020-09-29 17:28:51",
- *     		"UserId":2
- *     		}
- *     	 ],
- *     	"Comments": [],
- *     	"Likes": [],
- *}
+    "id": 1,
+    "email": "test@test.fr",
+    "password": "$2a$10$SooiZzedLTRPQ0o7YggyWeC3e5hR3PoN0qC3GaAU1JuzUMLwkyZIS",
+    "username": "Lulu Baroy",
+    "role": "[\"user\",\"admin\"]",
+    "bio": "",
+    "url_profile_picture": "http://localhost:3000/images/1006202404.gif",
+    "alt_profile_picture": "Photo de profil de l'utilisateur",
+    "consents": "{\"shareable\":\"false\",\"contactable\":\"false\"}",
+    "lastLogin": "2020-10-08 19:50:12",
+    "created_at": "2020-10-03 11:19:37",
+    "updated_at": "2020-10-08 19:50:12",
+    "createdAt": "2020-10-03 11:19:37",
+    "updatedAt": "2020-10-08 19:50:12",
+    "Posts": [
+        {
+            "id": 12,
+            "title": "Blablabla",
+            "content": "Blablablabla",
+            "user_id": 1,
+            "url_gif": "http://localhost:3000/images/600616296.gif",
+            "alt_gif": "GIF partagé par l'utilisateur",
+            "created_at": "2020-10-07 10:44:34",
+            "updated_at": "2020-10-07 10:44:34",
+            "createdAt": "2020-10-07 10:44:34",
+            "updatedAt": "2020-10-07 10:44:34",
+            "UserId": 1
+        },
+        {
+            "id": 16,
+            "title": "123",
+            "content": "123",
+            "user_id": 1,
+            "url_gif": "http://localhost:3000/images/3637389236.gif",
+            "alt_gif": "GIF partagé par l'utilisateur",
+            "created_at": "2020-10-08 19:46:33",
+            "updated_at": "2020-10-08 22:34:06",
+            "createdAt": "2020-10-08 19:46:33",
+            "updatedAt": "2020-10-08 22:34:06",
+            "UserId": 1
+        }
+    ],
+    "Comments": [
+        {
+            "id": 11,
+            "comment": "123456...",
+            "user_id": 1,
+            "post_id": 12,
+            "created_at": "2020-10-08 17:00:23",
+            "updated_at": "2020-10-08 17:00:41",
+            "createdAt": "2020-10-08 17:00:23",
+            "updatedAt": "2020-10-08 17:00:41",
+            "UserId": 1,
+            "PostId": 12
+        },
+        {
+            "id": 12,
+            "comment": "123456789789hnbgvfcd",
+            "user_id": 1,
+            "post_id": 15,
+            "created_at": "2020-10-08 19:31:02",
+            "updated_at": "2020-10-08 22:38:04",
+            "createdAt": "2020-10-08 19:31:02",
+            "updatedAt": "2020-10-08 22:38:04",
+            "UserId": 1,
+            "PostId": 15
+        }
+    ],
+    "Likes": [],
+    "_links": {
+        "self": {
+            "method": "GET",
+            "href": "http://localhost:3000/api/auth/1"
+        },
+        "update": {
+            "method": "PUT",
+            "href": "http://localhost:3000/api/auth/1"
+        },
+        "delete": {
+            "method": "DELETE",
+            "href": "http://localhost:3000/api/auth/1"
+        },
+        "updatePrivilege": {
+            "method": "PUT",
+            "href": "http://localhost:3000/api/auth/1/update_privilege"
+        },
+        "signup": {
+            "method": "POST",
+            "href": "http://localhost:3000/api/auth/signup"
+        },
+        "login": {
+            "method": "POST",
+            "href": "http://localhost:3000/api/auth/login"
+        },
+        "list": {
+            "method": "GET",
+            "href": "http://localhost:3000/api/auth"
+        },
+        "posts": {
+            "method": "GET",
+            "href": "http://localhost:3000api/posts/from/1"
+        }
+    }
+}
  *
  * @apiErrorExample Error-Response: User couldn't be found
  *HTTP/1.1 404 Not found
@@ -289,7 +352,7 @@ exports.readOne = (req, res, next) => {
 					res.status(404).json({ message: `User with ID ${req.params.id} not found !`})
 				} else {
 					logger.info(`User ${userId} got info about user ${req.params.id}`);
-					res.status(200).json(user)
+					hateoasUsers(req, res, user, 'api/auth')
 				}
 			}).catch(err => {logger.info(`Something went wrong when trying to search for user ${req.params.id} info`); res.status(500).json(err)})
 	}
@@ -545,36 +608,208 @@ exports.update = (req, res, next) => {
  *
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
- * {
- *     "message":"Here are all users",
- *     "users": [
- *     		{
- *     			"id":4,
- *     			"username":"Lulu",
- *     			"email":"test3@test.fr",
- *     			"url_profile_picture":"http://localhost:3000/images/defaultPicture.png",
- *     			"alt_profile_picture":"Photo de profil de l'utilisateur",
- *     			"role":"[\"user\"]"
- *     		},
- *     		{
- *     			"id":18,
- *     			"username":"Lulu blablabla",
- *     			"email":"testlkgjhfgjik@test.fr",
- *     			"url_profile_picture":"http://localhost:3000/images/defaultPicture.png",
- *     			"alt_profile_picture":"Photo de profil de l'utilisateur",
- *     			"role":"[\"user\"]"
- *     		},
- *     		{
- *     			"id":17,
- *     			"username":"Lulu lululu",
- *     			"email":"testlkjvhbjnk@test.fr",
- *     			"url_profile_picture":"http://localhost:3000/images/defaultPicture.png",
- *     			"alt_profile_picture":"Photo de profil de l'utilisateur",
- *     			"role":"[\"user\"]"
- *     		}
- *     	  ]
- *}
-
+ *[
+    {
+        "id": 17,
+        "email": "test124@test.fr",
+        "password": "$2a$10$CUa2yOXm9FgWkUqcV/5MLe4Q3MZy9QNNZF5VOWpUECuSEpkPGPmGm",
+        "username": "blablablabla",
+        "role": "[\"user\"]",
+        "bio": null,
+        "url_profile_picture": "http://localhost:3000/images/defaultPicture.png",
+        "alt_profile_picture": "Photo de profil de l'utilisateur",
+        "consents": "{\"shareable\":false,\"contactable\":false}",
+        "lastLogin": "2020-10-03 12:08:05",
+        "created_at": "2020-10-03 12:08:05",
+        "updated_at": "2020-10-03 12:08:05",
+        "createdAt": "2020-10-03 12:08:05",
+        "updatedAt": "2020-10-03 12:08:05",
+        "_links": {
+            "self": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/auth/17"
+            },
+            "update": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/auth/17"
+            },
+            "delete": {
+                "method": "DELETE",
+                "href": "http://localhost:3000/api/auth/17"
+            },
+            "updatePrivilege": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/auth/17/update_privilege"
+            },
+            "signup": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/auth/signup"
+            },
+            "login": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/auth/login"
+            },
+            "list": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/auth"
+            },
+            "posts": {
+                "method": "GET",
+                "href": "http://localhost:3000api/posts/from/17"
+            }
+        }
+    },
+    {
+        "id": 19,
+        "email": "test789@test.fr",
+        "password": "$2a$10$reSYvbtkjXEmfQbLaejZj.BeEu64/5lofQ/TY/TqvkkOkiEzJ8tnW",
+        "username": "Blablablabla",
+        "role": "[\"user\"]",
+        "bio": null,
+        "url_profile_picture": "http://localhost:3000/images/defaultPicture.png",
+        "alt_profile_picture": "Photo de profil de l'utilisateur",
+        "consents": "{\"shareable\":false,\"contactable\":false}",
+        "lastLogin": "0000-00-00 00:00:00",
+        "created_at": "2020-10-03 12:28:41",
+        "updated_at": "2020-10-03 12:28:41",
+        "createdAt": "2020-10-03 12:28:41",
+        "updatedAt": "2020-10-03 12:28:41",
+        "_links": {
+            "self": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/auth/19"
+            },
+            "update": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/auth/19"
+            },
+            "delete": {
+                "method": "DELETE",
+                "href": "http://localhost:3000/api/auth/19"
+            },
+            "updatePrivilege": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/auth/19/update_privilege"
+            },
+            "signup": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/auth/signup"
+            },
+            "login": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/auth/login"
+            },
+            "list": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/auth"
+            },
+            "posts": {
+                "method": "GET",
+                "href": "http://localhost:3000api/posts/from/19"
+            }
+        }
+    },
+    {
+        "id": 20,
+        "email": "test456@test.fr",
+        "password": "$2a$10$JprlGKgC5JqmG92791EB3u8CBvk6xzDVcHaQwy2sErDzvxogsEOgW",
+        "username": "Blablablabvbla2",
+        "role": "[\"user\"]",
+        "bio": null,
+        "url_profile_picture": "http://localhost:3000/images/defaultPicture.png",
+        "alt_profile_picture": "Photo de profil de l'utilisateur",
+        "consents": "{\"shareable\":false,\"contactable\":false}",
+        "lastLogin": "2020-10-03 12:46:13",
+        "created_at": "2020-10-03 12:40:54",
+        "updated_at": "2020-10-03 12:46:13",
+        "createdAt": "2020-10-03 12:40:54",
+        "updatedAt": "2020-10-03 12:46:13",
+        "_links": {
+            "self": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/auth/20"
+            },
+            "update": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/auth/20"
+            },
+            "delete": {
+                "method": "DELETE",
+                "href": "http://localhost:3000/api/auth/20"
+            },
+            "updatePrivilege": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/auth/20/update_privilege"
+            },
+            "signup": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/auth/signup"
+            },
+            "login": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/auth/login"
+            },
+            "list": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/auth"
+            },
+            "posts": {
+                "method": "GET",
+                "href": "http://localhost:3000api/posts/from/20"
+            }
+        }
+    },
+    {
+        "id": 1,
+        "email": "test@test.fr",
+        "password": "$2a$10$SooiZzedLTRPQ0o7YggyWeC3e5hR3PoN0qC3GaAU1JuzUMLwkyZIS",
+        "username": "Lulu Baroy",
+        "role": "[\"user\",\"admin\"]",
+        "bio": "",
+        "url_profile_picture": "http://localhost:3000/images/1006202404.gif",
+        "alt_profile_picture": "Photo de profil de l'utilisateur",
+        "consents": "{\"shareable\":\"false\",\"contactable\":\"false\"}",
+        "lastLogin": "2020-10-08 19:50:12",
+        "created_at": "2020-10-03 11:19:37",
+        "updated_at": "2020-10-08 19:50:12",
+        "createdAt": "2020-10-03 11:19:37",
+        "updatedAt": "2020-10-08 19:50:12",
+        "_links": {
+            "self": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/auth/1"
+            },
+            "update": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/auth/1"
+            },
+            "delete": {
+                "method": "DELETE",
+                "href": "http://localhost:3000/api/auth/1"
+            },
+            "updatePrivilege": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/auth/1/update_privilege"
+            },
+            "signup": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/auth/signup"
+            },
+            "login": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/auth/login"
+            },
+            "list": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/auth"
+            },
+            "posts": {
+                "method": "GET",
+                "href": "http://localhost:3000api/posts/from/1"
+            }
+        }
+    }
+ ]
  * @apiErrorExample Error-Response: User not Authenticated
  * HTTP/1.1 400 Bad Request
  *{
@@ -590,19 +825,8 @@ exports.readAll = (req, res, next) => {
 			]
 		})
 			.then(allUsers => {
-				let users = [];
-				for(let i in allUsers){
-					users.push({
-						id: allUsers[i].id,
-						username: allUsers[i].username,
-						email: allUsers[i].email,
-						url_profile_picture: allUsers[i].url_profile_picture,
-						alt_profile_picture: allUsers[i].alt_profile_picture,
-						role: allUsers[i].role
-					})
-				}
 				logger.info(`All users info has been asked`);
-				res.status(200).json({message: `Here are all users`, users})
+				hateoasUsers(req, res, allUsers, 'api/auth')
 			}).catch((err) => {
 			logger.info(`Something went wrong when trying to search for all users in function ReadAllUsers`);
 			res.status(500).json(err)

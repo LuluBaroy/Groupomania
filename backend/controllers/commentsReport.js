@@ -3,7 +3,7 @@
 require('dotenv').config();
 const models = require('../models');
 const jwtUtils = require('../middlewares/jwt');
-const logger = require('../middlewares/winston')
+const logger = require('../middlewares/winston');
 
 /**
  * @api {put} /api/report/comment/:id Update Comment Report
@@ -44,7 +44,7 @@ exports.update = (req, res, next) => {
 					models.CommentsReport.update({status: 'treated'}, {where: {id: req.params.id}})
 						.then(() => {
 							logger.info(`User ${userId} has updated commentReport ${req.params.id}`)
-							res.status(200).json({message: `Report ${req.params.id} has been updated !`})
+
 						}).catch((err) => {
 						logger.info(`Something went wrong when trying to update comment report ${req.params.id}`)
 						res.status(500).json(err)

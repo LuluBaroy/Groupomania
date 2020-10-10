@@ -33,10 +33,13 @@
             v-model="userPost.title"
             class="m-0"
             placeholder="Titre de votre publication ... "
+            :state="stateTitle"
             @keyup="testInput('title')"
           ></b-form-input>
           <div v-if="textTitle.length !== 0" style="color: red;">{{textTitle}}</div>
-          <div v-if="isValidTitle === true" class="d-flex mr-auto ml-auto mt-2 justify-content-center"><i class="far fa-check-circle"></i></div>
+          <b-form-invalid-feedback>
+            Merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+          </b-form-invalid-feedback>
         </b-form-group>
         <b-form-group
           label="Publication :"
@@ -49,11 +52,14 @@
             placeholder="Contenu de votre publication ..."
             class="col-md-12 m-0 text-center"
             rows="3"
+            :state="stateContent"
             max-rows="6"
             @keyup="testInput('content')"
           ></b-form-textarea>
           <div v-if="textContent.length !== 0" style="color: red;">{{textContent}}</div>
-          <div v-if="isValidContent === true" class="d-flex mr-auto ml-auto mt-2 justify-content-center"><i class="far fa-check-circle"></i></div>
+          <b-form-invalid-feedback>
+            Merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+          </b-form-invalid-feedback>
           <b-button v-b-modal.emojis class="rounded-pill d-flex mr-auto ml-auto mt-3" variant="dark">😃 Ajouter des emoticones !</b-button>
         </b-form-group>
         <b-modal centered title="Emoticones" ok-only ok-title="Fermer" ok-variant="info" id="emojis" triggers="hover" placement="top">
@@ -65,14 +71,13 @@
         label="Votre GIF :"
         label-for="fileInput"
         class="d-flex flex-column flex-md-row text-left"
-        label-cols-md="3">
+        label-cols-md="3"
+        description="Fichiers acceptés : 'jpg', 'jpeg', 'gif', 'png'">
           <img v-if="url.length > 0" :src="url" alt="GIF choisi par l'utilisateur" class="img-fluid imgPosts d-flex mr-auto ml-auto mb-3"/>
-          <b-form-file id="fileInput" v-model="file" accept=".jpg, .png, .gif, .jpeg" class="text-left mr-auto ml-auto" @change="onFileChanged" @input="testInput('file')"></b-form-file>
+          <b-form-file id="fileInput" v-model="file" accept=".jpg, .png, .gif, .jpeg" class="text-left mr-auto ml-auto" @change="onFileChanged"></b-form-file>
           <div v-if="textFile.length !== 0" style="color: red;">{{textFile}}</div>
-          <div v-if="isValidFile === true" class="d-flex justify-content-center mt-2"><i class="far fa-check-circle"></i></div>
         </b-form-group>
         <b-button pill type="submit" id="submitPost" @click.prevent="testForm(), publish()" class="mt-3 mb-3 mr-auto ml-auto">Publier</b-button>
-
       </b-form>
     </div>
 
@@ -93,9 +98,6 @@ export default {
       textTitle: '',
       textContent: '',
       textFile: '',
-      isValidTitle: false,
-      isValidContent: false,
-      isValidFile: false,
       url: ''
     }
   },
@@ -105,34 +107,53 @@ export default {
     },
     messageWaiting () {
       return this.$store.state.issues.messageWaiting
+    },
+    //FORM VALIDATION
+    stateTitle () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.userPost.title.length > 0 && !regex.test(this.userPost.title)){
+        return true
+      } else if (this.userPost.title.length > 0 && regex.test(this.userPost.title) || regex.test(this.userPost.title)){
+        return false
+      } else {
+        return null
+      }
+    },
+    stateContent () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.userPost.content.length > 0 && !regex.test(this.userPost.content)){
+        return true
+      } else if (this.userPost.content.length > 0 && regex.test(this.userPost.content) || regex.test(this.userPost.content)){
+        return false
+      } else {
+        return null
+      }
     }
   },
   methods: {
     onFileChanged (e) {
+      let authorizedFile = ['jpg', 'jpeg', 'gif', 'png']
       const file = e.target.files[0]
-      this.url = URL.createObjectURL(file)
+      if (!authorizedFile.includes(file.name.split('.')[1])) {
+        this.url = 'http://localhost:3000/images/wrongExtension.png'
+      } else {
+        this.url = URL.createObjectURL(file)
+      }
     },
     testInput (text) {
       if(text === 'title') {
         if (this.userPost.title.length > 0) {
           this.textTitle = ''
-          this.isValidTitle = true
-        } else {
-          this.isValidTitle = false
         }
       } else if (text === 'content') {
         if (this.userPost.content.length > 0) {
           this.textContent = ''
-          this.isValidContent = true
-        } else {
-          this.isValidContent = false
         }
       } else if(text === 'file') {
         if (this.file !== null) {
           this.textFile = ''
-          this.isValidFile = true
-        } else {
-          this.isValidFile = false
         }
       }
     },
@@ -171,27 +192,9 @@ export default {
         if (!authorizedFile.includes(this.file.name.split('.')[1])) {
           this.showAlert(`Ce type de fichier n'est pas pris en charge`, 'error', '1500')
         } else {
-          // eslint-disable-next-line no-useless-escape
-          let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
-          let newTitle = ''
-          let newContent = ''
-          if (regex.test(this.userPost.title)) {
-            newTitle = this.userPost.title.replace(regex, ' ')
-          }
-          if (regex.test(this.userPost.content)) {
-            newContent = this.userPost.content.replace(regex, ' ')
-          }
           let formData = new FormData()
-          if (newTitle.length !== 0) {
-            formData.append('title', newTitle.toString())
-          } else {
-            formData.append('title', this.userPost.title.toString())
-          }
-          if (newContent.length !== 0) {
-            formData.append('content', newContent.toString())
-          } else {
-            formData.append('content', this.userPost.content.toString())
-          }
+          formData.append('title', this.userPost.title.toString())
+          formData.append('content', this.userPost.content.toString())
           formData.append('image', this.file)
           this.$store.dispatch('posts/createPost', formData)
             .then(() => {
@@ -200,11 +203,7 @@ export default {
               this.userPost.title = ''
               this.userPost.content = ''
               this.file = null
-              this.isValidContent = false
-              this.isValidFile = false
-              this.isValidTitle = false
               this.url = ''
-              console.log(this.userPost.title.length)
             }).catch(error => {
               if (error.message.split('code ')[1].includes('400')) {
                 this.showAlert(`Vous devez ajouter une image au format JPG, JPEG, PNG ou GIF !`, 'error', '2500')

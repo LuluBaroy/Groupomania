@@ -21,10 +21,11 @@
               label-for="lastName"
               align="center"
             >
-              <b-form-input id="lastName" placeholder="Entrez votre nom" v-model="lastName" @keyup="testFormInput('lastName')"></b-form-input>
+              <b-form-input id="lastName" placeholder="Entrez votre nom" v-model="lastName" :state="stateLastName" @keyup="testFormInput('lastName')"></b-form-input>
               <div v-if="textLastName.length !== 0" style="color: red;">{{textLastName}}</div>
-              <div v-if="validation.lastName.length !== 0" class="mt-2" style="color: red;"><i class="far fa-times-circle"></i> {{ validation.lastName }}</div>
-              <div v-if="isValidLastName === true" class="mt-2"><i class="far fa-check-circle"></i></div>
+              <b-form-invalid-feedback>
+                Merci de renseigner un nom valide (espace, apostophe et tiret acceptés)
+              </b-form-invalid-feedback>
             </b-form-group>
           </div>
           <div>
@@ -34,10 +35,11 @@
               label-for="firstName"
               align="center"
             >
-              <b-form-input placeholder="Entrez votre prénom" id="firstName" v-model="firstName" @keyup="testFormInput('firstName')"></b-form-input>
+              <b-form-input placeholder="Entrez votre prénom" id="firstName" v-model="firstName" :state="stateFirstName" @keyup="testFormInput('firstName')"></b-form-input>
               <div v-if="textFirstName.length !== 0" style="color: red;">{{textFirstName}}</div>
-              <div v-if="validation.firstName.length !== 0" class="mt-2" style="color: red;"><i class="far fa-times-circle"></i> {{ validation.firstName }}</div>
-              <div v-if="isValidFirstName === true" class="mt-2"><i class="far fa-check-circle"></i></div>
+              <b-form-invalid-feedback>
+                Merci de renseigner un prénom valide (espace, apostophe et tiret acceptés)
+              </b-form-invalid-feedback>
             </b-form-group>
           </div>
           <div>
@@ -47,10 +49,11 @@
               label-for="email"
               align="center"
             >
-              <b-form-input placeholder="Entrez votre email" id="email" v-model="email" @keyup="testFormInput('email')"></b-form-input>
+              <b-form-input placeholder="Entrez votre email" id="email" v-model="email" :state="stateEmail" @keyup="testFormInput('email')"></b-form-input>
               <div v-if="textEmail.length !== 0" style="color: red;">{{textEmail}}</div>
-              <div v-if="validation.email.length !== 0" class="mt-2" style="color: red;"><i class="far fa-times-circle"></i> {{ validation.email }}</div>
-              <div v-if="isValidEmail === true" class="mt-2"><i class="far fa-check-circle"></i></div>
+              <b-form-invalid-feedback>
+                Merci de renseigner un email valide
+              </b-form-invalid-feedback>
             </b-form-group>
           </div>
           <div>
@@ -62,13 +65,15 @@
                 id="issue"
                 v-model="issue"
                 placeholder="Pourquoi souhaitez-vous nous contacter ?"
-                @keyup="testFormInput('issue')"
                 rows="3"
                 max-rows="6"
+                :state="stateIssue"
+                @keyup="testFormInput('issue')"
               ></b-form-textarea>
               <div v-if="textIssue.length !== 0" style="color: red;">{{textIssue}}</div>
-              <div v-if="validation.issue.length !== 0" class="mt-2" style="color: red;"><i class="far fa-times-circle"></i> {{ validation.issue }}</div>
-              <div v-if="isValidIssue === true" class="mt-2"><i class="far fa-check-circle"></i></div>
+              <b-form-invalid-feedback>
+                Merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+              </b-form-invalid-feedback>
             </b-form-group>
           </div>
           <b-button variant="info" pill type="submit" @click.prevent="testForm(), submitForm()" class="d-flex m-auto" id="submitIssue">Envoyer</b-button>
@@ -99,71 +104,74 @@ export default {
         firstName: '',
         email: '',
         issue: ''
-      },
-      isValidFirstName: false,
-      isValidLastName: false,
-      isValidEmail: false,
-      isValidIssue: false
+      }
+    }
+  },
+  computed: {
+    stateLastName () {
+      let regexNames = new RegExp(/[A-Za-z -']{1,25}/)
+      // eslint-disable-next-line no-useless-escape
+      let regexNoCode = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`0-9]/g)
+      if(this.lastName.length > 0 && regexNames.test(this.lastName) && !regexNoCode.test(this.lastName)){
+        return true
+      } else if(this.lastName.length > 0 && !regexNames.test(this.lastName) || this.lastName.length > 0 && regexNoCode.test(this.lastName) || regexNoCode.test(this.lastName)){
+        return false
+      } else {
+        return null
+      }
+    },
+    stateFirstName () {
+      let regexNames = new RegExp(/[A-Za-z -']{1,25}/)
+      // eslint-disable-next-line no-useless-escape
+      let regexNoCode = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`0-9]/g)
+      if(this.firstName.length > 0 && regexNames.test(this.firstName) && !regexNoCode.test(this.firstName)){
+        return true
+      } else if(this.firstName.length > 0 && !regexNames.test(this.firstName) || this.firstName.length > 0 && regexNoCode.test(this.firstName) || regexNoCode.test(this.firstName)){
+        return false
+      } else {
+        return null
+      }
+    },
+    stateEmail () {
+      // eslint-disable-next-line no-useless-escape
+      let regexEmail = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
+      if(this.email.length > 0 && regexEmail.test(this.email)){
+        return true
+      } else if (this.email.length > 0 && !regexEmail.test(this.email)){
+        return false
+      } else {
+        return null
+      }
+    },
+    stateIssue () {
+      // eslint-disable-next-line no-useless-escape
+      let regexNoCode = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.issue.length > 0 && !regexNoCode.test(this.issue)){
+        return true
+      } else if (this.issue.length > 0 && regexNoCode.test(this.issue) || regexNoCode.test(this.issue)){
+        return false
+      } else {
+        return null
+      }
     }
   },
   methods: {
     testFormInput (text) {
-      // eslint-disable-next-line no-useless-escape
-      let regexEmail = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
-      // eslint-disable-next-line no-useless-escape
-      let regexNoCode = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
-      let regexNames = new RegExp(/[A-Za-z -']{2,25}/)
       if(text === 'email') {
         if(this.textEmail.length > 0){
           this.textEmail = ''
-        }
-        if(!regexEmail.test(this.email) || regexNoCode.test(this.email)){
-          this.validation.email = `Merci de renseigner un email valide`
-          document.getElementById('email').style.border = '3px solid red'
-          this.isValidEmail = false
-        } else {
-          this.validation.email = ''
-          document.getElementById('email').style.border = '3px solid lightseagreen'
-          this.isValidEmail = true
         }
       } else if (text === 'firstName'){
           if(this.textFirstName.length > 0){
             this.textFirstName = ''
           }
-          if(regexNames.test(this.firstName) && !regexNoCode.test(this.firstName)){
-            this.validation.firstName = ''
-            document.getElementById('firstName').style.border = '3px solid lightseagreen'
-            this.isValidFirstName = true
-          } else {
-            this.validation.firstName = `Merci de renseigner un prénom valide (espace, apostophe et tiret accepté)`
-            document.getElementById('firstName').style.border = '3px solid red'
-            this.isValidFirstName = false
-          }
       } else if (text === 'lastName') {
         if(this.textLastName.length > 0){
           this.textLastName = ''
         }
-        if(regexNames.test(this.lastName) && !regexNoCode.test(this.lastName)){
-          this.validation.lastName = ''
-          document.getElementById('lastName').style.border = '3px solid lightseagreen'
-          this.isValidLastName = true
-        } else {
-          this.validation.lastName = `Merci de renseigner un nom valide (espace, apostophe et tiret acceptés)`
-          document.getElementById('lastName').style.border = '3px solid red'
-          this.isValidLastName = false
-        }
       } else if (text === 'issue') {
         if(this.textIssue.length > 0){
           this.textIssue = ''
-        }
-        if(!regexNoCode.test(this.issue) && this.issue.length > 0){
-          this.validation.issue = ''
-          document.getElementById('issue').style.border = '3px solid lightseagreen'
-          this.isValidIssue = true
-        } else {
-          this.validation.issue = `Merci de ne pas utiliser les caractères suivant: |/*+&#{[]})<>$£€%=^ `
-          document.getElementById('issue').style.border = '3px solid red'
-          this.isValidIssue = false
         }
       }
     },
@@ -179,10 +187,10 @@ export default {
         this.testForm()
       } else {
         let data = {
-          lastName: '',
-          firstName: '',
-          email: '',
-          issue: ''
+          lastName: this.lastName,
+          firstName: this.firstName,
+          email: this.email,
+          issue: this.issue
         }
         this.$store.dispatch('createIssue', data)
                 .then(() => {
@@ -192,10 +200,6 @@ export default {
                   this.firstName = ''
                   this.email = ''
                   this.issue = ''
-                  this.isValidEmail = false
-                  this.isValidFirstName = false
-                  this.isValidLastName = false
-                  this.isValidIssue = false
                   if(this.$cookies.isKey('user')){
                     if(this.$store.state.user.currentUser.infos.role.includes('admin')){
                       this.$store.dispatch('messageWaiting')

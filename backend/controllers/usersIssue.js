@@ -3,7 +3,9 @@ require('dotenv').config();
 const models = require('../models');
 const jwtUtils = require('../middlewares/jwt');
 const logger = require('../middlewares/winston');
-const validator = require('validator')
+const validator = require('validator');
+const xss = require('xss')
+const hateoasIssues = require('../services/hateoasIssueReport')
 
 /**
  * @api {post} /api/issue Create
@@ -37,8 +39,13 @@ exports.create = (req, res, next) => {
 	} else if (!validator.isEmail(req.body.email)){
 		return res.status(422).json({ message: `Email must be a valid email`})
 	} else {
+		let body = req.body
+		body.lastName = xss(req.body.lastName)
+		body.firstName = xss(req.body.firstName)
+		body.email = xss(req.body.email)
+		body.issue = xss(req.body.issue)
 		models.UserIssues.create({
-			...req.body,
+			...body,
 			status: 'pending'
 		})
 			.then(issue => {
@@ -118,36 +125,121 @@ exports.update = (req, res, next) => {
  * @apiSuccessExample Success-Response:
  *HTTP/1.1 200 OK
  *[
- *	{
- *		"id":3,
- *		"lastName":"Baroy",
- *		"firstName":"Lulu",
- *		"email":"test@test.fr",
- *		"issue":"blablablbalbaa",
- *		"status":"treated",
- *		"created_at":"2020-09-27 14:38:34",
- *		"updated_at":"2020-09-27 14:38:49",
- *		"createdAt":"2020-09-27 14:38:34",
- *		"updatedAt":"2020-09-27 14:38:49"
- *	},
- *	{
- *		"id":5,
- *		"lastName":"hgbvd",
- *		"firstName":"gtfdsx",
- *		"email":"htgfds",
- *		"issue":"htgrefegthyuiytr",
- *		"status":"pending",
- *		"created_at":"2020-09-27 19:56:18",
- *		"updated_at":"2020-09-30 19:59:22",
- *		"createdAt":"2020-09-27 19:56:18",
- *		"updatedAt":"2020-09-30 19:59:22"
- *	}
- *]
- * @apiErrorExample Error-Response : User not allowed for this action
- * HTTP/1.1 403 Forbidden
- * {
- *     "message": "You're not allowed to access this route"
- * }
+    {
+        "id": 1,
+        "lastName": "212123456789",
+        "firstName": "Lulu",
+        "email": "test@test.fr",
+        "issue": "123456",
+        "status": "treated",
+        "created_at": "2020-10-06 06:10:43",
+        "updated_at": "2020-10-08 17:15:46",
+        "createdAt": "2020-10-06 06:10:43",
+        "updatedAt": "2020-10-08 17:15:46",
+        "_links": {
+            "self": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/issue"
+            },
+            "update": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/issue/1"
+            },
+            "delete": {
+                "method": "DELETE",
+                "href": "http://localhost:3000/api/issue/1"
+            },
+            "allWaiting": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/issue/all/messageWaiting"
+            },
+            "create": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/issue"
+            },
+            "allPending": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/issue/all/pending"
+            }
+        }
+    },
+    {
+        "id": 2,
+        "lastName": "212123456789",
+        "firstName": "Lulu",
+        "email": "test@test.fr",
+        "issue": "123456",
+        "status": "treated",
+        "created_at": "2020-10-06 06:11:51",
+        "updated_at": "2020-10-08 17:15:50",
+        "createdAt": "2020-10-06 06:11:51",
+        "updatedAt": "2020-10-08 17:15:50",
+        "_links": {
+            "self": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/issue"
+            },
+            "update": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/issue/2"
+            },
+            "delete": {
+                "method": "DELETE",
+                "href": "http://localhost:3000/api/issue/2"
+            },
+            "allWaiting": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/issue/all/messageWaiting"
+            },
+            "create": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/issue"
+            },
+            "allPending": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/issue/all/pending"
+            }
+        }
+    },
+    {
+        "id": 3,
+        "lastName": "212123456789",
+        "firstName": "Lulu",
+        "email": "test@test.fr",
+        "issue": "123456",
+        "status": "treated",
+        "created_at": "2020-10-06 06:12:46",
+        "updated_at": "2020-10-08 17:15:55",
+        "createdAt": "2020-10-06 06:12:46",
+        "updatedAt": "2020-10-08 17:15:55",
+        "_links": {
+            "self": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/issue"
+            },
+            "update": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/issue/3"
+            },
+            "delete": {
+                "method": "DELETE",
+                "href": "http://localhost:3000/api/issue/3"
+            },
+            "allWaiting": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/issue/all/messageWaiting"
+            },
+            "create": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/issue"
+            },
+            "allPending": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/issue/all/pending"
+            }
+        }
+    }
+ ]
  */
 exports.readAll = (req, res, next) => {
 	const headerAuth = req.headers['authorization'];
@@ -164,8 +256,9 @@ exports.readAll = (req, res, next) => {
 					res.status(403).json({message: `You're not allowed to access this route`})
 				} else {
 					models.UserIssues.findAll()
-						.then(issues => {
+						.then(issue => {
 							logger.info(`User ${userId} got all user issues`)
+							let issues = hateoasIssues(req, issue, 'api/issue')
 							res.status(200).json(issues)
 						}).catch(err => {
 							logger.info(`Something went wrong when trying to get all user issues`)
