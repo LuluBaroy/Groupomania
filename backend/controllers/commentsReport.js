@@ -44,7 +44,7 @@ exports.update = (req, res, next) => {
 					models.CommentsReport.update({status: 'treated'}, {where: {id: req.params.id}})
 						.then(() => {
 							logger.info(`User ${userId} has updated commentReport ${req.params.id}`)
-
+							res.status(200).json({message: `comment report ${req.params.id} has been updated`})
 						}).catch((err) => {
 						logger.info(`Something went wrong when trying to update comment report ${req.params.id}`)
 						res.status(500).json(err)
