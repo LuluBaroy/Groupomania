@@ -66,12 +66,16 @@ exports.research = (req, res, next) => {
 			} else {
 				let username = xss(req.body.research).toUpperCase()
 				models.Users.findAll()
-					.then(users => {
-						if(users.length === 0){
-							users = 'There is no user with this username'
+					.then(user => {
+						if(user.length === 0){
+							user = 'There is no user with this username'
 							logger.info(`User research didn't match any username`)
-							res.status(200).json(users)
+							res.status(200).json(user)
 						} else {
+							let users = user
+							users.forEach(user => {
+								user.url_profile_picture = `${req.protocol}://${req.get('host')}/images/${user.url_profile_picture}`
+							})
 							let usersCorresponding = []
 							for(let i in users){
 								if(users[i].username.toUpperCase().includes(username)){

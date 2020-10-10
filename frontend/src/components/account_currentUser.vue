@@ -825,7 +825,7 @@ export default {
         this.$store.dispatch('user/getAllUser')
             .then(response => {
                let adminUser = []
-               response.data.users.forEach(user => {
+               response.data.forEach(user => {
                  if(user.role.includes('admin') && user.id !== this.currentUser.id){
                    adminUser.push(user)
                  }

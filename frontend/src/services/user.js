@@ -3,7 +3,7 @@ import Vue from 'vue'
 import VueCookies from 'vue-cookies'
 import auth from '../services/auth'
 Vue.use(VueCookies)
-const url = 'http://localhost:3000/api/auth/'
+const url = window.location.protocol + '//' + window.location.hostname + ':3000/api/auth/'
 
 class UserRoutes {
   registerUser (formData) {

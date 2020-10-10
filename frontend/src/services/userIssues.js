@@ -1,7 +1,7 @@
 import axios from 'axios'
 import auth from '../services/auth'
 
-const url = 'http://localhost:3000/api/issue'
+const url = window.location.protocol + '//' + window.location.hostname + ':3000/api/issue'
 
 class UserIssues {
   createIssue (data) {

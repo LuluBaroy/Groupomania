@@ -222,6 +222,9 @@ export default {
   .imgPosts{
     box-shadow: 0 0 10px #2C3F5F;
     border: 4px solid white;
+    max-width: 350px;
+    max-height: 350px;
+    object-fit: cover;
   }
   #emojis p{
     font-size: 20px;

@@ -50,7 +50,7 @@ exports.create = (req, res, next) => {
 		} else {
 			let userId = jwtUtils.getUserId(headerAuth);
 			let urlGif, altGif;
-			urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+			urlGif = req.file.filename
 			altGif = "GIF partagé par l'utilisateur"
 			models.Posts.create({ title: xss(req.body.title), UserId: userId, content: xss(req.body.content), url_gif: urlGif, alt_gif: altGif })
 				.then((post) => {
@@ -181,7 +181,7 @@ exports.readLike = (req, res, next) => {
 					for(let k = 0; k < userLiked.length; k++){
 						models.Users.findOne({ where: { id: userLiked[k] } })
 							.then((user => {
-								userInfo.push({id:user.id, username: user.username, url_profile_picture: user.url_profile_picture, alt_profile_picture: user.alt_profile_picture})
+								userInfo.push({id:user.id, username: user.username, url_profile_picture: `${req.protocol}://${req.get('host')}/images/${user.url_profile_picture}`, alt_profile_picture: user.alt_profile_picture})
 								if(k === userLiked.length -1){
 									logger.info(`An user got likes for post ${req.params.id}`)
 									res.status(200).json(userInfo)
@@ -243,12 +243,12 @@ exports.update = (req, res, next) => {
 								let urlGif, altGif;
 								if (req.file) {
 									if (post.url_gif !== null) {
-										const filename = post.url_gif.split('/images/')[1];
+										const filename = post.url_gif;
 										fs.unlink(`images/${filename}`, () => {
 											//
 										})
 									}
-									urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+									urlGif = req.file.filename
 									altGif = "GIF partagé par l'utilisateur"
 								} else {
 									urlGif = post.url_gif;
@@ -319,7 +319,7 @@ exports.delete = (req, res, next) => {
 				models.Posts.findOne({where: {id: req.params.id}})
 					.then(post => {
 						if (post && userId === post.user_id || role.includes('admin')) {
-							const filename = post.url_gif.split('/images/')[1];
+							const filename = post.url_gif;
 							fs.unlink(`images/${filename}`, () => {
 								models.CommentsReport.destroy({where: {post_id: post.id}})
 									.then(() => {
@@ -445,7 +445,12 @@ exports.readOne = (req, res, next) => {
 	} else {
 		let userId = jwtUtils.getUserId(headerAuth);
 		models.Posts.findOne({ where: { id: req.params.id }})
-			.then((post) => {
+			.then((posts) => {
+				let post = posts
+				post.url_gif = `${req.protocol}://${req.get('host')}/images/${posts.url_gif}`
+				if(post.User){
+					post.User.url_profile_picture = `${req.protocol}://${req.get('host')}/images/${post.User.url_profile_picture}`
+				}
 				logger.info(`User ${userId} got post ${req.params.id} info`)
 				hateoas(req, res, post, 'api/posts')
 			})
@@ -641,7 +646,12 @@ exports.readAll = (req, res, next) => {
 				['id', 'DESC']
 			]
 		})
-			.then(posts => {
+			.then(post => {
+				let posts = post
+				posts.forEach(post => {
+					post.url_gif = `${req.protocol}://${req.get('host')}/images/${post.url_gif}`
+					post.User.url_profile_picture = `${req.protocol}://${req.get('host')}/images/${post.User.url_profile_picture}`
+				})
 				logger.info(`user got all posts infos`)
 				hateoas(req, res, posts, 'api/posts')
 			})
@@ -737,7 +747,11 @@ exports.readAllFromUserId = (req, res, next) => {
 				['created_at', 'DESC']
 			]
 		})
-			.then(posts => {
+			.then(post => {
+				let posts = post
+					posts.forEach(post => {
+						post.url_gif = `${req.protocol}://${req.get('host')}/images/${post.url_gif}`
+					})
 				logger.info(`User got all posts from user ${req.params.user_id}`)
 				res.status(200).json(posts)
 			})

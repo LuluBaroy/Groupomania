@@ -299,11 +299,11 @@
                             <b-sidebar id="sidebar-1" title="Aperçu post/commentaires">
                               <div class="d-flex m-auto flex-column align-items-center p-md-2">
                                 <h3 class="border-bottom mb-3">Post</h3>
-                                <div class="d-flex formPart flex-column align-items-center">
+                                <div class="d-flex formPart flex-column align-items-center col-12">
                                   <!--POST CONTAINING REPORTED COMMENT-->
                                   <h4>{{ context.post.title }}</h4>
                                   <p>{{ context.post.content }}</p>
-                                  <img :src="context.post.url_gif" :alt="context.post.alt_gif" class="img-fluid imgPosts"/>
+                                  <img :src="context.post.url_gif" :alt="context.post.alt_gif" class="img-fluid imgPosts mb-2"/>
                                 </div>
                               </div>
                               <div class="d-flex m-auto flex-column align-items-center p-md-2">
@@ -792,7 +792,6 @@ export default {
       this.$store.dispatch('user/getAllUser')
               .then(response => {
                 this.allUsers = response.data
-                console.log(this.allUsers)
               })
     },
 
