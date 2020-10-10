@@ -1,6 +1,6 @@
 module.exports = function (req, res, posts, baseUrl){
 
-	function generate(req, res, post, baseUrl){
+	function generate(req, post, baseUrl){
 		const ref = 'http://' + req.get('host') + '/' + baseUrl;
 		let newPost = post.toJSON();
 		newPost._links = {};
@@ -41,15 +41,16 @@ module.exports = function (req, res, posts, baseUrl){
 	if(Array.isArray(posts)){
 		let returnPost = [];
 		posts.forEach(function (post) {
-			returnPost.push(generate(req, res, post, baseUrl));
+			returnPost.push(generate(req, post, baseUrl));
 		});
 		res.status(200).json(returnPost);
 	}
 	else{
 		if(posts == null){
 			res.status(404).json('No result found for id '+req.params.id);
+		} else {
+			let returnPost = generate(req, posts, baseUrl);
+			res.status(200).json(returnPost);
 		}
-		let returnPost = generate(req, res, posts, baseUrl);
-		res.status(200).json(returnPost);
 	}
 }

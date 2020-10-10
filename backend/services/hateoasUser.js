@@ -1,6 +1,6 @@
 module.exports = function (req, res, users, baseUrl){
 
-	function generate(req, res, user, baseUrl){
+	function generate(req, user, baseUrl){
 
 		const ref = 'http://' + req.get('host') + '/' + baseUrl;
 		let newUser = user.toJSON();
@@ -42,15 +42,16 @@ module.exports = function (req, res, users, baseUrl){
 	if(Array.isArray(users)){
 		let returnUser = [];
 		users.forEach(function (user) {
-			returnUser.push(generate(req, res, user, baseUrl));
+			returnUser.push(generate(req, user, baseUrl));
 		});
 		res.status(200).json(returnUser);
 	}
 	else{
 		if(users == null){
 			res.status(404).json('No result found for id '+ req.params.id);
+		} else {
+			let returnUser = generate(req, users, baseUrl);
+			res.status(200).json(returnUser);
 		}
-		let returnUser = generate(req, res, users, baseUrl);
-		res.status(200).json(returnUser);
 	}
 }

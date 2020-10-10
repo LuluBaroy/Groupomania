@@ -825,17 +825,6 @@ exports.readAll = (req, res, next) => {
 			]
 		})
 			.then(allUsers => {
-				let users = [];
-				for(let i in allUsers){
-					users.push({
-						id: allUsers[i].id,
-						username: allUsers[i].username,
-						email: allUsers[i].email,
-						url_profile_picture: allUsers[i].url_profile_picture,
-						alt_profile_picture: allUsers[i].alt_profile_picture,
-						role: allUsers[i].role
-					})
-				}
 				logger.info(`All users info has been asked`);
 				hateoasUsers(req, res, allUsers, 'api/auth')
 			}).catch((err) => {

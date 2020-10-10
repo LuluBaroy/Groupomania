@@ -1,6 +1,6 @@
 module.exports = function (req, res, comments, baseUrl){
 
-	function generate(req, res, comment, baseUrl){
+	function generate(req, comment, baseUrl){
 		const ref = 'http://' + req.get('host') + '/' + baseUrl;
 		let newComment = comment.toJSON();
 		newComment._links = {};
@@ -33,15 +33,16 @@ module.exports = function (req, res, comments, baseUrl){
 	if(Array.isArray(comments)){
 		let returnComment = [];
 		comments.forEach(function (comment) {
-			returnComment.push(generate(req, res, comment, baseUrl));
+			returnComment.push(generate(req, comment, baseUrl));
 		});
 		res.status(200).json(returnComment);
 	}
 	else{
 		if(comments == null){
 			res.status(404).json('No result found for id '+ req.params.id);
+		} else {
+			let returnComment = generate(req, comments, baseUrl);
+			res.status(200).json(returnComment);
 		}
-		let returnComment = generate(req, res, comments, baseUrl);
-		res.status(200).json(returnComment);
 	}
 }
