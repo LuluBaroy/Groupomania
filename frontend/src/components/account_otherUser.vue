@@ -56,8 +56,8 @@
                     <b-collapse :id="'optionsBtn'+index+indexComment" class="border text-center pt-2">
 
                       <!--MODAL - REPORT COMMENT-->
-                      <i class="far fa-flag m-auto p-2" v-b-modal="modalCommentId(index, indexComment, 'report')"><span> Signaler le commentaire</span></i>
-                      <b-modal centered :id="'modalComment' + index + indexComment + 'report'" title="Signaler le contenu du Commentaire" ok-only ok-title="Fermer" ok-variant="info" @close="getComments(index)" @ok="getComments(index)">
+                      <i class="far fa-flag m-auto p-2" v-b-modal="modalCommentId(index, indexComment, 'report')" @click="isClickedComment = true"><span> Signaler le commentaire</span></i>
+                      <b-modal v-if="isClickedComment === true" centered :id="'modalComment' + index + indexComment + 'report'" title="Signaler le contenu du Commentaire" ok-only ok-title="Fermer" ok-variant="info" @close="getComments(index)" @ok="getComments(index)">
                         <b-form-group
                         class="d-flex flex-column col-12 mt-4 text-center"
                         label="Signalement :"
@@ -70,7 +70,11 @@
                                   required
                                   rows="3"
                                   max-rows="6"
+                                  :state="stateCommentReport"
                           ></b-form-textarea>
+                          <b-form-invalid-feedback>
+                            Champ requis, merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                          </b-form-invalid-feedback>
                           <b-button type="submit" @click.prevent="sendCommentReport(index, indexComment)" class="commentBtn rounded-pill">Envoyer</b-button>
                         </b-form-group>
                       </b-modal>
@@ -101,14 +105,18 @@
                                         class="postInput text-center"
                                         rows="6"
                                         max-rows="12"
+                                        :state="stateComment"
                                 >{{userComment.comment}}</b-form-textarea>
+                                <b-form-invalid-feedback>
+                                  Champ requis, merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                                </b-form-invalid-feedback>
                                 <b-button v-b-modal.emojisComment5 class="mt-2 rounded-pill" variant="dark">😃 Ajouter des emoticones !</b-button>
                                 <b-modal centered title="Emoticones" ok-only ok-title="Fermer" ok-variant="info" id="emojisComment5" triggers="hover" placement="top">
                                   <div class="d-flex row m-2">
                                     <p v-for="(emoji, index) in emojis" :key="index" @click="getEmojiComment(index)">{{ emoji }}</p>
                                   </div>
                                 </b-modal>
-                                <b-button type="submit" @click.prevent="updateComment(index, indexComment), showAlertSuccess('Commentaire modifié !')" class="commentBtn rounded-pill">Modifier</b-button>
+                                <b-button type="submit" @click.prevent="updateComment(index, indexComment)" class="commentBtn rounded-pill">Modifier</b-button>
                               </b-form-group>
                             </b-form>
                           </div>
@@ -133,7 +141,11 @@
                       placeholder="Entrez votre commentaire ..."
                       rows="3"
                       max-rows="6"
+                      :state="stateComment"
                     ></b-form-textarea>
+                    <b-form-invalid-feedback>
+                      Champ requis, merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                    </b-form-invalid-feedback>
                     <b-button v-b-modal.emojisComment6 class="mt-2 rounded-pill" variant="dark">😃 Ajouter des emoticones !</b-button>
                     <b-modal centered title="Emoticones" ok-only ok-title="Fermer" ok-variant="info" id="emojisComment6" triggers="hover" placement="top">
                       <div class="d-flex row m-2">
@@ -183,7 +195,11 @@
                           required
                           rows="3"
                           max-rows="6"
+                          :state="statePostReport"
                   ></b-form-textarea>
+                  <b-form-invalid-feedback>
+                    Champ requis, merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                  </b-form-invalid-feedback>
                   <b-button type="submit" @click.prevent="sendPostReport(index)" class="commentBtn rounded-pill">Envoyer</b-button>
                 </b-form-group>
               </b-modal>
@@ -214,7 +230,11 @@
                                 value="userPost.title"
                                 required
                                 class="postInput"
+                                :state="statePostTitle"
                         ></b-form-input>
+                        <b-form-invalid-feedback>
+                          Champ requis, merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                        </b-form-invalid-feedback>
                       </b-form-group>
                       <b-form-group
                               label="Contenu du post :"
@@ -227,7 +247,11 @@
                                 class="postInput mb-3"
                                 rows="3"
                                 max-rows="6"
+                                :state="statePostContent"
                         >{{ userPost.content }}</b-form-textarea>
+                        <b-form-invalid-feedback>
+                          Champ requis, merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                        </b-form-invalid-feedback>
                         <b-button v-b-modal.emojis3 class="mt-1 mb-3 rounded-pill" variant="dark">😃 Ajouter des emoticones !</b-button>
                         <b-modal centered title="Emoticones" ok-only ok-title="Fermer" ok-variant="info" id="emojis3" triggers="hover" placement="top">
                           <div class="d-flex row m-2">
@@ -238,9 +262,15 @@
                           <!--PREVIEW NEW GIF-->
                           <img :src="userPost.img" v-if="url.length === 0" class="img-fluid imgPosts d-flex m-auto" id="updateImg" :alt="userPost.altImg"/>
                           <img v-else :src="url" class="img-fluid mr-auto ml-auto imgPosts d-flex" alt="Preview new image">
-                          <b-form-file v-model="file" class="mt-3 mb-3" @change="onFileChanged"></b-form-file>
+                          <b-form-group
+                          label="Votre Gif :"
+                          label-for="fileInput"
+                          description="Fichiers acceptés : 'jpg', 'jpeg', 'png', 'gif'"
+                          class="mt-3">
+                            <b-form-file id="fileInput" v-model="file" accept=".jpg, .png, .gif, .jpeg" @change="onFileChanged"></b-form-file>
+                          </b-form-group>
                         </div>
-                        <b-button type="submit" @click.prevent="updatePost(index), showAlertSuccess('Post modifié !')" class="d-flex rounded-pill commentBtn">Modifier</b-button>
+                        <b-button type="submit" @click.prevent="updatePost(index)" class="d-flex mt-3 rounded-pill commentBtn">Modifier</b-button>
                       </b-form-group>
                     </b-form>
                   </div>
@@ -298,13 +328,14 @@ export default {
         altImg: ''
       },
       userComment: {
-        comment: null,
+        comment: '',
         clicked: false
       },
-      commentReport: null,
-      postReport: null,
+      commentReport: '',
+      postReport: '',
       userRole: '',
       isClicked: false,
+      isClickedComment: false,
       url: '',
       file: null
     }
@@ -314,18 +345,92 @@ export default {
       return this.$store.state.user.currentUser
     },
     userPosts () {
-      let userPosts = this.$store.state.posts.allPostsFromUser
-      if (userPosts.length > 1) {
-        return userPosts.reverse()
-      } else {
-        return userPosts
-      }
+      return this.$store.state.posts.allPostsFromUser
     },
     comments () {
       return this.$store.state.posts.allComments
+    },
+
+    //FORM VALIDATION
+    statePostTitle () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.userPost.title.length > 0 && !regex.test(this.userPost.title)){
+        return true
+      } else if(this.userPost.title.length > 0 && regex.test(this.userPost.title) || regex.test(this.userPost.title)) {
+        return false
+      } else {
+        return null
+      }
+    },
+    statePostContent () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.userPost.content.length > 0 && !regex.test(this.userPost.content)){
+        return true
+      } else if(this.userPost.content.length > 0 && regex.test(this.userPost.content) || regex.test(this.userPost.content)) {
+        return false
+      } else {
+        return null
+      }
+    },
+    statePostReport () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.postReport.length > 0 && !regex.test(this.postReport)){
+        return true
+      } else if(this.postReport.length > 0 && regex.test(this.postReport) || regex.test(this.postReport)) {
+        return false
+      } else {
+        return null
+      }
+    },
+    stateComment () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.userComment.comment.length > 0 && !regex.test(this.userComment.comment)){
+        return true
+      } else if(this.userComment.comment.length > 0 && regex.test(this.userComment.comment) || regex.test(this.userComment.comment)) {
+        return false
+      } else {
+        return null
+      }
+    },
+    stateCommentReport () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.commentReport.length > 0 && !regex.test(this.commentReport)){
+        return true
+      } else if(this.commentReport.length > 0 && regex.test(this.commentReport) || regex.test(this.commentReport)) {
+        return false
+      } else {
+        return null
+      }
     }
   },
   methods: {
+    //USER OPTIONS WHEN CURRENT USER IS ADMIN
+    deleteUser () {
+      this.$store.dispatch('user/deleteUser', this.$route.params.id)
+        .then(() => {
+          this.showAlertSuccess('Utilisateur Supprimé')
+          this.$router.push({name: 'wall'})
+        })
+    },
+    updatePrivilege () {
+      let id = this.infos.id
+      this.$store.dispatch('user/updatePrivilege', id)
+        .then(() => {
+          this.$store.dispatch('user/getOneUser', this.$route.params.id)
+            .then((response) => {
+              this.showAlertSuccess(`Les privilèges de ${response.data.username} ont été modifiés : ${JSON.parse(response.data.role).join(', ')}!`, '2500')
+              this.infos = response.data
+              this.userRole = JSON.parse(response.data.role).join(', ')
+            })
+        })
+    },
+
+    //POSTS OPTIONS WHEN CURRENT USER IS ADMIN
     getEmoji (index) {
       let emojiCode = this.emojis[index]
       if(this.userPost.content === null) {
@@ -353,55 +458,48 @@ export default {
       })
     },
     onFileChanged (e) {
+      let authorizedFile = ['jpg', 'jpeg', 'gif', 'png']
       const file = e.target.files[0]
-      this.url = URL.createObjectURL(file)
+      if (!authorizedFile.includes(file.name.split('.')[1])) {
+        this.url = 'http://localhost:3000/images/wrongExtension.png'
+      } else {
+        this.url = URL.createObjectURL(file)
+      }
     },
     updatePost (index) {
-      let postId = this.userPosts[index].id
-      // eslint-disable-next-line no-useless-escape
-      let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
-      let newTitle = ''
-      let newContent = ''
-      if (regex.test(this.userPost.title)) {
-        newTitle = this.userPost.title.replace(regex, ' ')
-      }
-      if (regex.test(this.userPost.content)) {
-        newContent = this.userPost.content.replace(regex, ' ')
-      }
-      let formData = new FormData()
-      if (newTitle.length !== 0) {
-        formData.append('title', newTitle.toString())
+      let authorizedFile = ['jpg', 'jpeg', 'gif', 'png']
+      if(this.statePostTitle !== true || this.statePostContent !== true || !authorizedFile.includes(this.file.name.split('.')[1])){
+        this.showAlertError('Merci de renseigner les différents champs au bon format', '1500')
       } else {
+        this.showAlertSuccess('Post modifié !')
+        let postId = this.userPosts[index].id
+        let formData = new FormData()
         formData.append('title', this.userPost.title.toString())
-      }
-      if (newContent.length !== 0) {
-        formData.append('content', newContent.toString())
-      } else {
         formData.append('content', this.userPost.content.toString())
-      }
-      formData.append('image', this.file)
-      let payload = {
-        id: postId,
-        data: formData
-      }
-      this.isClicked = false
-      this.$store.dispatch('posts/updatePost', payload)
-              .then(() => {
-                this.file = null
-                this.userPost.title = ''
-                this.userPost.content = ''
-                this.getUserPosts()
-              }).catch(error => {
-        if (error.message.split('code ')[1].includes('500')) {
-          this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
-        } else if (error.message.split('code ')[1].includes('403')) {
-          this.showAlertError(`Vous n'avez pas le droit de modifier ce post, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
-        } else if (error.message.split('code ')[1].includes('404')) {
-          this.showAlertError(`Ce post n'existe pas !`, '1500')
-        } else if (error.message.split('code ')[1].includes('401')) {
-          this.showAlertError(`Nous n'avons pas pu vous identifier, merci de vous connecter ou de créer un compte !`, '2500')
+        formData.append('image', this.file)
+        let payload = {
+          id: postId,
+          data: formData
         }
-      })
+        this.isClicked = false
+        this.$store.dispatch('posts/updatePost', payload)
+                .then(() => {
+                  this.file = null
+                  this.userPost.title = ''
+                  this.userPost.content = ''
+                  this.getUserPosts()
+                }).catch(error => {
+          if (error.message.split('code ')[1].includes('500')) {
+            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+          } else if (error.message.split('code ')[1].includes('403')) {
+            this.showAlertError(`Vous n'avez pas le droit de modifier ce post, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
+          } else if (error.message.split('code ')[1].includes('404')) {
+            this.showAlertError(`Ce post n'existe pas !`, '1500')
+          } else if (error.message.split('code ')[1].includes('401')) {
+            this.showAlertError(`Nous n'avons pas pu vous identifier, merci de vous connecter ou de créer un compte !`, '2500')
+          }
+        })
+      }
     },
     deletePost (index) {
       let postId = this.userPosts[index].id
@@ -417,6 +515,76 @@ export default {
                 }
               })
     },
+
+    //POSTS
+    getUserPosts () {
+      this.$store.dispatch('posts/getAllPostsFromOneUser', this.$route.params.id)
+    },
+    sendPostReport (index) {
+      if (this.postReport.length === 0 || this.statePostReport !== true) {
+        this.showAlertError('Merci de renseigner les différents champs au bon format', '1500')
+      } else {
+        let payload = {
+          id: this.userPosts[index].id,
+          newReport: {
+            report: this.postReport.toString()
+          }
+        }
+        this.showAlertSuccess('Post signalé !')
+        this.isClicked = false
+        this.$store.dispatch('posts/sendPostReport', payload)
+          .then(() => {
+            this.postReport = ''
+          }).catch(error => {
+            if (error.message.split('code ')[1].includes('500')) {
+              this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+            } else if (error.message.split('code ')[1].includes('400')) {
+              this.showAlertError(`Nous n'avons pas pu vous identifier, merci de vous connecter ou de créer un compte !`, '3500')
+            }
+          })
+      }
+    },
+
+    //COMMENTS
+    getComments (index) {
+      console.log(this.posts)
+      let postId = this.userPosts[index].id
+      this.$store.dispatch('posts/getComments', postId)
+        .catch(() => {
+          this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+        })
+    },
+    showTextArea () {
+      this.userComment.clicked = true
+    },
+    hasCommented (index) {
+      if (this.userPosts[index].Comments.filter(comment => comment.user_id === this.currentUser.id).length !== 0) {
+        return true
+      }
+    },
+    addComment (index) {
+      if (this.userComment.comment.length === 0 || this.stateComment !== true) {
+        this.showAlertError('Merci de renseigner les différents champs au bon format', '1500')
+      } else {
+        let postId = this.userPosts[index].id
+        let payload = {
+          id: postId,
+          newComment: {
+            comment: null
+          }
+        }
+        payload.newComment.comment = this.userComment.comment.toString()
+        this.showAlertSuccess('Commentaire ajouté !')
+        this.$store.dispatch('posts/createComment', payload)
+          .then(() => {
+            this.userComment.clicked = false
+            this.userComment.comment = ''
+            this.getComments(index)
+          }).catch(() => {
+            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+          })
+      }
+    },
     getEmojiComment (index) {
       let emojiCode = this.emojis[index]
       if(this.userComment.comment === null) {
@@ -431,141 +599,6 @@ export default {
         showConfirmButton: false
       })
     },
-    deleteUser () {
-      this.$store.dispatch('user/deleteUser', this.$route.params.id)
-        .then(() => {
-          this.showAlertSuccess('Utilisateur Supprimé')
-          this.$router.push({name: 'wall'})
-        })
-    },
-    updatePrivilege () {
-      let id = this.infos.id
-      this.$store.dispatch('user/updatePrivilege', id)
-        .then(() => {
-          this.$store.dispatch('user/getOneUser', this.$route.params.id)
-            .then((response) => {
-              this.showAlertSuccess(`Les privilèges de ${response.data.username} ont été modifiés : ${JSON.parse(response.data.role).join(', ')}!`, '2500')
-              this.infos = response.data
-              this.userRole = JSON.parse(response.data.role).join(', ')
-            })
-        })
-    },
-    hasAlreadyLiked (index) {
-      if (this.userPosts[index].Likes.filter(like => like.user_id === this.currentUser.id).length !== 0) {
-        return true
-      }
-    },
-    hasCommented (index) {
-      if (this.userPosts[index].Comments.filter(comment => comment.user_id === this.currentUser.id).length !== 0) {
-        return true
-      }
-    },
-    showAlertError (title, timer) {
-      this.$swal({
-        title: title,
-        position: 'center',
-        icon: 'error',
-        showConfirmButton: false,
-        timer: timer})
-    },
-    showAlertSuccess (title, timer) {
-      this.$swal({
-        title: title,
-        position: 'center',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: timer || '1500'})
-    },
-    modalPostId (index, text) {
-      return 'modalPost' + index + text
-    },
-    modalCommentId (index, indexComment, text) {
-      return 'modalComment' + index + indexComment + text
-    },
-    modalLikeId (index, text) {
-      return 'modalLike' + index + text
-    },
-    getUserPosts () {
-      this.$store.dispatch('posts/getAllPostsFromOneUser', this.$route.params.id)
-    },
-    sendPostReport (index) {
-      if (this.postReport === null) {
-        this.showAlertError('Merci de renseigner les différents champs', '1500')
-      } else {
-        let payload = {
-          id: this.userPosts[index].id,
-          newReport: {
-            report: null
-          }
-        }
-        let newReport = ''
-        // eslint-disable-next-line no-useless-escape
-        let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
-        if (regex.test(this.postReport)) {
-          newReport = this.postReport.replace(regex, ' ')
-        }
-        if (newReport.length !== 0) {
-          payload.newReport.report = newReport.toString()
-        } else {
-          payload.newReport.report = this.postReport.toString()
-        }
-        this.showAlertSuccess('Post signalé !')
-        this.isClicked = false
-        this.$store.dispatch('posts/sendPostReport', payload)
-          .then(() => {
-            this.postReport = null
-          }).catch(error => {
-            if (error.message.split('code ')[1].includes('500')) {
-              this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
-            } else if (error.message.split('code ')[1].includes('400')) {
-              this.showAlertError(`Nous n'avons pas pu vous identifier, merci de vous connecter ou de créer un compte !`, '3500')
-            }
-          })
-      }
-    },
-    getComments (index) {
-      let postId = this.userPosts[index].id
-      this.$store.dispatch('posts/getComments', postId)
-        .catch(() => {
-          this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
-        })
-    },
-    showTextArea () {
-      this.userComment.clicked = true
-    },
-    addComment (index) {
-      if (this.userComment.comment === null) {
-        this.showAlertError('Merci de renseigner les différents champs', '1500')
-      } else {
-        // eslint-disable-next-line no-useless-escape
-        let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
-        let newComment = ''
-        let postId = this.userPosts[index].id
-        let payload = {
-          id: postId,
-          newComment: {
-            comment: null
-          }
-        }
-        if (regex.test(this.userComment.comment)) {
-          newComment = this.userComment.comment.replace(regex, ' ')
-        }
-        if (newComment.length !== 0) {
-          payload.newComment.comment = newComment.toString()
-        } else {
-          payload.newComment.comment = this.userComment.comment.toString()
-        }
-        this.showAlertSuccess('Commentaire ajouté !')
-        this.$store.dispatch('posts/createComment', payload)
-          .then(() => {
-            this.userComment.clicked = false
-            this.userComment.comment = ''
-            this.getComments(index)
-          }).catch(() => {
-            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
-          })
-      }
-    },
     setCommentValue (indexComment, index) {
       let payload = {
         id: this.userPosts[index].id,
@@ -573,37 +606,30 @@ export default {
       }
       this.$store.dispatch('posts/getOneComment', payload)
         .then(comment => {
-          document.getElementById('commentUpdate').innerText = comment.data.comment
+          this.userComment.comment = comment.data.comment
         }).catch(() => {
           this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
         })
     },
     updateComment (index, indexComment) {
-      // eslint-disable-next-line no-useless-escape
-      let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
-      let newComment = ''
-      let postId = this.userPosts[index].id
-      let payload = {
-        id: postId,
-        commentId: this.comments[indexComment].id,
-        newComment: {
-          comment: null
-        }
-      }
-      if (regex.test(this.userComment.comment)) {
-        newComment = this.userComment.comment.replace(regex, ' ')
-      }
-      if (newComment.length !== 0) {
-        payload.newComment.comment = newComment.toString()
+      if (this.userComment.comment.length === 0 || this.stateComment !== true) {
+        this.showAlertError('Merci de renseigner les différents champs au bon format', '1500')
       } else {
-        payload.newComment.comment = this.userComment.comment.toString()
-      }
-      this.isClicked = false
-      this.$store.dispatch('posts/updateComment', payload)
-        .then(() => {
-          this.getComments(index)
-          this.userComment.comment = ''
-        }).catch(error => {
+        this.showAlertSuccess('Commentaire modifié !')
+        let postId = this.userPosts[index].id
+        let payload = {
+          id: postId,
+          commentId: this.comments[indexComment].id,
+          newComment: {
+            comment: this.userComment.comment.toString()
+          }
+        }
+        this.isClicked = false
+        this.$store.dispatch('posts/updateComment', payload)
+                .then(() => {
+                  this.getComments(index)
+                  this.userComment.comment = ''
+                }).catch(error => {
           if (error.message.split('code ')[1].includes('500')) {
             this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
           } else if (error.message.split('code ')[1].includes('403')) {
@@ -612,6 +638,7 @@ export default {
             this.showAlertError(`Ce commentaire n'existe pas !`, '1500')
           }
         })
+      }
     },
     deleteComment (index, indexComment) {
       let payload = {
@@ -632,34 +659,31 @@ export default {
         })
     },
     sendCommentReport (index, indexComment) {
-      if (this.commentReport === null) {
-        this.showAlertError('Merci de renseigner les différents champs', '1500')
+      if (this.commentReport.length === 0 || this.stateCommentReport !== true) {
+        this.showAlertError('Merci de renseigner les différents champs au bon format', '1500')
       } else {
         let payload = {
           id: this.userPosts[index].id,
           commentId: this.comments[indexComment].id,
           newReport: {
-            report: null
+            report: this.commentReport.toString()
           }
-        }
-        let newReport = ''
-        // eslint-disable-next-line no-useless-escape
-        let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
-        if (regex.test(this.commentReport)) {
-          newReport = this.commentReport.replace(regex, ' ')
-        }
-        if (newReport.length !== 0) {
-          payload.newReport.report = newReport.toString()
-        } else {
-          payload.newReport.report = this.commentReport.toString()
         }
         this.showAlertSuccess('Commentaire signalé !')
         this.$store.dispatch('posts/sendCommentReport', payload)
           .then(() => {
-            this.commentReport = null
+            this.commentReport = ''
+            this.isClickedComment = false
           }).catch(() => {
             this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
           })
+      }
+    },
+
+    //LIKES
+    hasAlreadyLiked (index) {
+      if (this.userPosts[index].Likes.filter(like => like.user_id === this.currentUser.id).length !== 0) {
+        return true
       }
     },
     getLikes (index) {
@@ -698,6 +722,33 @@ export default {
             this.showAlertError(`Nous n'avons pas pu vous identifier, merci de vous connecter ou de créer un compte !`, '3500')
           }
         })
+    },
+
+    //MODALS AND ALERTS
+    showAlertError (title, timer) {
+      this.$swal({
+        title: title,
+        position: 'center',
+        icon: 'error',
+        showConfirmButton: false,
+        timer: timer})
+    },
+    showAlertSuccess (title, timer) {
+      this.$swal({
+        title: title,
+        position: 'center',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: timer || '1500'})
+    },
+    modalPostId (index, text) {
+      return 'modalPost' + index + text
+    },
+    modalCommentId (index, indexComment, text) {
+      return 'modalComment' + index + indexComment + text
+    },
+    modalLikeId (index, text) {
+      return 'modalLike' + index + text
     }
   },
   beforeMount () {

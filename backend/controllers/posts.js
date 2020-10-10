@@ -1,10 +1,12 @@
 'use strict';
 require('dotenv').config();
+const hateoas = require('../services/hateoasPost')
 const models = require('../models');
 const validator = require('validator');
 const jwtUtils = require('../middlewares/jwt');
 const fs = require('fs');
-const logger = require('../middlewares/winston')
+const logger = require('../middlewares/winston');
+const xss = require('xss');
 
 /**
  * @api {post} /api/posts Create
@@ -50,7 +52,7 @@ exports.create = (req, res, next) => {
 			let urlGif, altGif;
 			urlGif = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
 			altGif = "GIF partagé par l'utilisateur"
-			models.Posts.create({ title: req.body.title, UserId: userId, content: req.body.content, url_gif: urlGif, alt_gif: altGif })
+			models.Posts.create({ title: xss(req.body.title), UserId: userId, content: xss(req.body.content), url_gif: urlGif, alt_gif: altGif })
 				.then((post) => {
 					logger.info(`User ${userId} has published a post`)
 					res.status(201).json({message: `You're post has been created !`, post})
@@ -383,18 +385,52 @@ exports.delete = (req, res, next) => {
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
  *{
- *	"id":18,
- *	"title":"123",
- *	"content":"123",
- *	"user_id":3,
- *	"url_gif":"http://localhost:3000/images/4629494962.gif",
- *	"alt_gif":"GIF partagé par l'utilisateur",
- *	"created_at":"2020-10-01 14:56:04",
- *	"updated_at":"2020-10-01 14:56:04",
- *	"createdAt":"2020-10-01 14:56:04",
- *	"updatedAt":"2020-10-01 14:56:04",
- *	"UserId":3
- *}
+    "id": 16,
+    "title": "123",
+    "content": "123",
+    "user_id": 1,
+    "url_gif": "http://localhost:3000/images/3637389236.gif",
+    "alt_gif": "GIF partagé par l'utilisateur",
+    "created_at": "2020-10-08 19:46:33",
+    "updated_at": "2020-10-08 22:34:06",
+    "createdAt": "2020-10-08 19:46:33",
+    "updatedAt": "2020-10-08 22:34:06",
+    "UserId": 1,
+    "_links": {
+        "self": {
+            "method": "GET",
+            "href": "http://localhost:3000/api/posts/16"
+        },
+        "create": {
+            "method": "POST",
+            "href": "http://localhost:3000/api/posts"
+        },
+        "update": {
+            "method": "PUT",
+            "href": "http://localhost:3000/api/posts/16"
+        },
+        "delete": {
+            "method": "DELETE",
+            "href": "http://localhost:3000/api/posts/16"
+        },
+        "like": {
+            "method": "POST",
+            "href": "http://localhost:3000/api/posts/16/like"
+        },
+        "readLike": {
+            "method": "GET",
+            "href": "http://localhost:3000/api/posts/16/like"
+        },
+        "list": {
+            "method": "GET",
+            "href": "http://localhost:3000/api/posts"
+        },
+        "report": {
+            "method": "POST",
+            "href": "http://localhost:3000/api/posts/16/report"
+        }
+    }
+}
  * @apiErrorExample Error-Response: User not Authenticated
  * HTTP/1.1 400 Bad Request
  *{
@@ -411,7 +447,7 @@ exports.readOne = (req, res, next) => {
 		models.Posts.findOne({ where: { id: req.params.id }})
 			.then((post) => {
 				logger.info(`User ${userId} got post ${req.params.id} info`)
-				res.status(200).json(post)
+				hateoas(req, res, post, 'api/posts')
 			})
 			.catch((err) => {
 				logger.info(`something went wrong when trying to find post ${req.params.id}`)
@@ -432,90 +468,162 @@ exports.readOne = (req, res, next) => {
  * @apiSuccessExample Success-Response:
  * HTTP/1.1 200 OK
  *[
- *	{
- *		"id":18,
- *		"title":"123",
- *		"content":"123",
- *		"user_id":3,
- *		"url_gif":"http://localhost:3000/images/4629494962.gif",
- *		"alt_gif":"GIF partagé par l'utilisateur",
- *		"created_at":"2020-10-01 14:56:04",
- *		"updated_at":"2020-10-01 14:56:04",
- *		"createdAt":"2020-10-01 14:56:04",
- *		"updatedAt":"2020-10-01 14:56:04",
- *		"UserId":3,
- *		"User":{
- *			"id":3,
- *			"email":"test2@test.fr",
- *			"password":"$2a$10$tloa5dX6MNt.Iaw6QAMnuu/2oeO5gvW.tg7xSaVImo/0assd.12R2",
- *			"username":"Testeur test",
- *			"role":"[\"user\",\"admin\"]",
- *			"bio":"123456",
- *			"url_profile_picture":"http://localhost:3000/images/defaultPicture.png",
- *			"alt_profile_picture":"Photo de profil de l'utilisateur",
- *			"consents":"{\"shareable\":\"false\",\"contactable\":\"false\"}",
- *			"created_at":"2020-09-24 20:35:11",
- *			"updated_at":"2020-09-30 18:20:24",
- *			"createdAt":"2020-09-24 20:35:11",
- *			"updatedAt":"2020-09-30 18:20:24"
- *		},
- *		"Comments":[],
- *		"Likes":[]
- *	},
- *	{
- *		"id":17,
- *		"title":"123",
- *		"content":"www.google.fr",
- *		"user_id":3,
- *		"url_gif":"http://localhost:3000/images/7808213270.gif",
- *		"alt_gif":"GIF partagé par l'utilisateur",
- *		"created_at":"2020-09-30 15:13:55",
- *		"updated_at":"2020-09-30 15:14:25",
- *		"createdAt":"2020-09-30 15:13:55",
- *		"updatedAt":"2020-09-30 15:14:25",
- *		"UserId":3,
- *		"User":{
- *			"id":3,
- *			"email":"test2@test.fr",
- *			"password":"$2a$10$tloa5dX6MNt.Iaw6QAMnuu/2oeO5gvW.tg7xSaVImo/0assd.12R2",
- *			"username":"Testeur test",
- *			"role":"[\"user\",\"admin\"]",
- *			"bio":"123456",
- *			"url_profile_picture":"http://localhost:3000/images/defaultPicture.png",
- *			"alt_profile_picture":"Photo de profil de l'utilisateur",
- *			"consents":"{\"shareable\":\"false\",\"contactable\":\"false\"}",
- *			"created_at":"2020-09-24 20:35:11",
- *			"updated_at":"2020-09-30 18:20:24",
- *			"createdAt":"2020-09-24 20:35:11",
- *			"updatedAt":"2020-09-30 18:20:24"
- *		},
- *		"Comments":[
- *			{
- *				"id":29,
- *				"comment":"123456",
- *				"user_id":3,
- *				"post_id":17,
- *				"created_at":"2020-10-01 14:44:01",
- *				"updated_at":"2020-10-01 14:44:01",
- *				"createdAt":"2020-10-01 14:44:01",
- *				"updatedAt":"2020-10-01 14:44:01",
- *				"UserId":3,
- *				"PostId":17
- *			}
- *		],
- *		"Likes":[
- *			{
- *				"id":23,
- *				"user_id":3,
- *				"post_id":17,
- *				"created_at":"2020-10-01 14:59:53",
- *				"updated_at":"2020-10-01 14:59:53",
- *				"createdAt":"2020-10-01 14:59:53",
- *				"updatedAt":"2020-10-01 14:59:53"
- *			}
- *		]
- *	}
- *]
+    {
+        "id": 17,
+        "title": "123",
+        "content": "123456789 🤓",
+        "user_id": 23,
+        "url_gif": "http://localhost:3000/images/2767281896.gif",
+        "alt_gif": "GIF partagé par l'utilisateur",
+        "created_at": "2020-10-08 23:52:10",
+        "updated_at": "2020-10-09 00:27:40",
+        "createdAt": "2020-10-08 23:52:10",
+        "updatedAt": "2020-10-09 00:27:40",
+        "UserId": 23,
+        "User": {
+            "id": 23,
+            "email": "testeur@test.fr",
+            "password": "$2a$10$YyHAqe4XPGsdSsFSHzDRIOA/amw4pvCI0F59w7GadcHRFZdmgP8hu",
+            "username": "Lulu Baroy",
+            "role": "[\"user\"]",
+            "bio": "",
+            "url_profile_picture": "http://localhost:3000/images/9792965802.gif",
+            "alt_profile_picture": "Photo de profil de l'utilisateur",
+            "consents": "{\"shareable\":false,\"contactable\":false}",
+            "lastLogin": "2020-10-08 23:51:40",
+            "created_at": "2020-10-08 23:51:06",
+            "updated_at": "2020-10-08 23:51:40",
+            "createdAt": "2020-10-08 23:51:06",
+            "updatedAt": "2020-10-08 23:51:40"
+        },
+        "Comments": [
+            {
+                "id": 13,
+                "comment": "123456789  ",
+                "user_id": 23,
+                "post_id": 17,
+                "created_at": "2020-10-09 00:12:07",
+                "updated_at": "2020-10-09 00:12:19",
+                "createdAt": "2020-10-09 00:12:07",
+                "updatedAt": "2020-10-09 00:12:19",
+                "UserId": 23,
+                "PostId": 17
+            },
+            {
+                "id": 14,
+                "comment": "123lkjhghjklkjhgghjkl",
+                "user_id": 23,
+                "post_id": 17,
+                "created_at": "2020-10-09 00:27:55",
+                "updated_at": "2020-10-09 00:28:51",
+                "createdAt": "2020-10-09 00:27:55",
+                "updatedAt": "2020-10-09 00:28:51",
+                "UserId": 23,
+                "PostId": 17
+            }
+        ],
+        "Likes": [],
+        "_links": {
+            "self": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/posts/17"
+            },
+            "create": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/posts"
+            },
+            "update": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/posts/17"
+            },
+            "delete": {
+                "method": "DELETE",
+                "href": "http://localhost:3000/api/posts/17"
+            },
+            "like": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/posts/17/like"
+            },
+            "readLike": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/posts/17/like"
+            },
+            "list": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/posts"
+            },
+            "report": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/posts/17/report"
+            }
+        }
+    },
+    {
+        "id": 16,
+        "title": "123",
+        "content": "123",
+        "user_id": 1,
+        "url_gif": "http://localhost:3000/images/3637389236.gif",
+        "alt_gif": "GIF partagé par l'utilisateur",
+        "created_at": "2020-10-08 19:46:33",
+        "updated_at": "2020-10-08 22:34:06",
+        "createdAt": "2020-10-08 19:46:33",
+        "updatedAt": "2020-10-08 22:34:06",
+        "UserId": 1,
+        "User": {
+            "id": 1,
+            "email": "test@test.fr",
+            "password": "$2a$10$SooiZzedLTRPQ0o7YggyWeC3e5hR3PoN0qC3GaAU1JuzUMLwkyZIS",
+            "username": "Lulu Baroy",
+            "role": "[\"user\",\"admin\"]",
+            "bio": "",
+            "url_profile_picture": "http://localhost:3000/images/1006202404.gif",
+            "alt_profile_picture": "Photo de profil de l'utilisateur",
+            "consents": "{\"shareable\":\"false\",\"contactable\":\"false\"}",
+            "lastLogin": "2020-10-08 19:50:12",
+            "created_at": "2020-10-03 11:19:37",
+            "updated_at": "2020-10-08 19:50:12",
+            "createdAt": "2020-10-03 11:19:37",
+            "updatedAt": "2020-10-08 19:50:12"
+        },
+        "Comments": [],
+        "Likes": [],
+        "_links": {
+            "self": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/posts/16"
+            },
+            "create": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/posts"
+            },
+            "update": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/posts/16"
+            },
+            "delete": {
+                "method": "DELETE",
+                "href": "http://localhost:3000/api/posts/16"
+            },
+            "like": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/posts/16/like"
+            },
+            "readLike": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/posts/16/like"
+            },
+            "list": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/posts"
+            },
+            "report": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/posts/16/report"
+            }
+        }
+    }
+ ]
  * @apiErrorExample Error-Response: User not Authenticated
  * HTTP/1.1 400 Bad Request
  *{
@@ -535,7 +643,7 @@ exports.readAll = (req, res, next) => {
 		})
 			.then(posts => {
 				logger.info(`user got all posts infos`)
-				res.status(200).json(posts)
+				hateoas(req, res, posts, 'api/posts')
 			})
 			.catch(err => {
 				logger.info(`something went wrong when trying to find all posts`)
@@ -684,7 +792,7 @@ exports.createReport = (req, res, next) => {
 			models.PostsReport.create({
 				PostId: req.params.id,
 				UserId: userId,
-				report: req.body.report,
+				report: xss(req.body.report),
 				status: 'pending'
 			})
 				.then((report) => {

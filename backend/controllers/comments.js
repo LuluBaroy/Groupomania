@@ -3,7 +3,9 @@ require('dotenv').config();
 const models = require('../models');
 const jwtUtils = require('../middlewares/jwt');
 const logger = require('../middlewares/winston');
-const validator = require('validator')
+const validator = require('validator');
+const hateoasComment = require('../services/hateoasComment');
+const xss = require('xss')
 
 /**
  * @api {post} /api/posts/:id/comments Create
@@ -46,7 +48,7 @@ exports.create = (req, res, next) => {
 		} else if (validator.matches(req.body.comment, regex)){
 			res.status(422).json({message: `Wrong format - Please don't use : |/*+&#{([]})<>$£€%=^`})
 		} else {
-			models.Comments.create({ comment: req.body.comment, UserId: userId, PostId: req.params.id})
+			models.Comments.create({ comment: xss(req.body.comment), UserId: userId, PostId: req.params.id})
 				.then(comment => {
 					logger.info(`User ${userId} has commented post ${req.params.id}`)
 					res.status(201).json({ message: `Your comment has been sent !`, comment})
@@ -106,7 +108,7 @@ exports.createReport = (req, res, next) => {
 				CommentId: req.params.comment_id,
 				PostId: req.params.id,
 				UserId: userId,
-				report: req.body.report,
+				report: xss(req.body.report),
 				status: 'pending'
 			})
 				.then((report) => {
@@ -155,27 +157,35 @@ exports.update = (req, res, next) => {
 		} else if(validator.matches(req.body.comment, regex)){
 			res.status(422).json({message: `Wrong format - Please don't use : |/*+&#{([]})<>$£€%=^`})
 		} else {
-			models.Comments.findOne({ where: { id: req.params.comment_id }})
-				.then((comment) => {
-					if(comment && userId === comment.user_id){
-						models.Comments.update({ comment: req.body.comment }, { where: { id: req.params.comment_id }})
-							.then(() => {
-								logger.info(`User ${userId} has updated comment ${req.params.comment_id}`)
-								res.status(200).json({ message: `Your comment has been updated !`})
+			models.Users.findOne({where: {id: userId}})
+				.then(user => {
+					if(!user){
+						res.status(400).json({ message: `We couldn't authenticate user, please log in or sign up !`})
+					} else {
+						models.Comments.findOne({ where: { id: req.params.comment_id }})
+							.then((comment) => {
+								if(comment && userId === comment.user_id || user.role.includes('admin')){
+									models.Comments.update({ comment: xss(req.body.comment) }, { where: { id: req.params.comment_id }})
+										.then(() => {
+											logger.info(`User ${userId} has updated comment ${req.params.comment_id}`)
+											res.status(200).json({ message: `Your comment has been updated !`})
+										})
+										.catch((err) => {
+											logger.info(`User ${userId} couldn't update comment ${req.params.comment_id}`);
+											res.status(500).json(err)
+										})
+								} else {
+									logger.info(`User ${userId} has tried to update comment ${req.params.comment_id}`)
+									res.status(403).json({ message: `You're not allowed to update this comment`})
+								}
 							})
 							.catch((err) => {
-								logger.info(`User ${userId} couldn't update comment ${req.params.comment_id}`);
-								res.status(500).json(err)
+								logger.info(`Something went wrong when trying to search a comment (function updateComment)`);
+								res.status(404).json({ message: `This comment doesn't exist `, err})
 							})
-					} else {
-						logger.info(`User ${userId} has tried to update comment ${req.params.comment_id}`)
-						res.status(403).json({ message: `You're not allowed to update this comment`})
 					}
 				})
-				.catch((err) => {
-					logger.info(`Something went wrong when trying to search a comment (function updateComment)`);
-					res.status(404).json({ message: `This comment doesn't exist `, err})
-				})
+
 		}
 	}
 }
@@ -257,17 +267,43 @@ exports.delete = (req, res, next) => {
  * @apiSuccessExample Success-Response:
  *HTTP/1.1 200 OK
  *{
- *	"id":29,
- *	"comment":"123456",
- *	"user_id":3,
- *	"post_id":17,
- *	"created_at":"2020-10-01 14:44:01",
- *	"updated_at":"2020-10-01 14:44:01",
- *	"createdAt":"2020-10-01 14:44:01",
- *	"updatedAt":"2020-10-01 14:44:01",
- *	"UserId":3,
- *	"PostId":17
- *}
+    "id": 13,
+    "comment": "123456789  ",
+    "user_id": 23,
+    "post_id": 17,
+    "created_at": "2020-10-09 00:12:07",
+    "updated_at": "2020-10-09 00:12:19",
+    "createdAt": "2020-10-09 00:12:07",
+    "updatedAt": "2020-10-09 00:12:19",
+    "UserId": 23,
+    "PostId": 17,
+    "_links": {
+        "self": {
+            "method": "GET",
+            "href": "http://localhost:3000/api/posts/17/13"
+        },
+        "create": {
+            "method": "POST",
+            "href": "http://localhost:3000/api/posts/17/comments"
+        },
+        "update": {
+            "method": "PUT",
+            "href": "http://localhost:3000/api/posts/17/13"
+        },
+        "delete": {
+            "method": "DELETE",
+            "href": "http://localhost:3000/api/posts/17/13"
+        },
+        "list": {
+            "method": "GET",
+            "href": "http://localhost:3000/api/posts/17/all/comments"
+        },
+        "report": {
+            "method": "POST",
+            "href": "http://localhost:3000/api/posts/17/13/report"
+        }
+    }
+}
  * @apiErrorExample Error-Response : User not authenticated
  * HTTP/1.1 400 Bad Request
  *{
@@ -283,7 +319,7 @@ exports.readOne = (req, res, next) => {
 		models.Comments.findOne({ where: { id: req.params.comment_id }})
 			.then(comment => {
 				logger.info(`User got comment ${req.params.comment_id}`)
-				res.status(200).json(comment)
+				hateoasComment(req, res, comment, `api/posts/${req.params.id}`)
 			}).catch(err => {logger.info(`Something went wrong when trying to search for a comment (function readOne comment)`); res.status(500).json(err)})
 	}
 }
@@ -300,59 +336,115 @@ exports.readOne = (req, res, next) => {
  * @apiSuccessExample Success-Response:
  *HTTP/1.1 200 OK
  *[
- *	{
- *		"id":20,
- *		"comment":"123",
- *		"user_id":2,
- *		"post_id":11,
- *		"created_at":"2020-09-29 19:43:24",
- *		"updated_at":"2020-09-29 19:43:37",
- *		"createdAt":"2020-09-29 19:43:24",
- *		"updatedAt":"2020-09-29 19:43:37",
- *		"UserId":2,
- *		"PostId":11,
- *		"User":{
- *			"id":2,
- *			"email":"deletedUser@admin.fr",
- *			"password":"$2a$10$BvS4N1seTASRfWlmRcBDN.LpKwwUp7Y/D92I..o/3xcNDyXkr58qu",
- *			"username":"Utilisateur supprimé",
- *			"role":"[\"user\",\"admin\"]",
- *			"bio":null,
- *			"url_profile_picture":"http://localhost:3000/images/deletedUser.png",
- *			"alt_profile_picture":"Photo de profil de l'utilisateur",
- *			"consents":"{\"shareable\":false,\"contactable\":false}",
- *			"created_at":"2020-09-24 17:33:09",
- *			"updated_at":"2020-09-30 19:42:58",
- *			"createdAt":"2020-09-24 17:33:09",
- *			"updatedAt":"2020-09-30 19:42:58"
- *		}
- *	},
- *	{
- *		"id":26,
- *		"comment":"123456",
- *		"user_id":3,
- *		"post_id":11,
- *		"created_at":"2020-09-30 15:07:10",
- *		"updated_at":"2020-09-30 15:07:10",
- *		"createdAt":"2020-09-30 15:07:10",
- *		"updatedAt":"2020-09-30 15:07:10",
- *		"UserId":3,
- *		"PostId":11,
- *		"User":{
- *			"id":3,
- *			"email":"test2@test.fr",
- *			"password":"$2a$10$tloa5dX6MNt.Iaw6QAMnuu/2oeO5gvW.tg7xSaVImo/0assd.12R2",
- *			"username":"Testeur test",
- *			"role":"[\"user\",\"admin\"]",
- *			"bio":"123456",
- *			"url_profile_picture":"http://localhost:3000/images/defaultPicture.png",
- *			"alt_profile_picture":"Photo de profil de l'utilisateur",
- *			"consents":"{\"shareable\":\"false\",\"contactable\":\"false\"}",
- *			"created_at":"2020-09-24 20:35:11","updated_at":"2020-09-30 18:20:24",
- *			"createdAt":"2020-09-24 20:35:11","updatedAt":"2020-09-30 18:20:24"
- *		}
- *	}
- *]
+    {
+        "id": 13,
+        "comment": "123456789  ",
+        "user_id": 23,
+        "post_id": 17,
+        "created_at": "2020-10-09 00:12:07",
+        "updated_at": "2020-10-09 00:12:19",
+        "createdAt": "2020-10-09 00:12:07",
+        "updatedAt": "2020-10-09 00:12:19",
+        "UserId": 23,
+        "PostId": 17,
+        "User": {
+            "id": 23,
+            "email": "testeur@test.fr",
+            "password": "$2a$10$YyHAqe4XPGsdSsFSHzDRIOA/amw4pvCI0F59w7GadcHRFZdmgP8hu",
+            "username": "Lulu Baroy",
+            "role": "[\"user\"]",
+            "bio": "",
+            "url_profile_picture": "http://localhost:3000/images/9792965802.gif",
+            "alt_profile_picture": "Photo de profil de l'utilisateur",
+            "consents": "{\"shareable\":false,\"contactable\":false}",
+            "lastLogin": "2020-10-08 23:51:40",
+            "created_at": "2020-10-08 23:51:06",
+            "updated_at": "2020-10-08 23:51:40",
+            "createdAt": "2020-10-08 23:51:06",
+            "updatedAt": "2020-10-08 23:51:40"
+        },
+        "_links": {
+            "self": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/posts/17/13"
+            },
+            "create": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/posts/17/comments"
+            },
+            "update": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/posts/17/13"
+            },
+            "delete": {
+                "method": "DELETE",
+                "href": "http://localhost:3000/api/posts/17/13"
+            },
+            "list": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/posts/17/all/comments"
+            },
+            "report": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/posts/17/13/report"
+            }
+        }
+    },
+    {
+        "id": 14,
+        "comment": "123lkjhghjklkjhgghjkl",
+        "user_id": 23,
+        "post_id": 17,
+        "created_at": "2020-10-09 00:27:55",
+        "updated_at": "2020-10-09 00:28:51",
+        "createdAt": "2020-10-09 00:27:55",
+        "updatedAt": "2020-10-09 00:28:51",
+        "UserId": 23,
+        "PostId": 17,
+        "User": {
+            "id": 23,
+            "email": "testeur@test.fr",
+            "password": "$2a$10$YyHAqe4XPGsdSsFSHzDRIOA/amw4pvCI0F59w7GadcHRFZdmgP8hu",
+            "username": "Lulu Baroy",
+            "role": "[\"user\"]",
+            "bio": "",
+            "url_profile_picture": "http://localhost:3000/images/9792965802.gif",
+            "alt_profile_picture": "Photo de profil de l'utilisateur",
+            "consents": "{\"shareable\":false,\"contactable\":false}",
+            "lastLogin": "2020-10-08 23:51:40",
+            "created_at": "2020-10-08 23:51:06",
+            "updated_at": "2020-10-08 23:51:40",
+            "createdAt": "2020-10-08 23:51:06",
+            "updatedAt": "2020-10-08 23:51:40"
+        },
+        "_links": {
+            "self": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/posts/17/14"
+            },
+            "create": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/posts/17/comments"
+            },
+            "update": {
+                "method": "PUT",
+                "href": "http://localhost:3000/api/posts/17/14"
+            },
+            "delete": {
+                "method": "DELETE",
+                "href": "http://localhost:3000/api/posts/17/14"
+            },
+            "list": {
+                "method": "GET",
+                "href": "http://localhost:3000/api/posts/17/all/comments"
+            },
+            "report": {
+                "method": "POST",
+                "href": "http://localhost:3000/api/posts/17/14/report"
+            }
+        }
+    }
+]
  * @apiErrorExample Error-Response : User not authenticated
  * HTTP/1.1 400 Bad Request
  *{
@@ -372,7 +464,7 @@ exports.readAll = (req, res, next) => {
 		})
 			.then(comments => {
 				logger.info(`User got all comments from post ${req.params.id}`)
-				res.status(200).json(comments)
+				hateoasComment(req, res, comments, `api/posts/${req.params.id}`)
 			}).catch(err => {logger.info(`Something went wrong when trying to search for all comments from post ${req.params.id}`);res.status(500).json(err)})
 	}
 }

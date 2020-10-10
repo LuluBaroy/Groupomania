@@ -15,8 +15,12 @@
           <b-tabs>
 
             <!--ALL MESSAGES-->
-            <b-tab title="Tous les messages">
+            <b-tab>
+              <template v-slot:title>
+                Tous les messages
+              </template>
               <div v-if="allIssues.length > 0">
+                <p class="text-center text-break mt-2">Total : {{ allIssues.length }} message(s)</p>
                 <div v-for="(issue, index) in allIssues" :key="index" class="d-flex flex-column m-auto">
                   <b-list-group>
 
@@ -37,8 +41,8 @@
                         <a :href="`mailto:${issue.email}`">Email: {{ issue.email }}</a>
                         <p>Sa / Ses question(s) : {{ issue.issue }}</p>
                         <p>Actuellement : <span v-if="issue.status === 'pending'" class="pending">En attente de traitement</span><span v-else class="treated">Traité</span></p>
-                        <b-button class="d-flex m-auto" v-if="issue.status === 'pending'" pill variant="info" @click="updateIssue(index)">Mettre à jour le statut du message</b-button>
-                        <b-button variant="danger" class="rounded-pill d-flex m-auto" v-if="issue.status === 'treated'" @click="deleteIssue(index)">Supprimer le message</b-button>
+                        <b-button class="d-flex mr-auto ml-auto mb-md-3" v-if="issue.status === 'pending'" pill variant="info" @click="updateIssue(index)">Mettre à jour le statut du message</b-button>
+                        <b-button variant="danger" class="rounded-pill d-flex mr-auto ml-auto mb-md-3" v-if="issue.status === 'treated'" @click="deleteIssue(index)">Supprimer le message</b-button>
                       </b-card>
                     </b-collapse>
                   </b-list-group>
@@ -50,7 +54,10 @@
             </b-tab>
 
             <!--MESSAGE WITH STATUS 'PENDING'-->
-            <b-tab title="Messages en attente de traitement">
+            <b-tab>
+              <template v-slot:title>
+                Messages en attente de traitement <b-badge pill variant='dark' class="badgeTab font-weight-normal" v-if="allPending.length > 0">{{allPending.length}}</b-badge>
+              </template>
               <div v-if="allPending.length > 0">
                 <div v-for="(pending, index) in allPending" :key="index" class="d-flex flex-column m-auto">
 
@@ -93,10 +100,13 @@
         </b-button>
         <b-modal ok-only centered @ok="getUserPosts" @close="getUserPosts" title="Signalements" id="allReports" v-if="isClicked">
           <b-tabs>
-
             <!--POSTS REPORTS-->
-            <b-tab title="Posts">
+            <b-tab>
+              <template v-slot:title>
+                Posts <b-badge variant='dark' pill class="badgeTab font-weight-normal" v-if="messageWaiting.postReports.length > 0">{{ messageWaiting.postReports.length }}</b-badge>
+              </template>
               <div v-if="allReports.postReports.length > 0">
+                <p class="text-center text-break mt-2">Total : {{allReports.postReports.length}} signalement(s) de post(s)</p>
                 <div v-for="(postReport, index) in allReports.postReports" :key="index">
                   <b-list-group>
 
@@ -161,7 +171,11 @@
                                                 value="userPost.title"
                                                 required
                                                 class="postInput"
+                                                :state="statePostTitle"
                                         ></b-form-input>
+                                        <b-form-invalid-feedback>
+                                          Champ requis, merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                                        </b-form-invalid-feedback>
                                       </b-form-group>
                                       <b-form-group
                                       label="Contenu du post :"
@@ -174,7 +188,11 @@
                                                 class="postInput text-center"
                                                 rows="3"
                                                 max-rows="6"
+                                                :state="statePostContent"
                                         >{{ userPost.content }}</b-form-textarea>
+                                        <b-form-invalid-feedback>
+                                          Champ requis, merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                                        </b-form-invalid-feedback>
                                       </b-form-group>
                                         <b-button v-b-modal.emojisAdmin class="mt-2 rounded-pill d-flex mr-auto ml-auto mb-md-2" variant="dark">😃 Ajouter des emoticones !</b-button>
                                         <b-modal centered title="Emoticones" ok-only ok-title="Fermer" ok-variant="info" id="emojisAdmin" triggers="hover" placement="top">
@@ -183,9 +201,16 @@
                                           </div>
                                         </b-modal>
                                         <div id="postUpdate" class="mt-3">
-                                          <img :src="userPost.img" v-if="url.length === 0" class="img-fluid imgPosts d-flex mr-auto ml-auto" id="updateImg" :alt="userPost.altImg"/>
-                                          <img v-else :src="url" class="img-fluid imgPosts d-flex mr-auto ml-auto" alt="Preview new image">
-                                          <b-form-file v-model="file" class="mt-3" @change="onFileChanged"></b-form-file>
+                                          <!--PREVIEW NEW GIF-->
+                                          <img :src="userPost.img" v-if="url.length === 0" class="img-fluid imgPosts d-flex m-auto" id="updateImg" :alt="userPost.altImg"/>
+                                          <img v-else :src="url" class="img-fluid mr-auto ml-auto imgPosts d-flex" alt="Preview new image">
+                                          <b-form-group
+                                                  label="Votre Gif :"
+                                                  label-for="fileInput"
+                                                  description="Fichiers acceptés : 'jpg', 'jpeg', 'png', 'gif'"
+                                                  class="mt-3">
+                                            <b-form-file id="fileInput" v-model="file" accept=".jpg, .png, .gif, .jpeg" @change="onFileChanged"></b-form-file>
+                                          </b-form-group>
                                         </div>
                                         <b-button type="submit" @click.prevent="updatePost(index)" class="d-flex rounded-pill commentBtn">Modifier</b-button>
                                     </b-form>
@@ -224,8 +249,12 @@
             </b-tab>
 
             <!--COMMENTS REPORTS-->
-            <b-tab title="Commentaires">
+            <b-tab>
+              <template v-slot:title>
+                Commentaires <b-badge variant='dark' class="badgeTab font-weight-normal" pill v-if="messageWaiting.commentReports.length > 0">{{ messageWaiting.commentReports.length }}</b-badge>
+              </template>
               <div v-if="allReports.commentReports.length > 0">
+                <p class="text-center text-break mt-2">Total : {{allReports.commentReports.length }} signalement(s) de commentaire</p>
                 <div v-for="(commentReport, indexComment) in allReports.commentReports" :key="indexComment">
                   <b-list-group>
 
@@ -249,7 +278,7 @@
                           <b-collapse :id="'user' + indexComment">
                             <div class="userComment d-flex flex-column flex-md-row justify-content-md-center align-items-center mb-5 mt-3">
                               <!--LINK TO AUTHOR PROFILE-->
-                              <router-link :to="`/profile/${userInfo.id}`" class="d-flex"><img :src="userInfo.profile_picture" :alt="userInfo.alt_picture" class="img-fluid imgComment"/></router-link>
+                              <router-link :to="`/profile/${userInfo.id}`" class="d-flex mr-2"><img :src="userInfo.profile_picture" :alt="userInfo.alt_picture" class="imgComment"/></router-link>
                               <h5>{{ userInfo.username}}</h5>
                             </div>
                           </b-collapse>
@@ -259,7 +288,7 @@
                           <b-collapse :id="'comment' + indexComment" class="mt-3 mb-5">
                             <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-center text-center comment p-md-2 ml-0 mr-0 ml-md-2 mr-md-2 mb-3">
                               <div class="userComment d-flex flex-column pt-3">
-                                <router-link :to="`/profile/${comment.author.id}`"><img :src="comment.author.url_profile_picture" :alt="comment.author.alt_profile_picture" class="img-fluid imgComment"/></router-link>
+                                <router-link :to="`/profile/${comment.author.id}`"><img :src="comment.author.url_profile_picture" :alt="comment.author.alt_profile_picture" class="imgComment"/></router-link>
                                 <h4>{{ comment.author.username}}</h4>
                               </div>
                               <div class="commentText pb-3 col-md-8">{{ comment.infos.comment }}</div>
@@ -282,7 +311,7 @@
                                 <h3 class="border-bottom mt-3 mb-3">Commentaire(s)</h3>
                                 <div class="d-flex flex-column flex-md-row col-12 p-2 text-center justify-content-md-between align-items-center comment ml-0 mr-0 mb-3" v-for="(contextComment, indexComment) in context.comments" :key="indexComment">
                                   <div class="userComment d-flex flex-column">
-                                    <router-link :to="`/profile/${contextComment.User.id}`"><img :src="contextComment.User.url_profile_picture" :alt="contextComment.User.alt_profile_picture" class="img-fluid imgComment"/></router-link>
+                                    <router-link :to="`/profile/${contextComment.User.id}`"><img :src="contextComment.User.url_profile_picture" :alt="contextComment.User.alt_profile_picture" class="imgComment"/></router-link>
                                     <h4>{{ contextComment.User.username}}</h4>
                                   </div>
                                   <div class="commentText col-md-8">{{ contextComment.comment }}</div>
@@ -317,7 +346,11 @@
                                                 class="postInput text-center"
                                                 rows="3"
                                                 max-rows="6"
+                                                :state="stateComment"
                                         >{{ comment.infos.comment }}</b-form-textarea>
+                                        <b-form-invalid-feedback>
+                                          Champ requis, merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                                        </b-form-invalid-feedback>
                                       </b-form-group>
                                       <b-button v-b-modal.emojisCommentAdmin class="mt-2 rounded-pill d-flex mr-auto ml-auto" variant="dark">😃 Ajouter des emoticones !</b-button>
                                       <b-modal centered title="Emoticones" ok-only ok-title="Fermer" ok-variant="info" id="emojisCommentAdmin" triggers="hover" placement="top">
@@ -453,9 +486,354 @@ export default {
   computed: {
     messageWaiting () {
       return this.$store.state.issues.messageWaiting
+    },
+    //FORM VALIDATION
+    statePostTitle () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.userPost.title.length > 0 && !regex.test(this.userPost.title)){
+        return true
+      } else if(this.userPost.title.length > 0 && regex.test(this.userPost.title) || regex.test(this.userPost.title)) {
+        return false
+      } else {
+        return null
+      }
+    },
+    statePostContent () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.userPost.content.length > 0 && !regex.test(this.userPost.content)){
+        return true
+      } else if(this.userPost.content.length > 0 && regex.test(this.userPost.content) || regex.test(this.userPost.content)) {
+        return false
+      } else {
+        return null
+      }
+    },
+    stateComment () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.comment.infos.comment && this.comment.infos.comment.length > 0 && !regex.test(this.comment.infos.comment)){
+        return true
+      } else if(this.comment.infos.comment && this.comment.infos.comment.length > 0 && regex.test(this.comment.infos.comment) || regex.test(this.comment.infos.comment)) {
+        return false
+      } else {
+        return null
+      }
     }
   },
   methods: {
+    //ALL REPORTS
+    getAllReports () {
+      this.$store.dispatch('readAllReports')
+              .then(response => {
+                this.allReports.postReports = response.data.postReports
+                this.allReports.commentReports = response.data.commentReports
+              })
+    },
+    getUserPosts () {
+      this.$store.dispatch('posts/getAllPostsFromOneUser', this.$route.params.id)
+    },
+
+    //POSTS REPORTS
+    updatePostReport (index) {
+      let id = this.allReports.postReports[index].id
+      this.$store.dispatch('updatePostReport', id)
+              .then(() => {
+                this.showAlertSuccess('Le signalement a été mis à jour !', '2000')
+                this.getAllReports()
+                this.$store.dispatch('messageWaiting')
+              })
+    },
+    deletePostReport (index) {
+      let id = this.allReports.postReports[index].id
+      this.$store.dispatch('deleteOnePostReport', id)
+              .then(() => {
+                this.showAlertSuccess('Signalement supprimé', '1500')
+                this.getAllReports()
+                this.$store.dispatch('messageWaiting')
+              })
+    },
+    getUserInfo (index) {
+      let userId = this.allReports.postReports[index].UserId
+      this.$store.dispatch('user/getOneUser', userId)
+              .then((response) => {
+                this.userInfo.id = response.data.id
+                this.userInfo.username = response.data.username
+                this.userInfo.profile_picture = response.data.url_profile_picture
+                this.userInfo.alt_picture = response.data.alt_profile_picture
+              })
+    },
+
+    //POSTS OPTIONS
+    getEmoji (index) {
+      let emojiCode = this.emojis[index]
+      if(this.userPost.content === null) {
+        this.userPost.content = emojiCode
+      } else {
+        this.userPost.content += emojiCode
+      }
+      this.$swal({
+        title: '',
+        timer: '1000',
+        text: '✔ Ajouté !️',
+        showConfirmButton: false
+      })
+    },
+    onFileChanged (e) {
+      let authorizedFile = ['jpg', 'jpeg', 'gif', 'png']
+      const file = e.target.files[0]
+      if (!authorizedFile.includes(file.name.split('.')[1])) {
+        this.url = 'http://localhost:3000/images/wrongExtension.png'
+      } else {
+        this.url = URL.createObjectURL(file)
+      }
+    },
+    getPost (index) {
+      let postId = this.allReports.postReports[index].PostId
+      this.$store.dispatch('posts/getOnePost', postId)
+              .then(response => {
+                this.postInfo = response.data
+              }).catch(err => console.log(err))
+    },
+    setPostValue (index) {
+      let postId = this.allReports.postReports[index].PostId
+      this.$store.dispatch('posts/getOnePost', postId)
+              .then(post => {
+                this.userPost.title = post.data.title
+                this.userPost.content = post.data.content
+                this.userPost.img = post.data.url_gif
+                this.userPost.altImg = post.data.alt_url_gif
+              }).catch(() => {
+        this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+      })
+    },
+    updatePost (index) {
+      let authorizedFile = ['jpg', 'jpeg', 'gif', 'png']
+      if(this.statePostTitle !== true || this.statePostContent !== true || this.file !== null && !authorizedFile.includes(this.file.name.split('.')[1])){
+        this.showAlertError('Merci de renseigner les différents champs au bon format', '1500')
+      } else {
+        let postId = this.allReports.postReports[index].PostId
+        let formData = new FormData()
+        formData.append('title', this.userPost.title.toString())
+        formData.append('content', this.userPost.content.toString())
+        formData.append('image', this.file)
+        let payload = {
+          id: postId,
+          data: formData
+        }
+        document.getElementById('accordion-1').classList.remove('show')
+        this.$store.dispatch('posts/updatePost', payload)
+                .then(() => {
+                  this.showAlertSuccess('Post modifié !', '1500')
+                  this.getPost(index)
+                  this.file = null
+                  this.userPost.title = ''
+                  this.userPost.content = ''
+                }).catch(error => {
+          if (error.message.split('code ')[1].includes('500')) {
+            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+          } else if (error.message.split('code ')[1].includes('403')) {
+            this.showAlertError(`Vous n'avez pas le droit de modifier ce post, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
+          } else if (error.message.split('code ')[1].includes('404')) {
+            this.showAlertError(`Ce post n'existe pas !`, '1500')
+          } else if (error.message.split('code ')[1].includes('401')) {
+            this.showAlertError(`Nous n'avons pas pu vous identifier, merci de vous connecter ou de créer un compte !`, '2500')
+          }
+        })
+      }
+    },
+    deletePost (index) {
+      let postId = this.allReports.postReports[index].PostId
+      this.$store.dispatch('posts/deletePost', postId)
+              .then(() => {
+                this.showAlertSuccess(`Le post signalé a été supprimé ainsi que :\n
+          - Son signalement\n
+          - Ses Likes\n
+          - Ses commentaires\n
+          - Ses commentaires signalés\n
+          - Les signalements des commentaires de ce post`, '5500')
+                this.isClicked = false
+                this.getAllReports()
+                this.isClicked = true
+              }).catch(error => {
+        if (error.message.split('code ')[1].includes('500')) {
+          this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+        } else if (error.message.split('code ')[1].includes('401')) {
+          this.showAlertError(`Vous n'avez pas le droit de supprimer ce post, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
+        }
+      })
+    },
+
+    //COMMENTS REPORTS
+    updateCommentReport (indexComment) {
+      let id = this.allReports.commentReports[indexComment].id
+      this.$store.dispatch('updateCommentReport', id)
+              .then(() => {
+                this.showAlertSuccess('Le signalement a été mis à jour !', '2000')
+                this.getAllReports()
+                this.$store.dispatch('messageWaiting')
+              })
+    },
+    deleteCommentReport (indexComment) {
+      let id = this.allReports.commentReports[indexComment].id
+      this.$store.dispatch('deleteOneCommentReport', id)
+              .then(() => {
+                this.showAlertSuccess('Signalement supprimé', '1500')
+                this.getAllReports()
+                this.$store.dispatch('messageWaiting')
+              })
+    },
+    getUserInfoComment (indexComment) {
+      let userId = this.allReports.commentReports[indexComment].UserId
+      this.$store.dispatch('user/getOneUser', userId)
+              .then((response) => {
+                this.userInfo.id = response.data.id
+                this.userInfo.username = response.data.username
+                this.userInfo.profile_picture = response.data.url_profile_picture
+                this.userInfo.alt_picture = response.data.alt_profile_picture
+              })
+    },
+
+    //COMMENTS OPTIONS
+    getEmojiComment (index) {
+      let emojiCode = this.emojis[index]
+      if(this.comment.infos.comment === null) {
+        this.comment.infos.comment = emojiCode
+      } else {
+        this.comment.infos.comment += emojiCode
+      }
+      this.$swal({
+        title: '',
+        timer: '1000',
+        text: '✔ Ajouté !️',
+        showConfirmButton: false
+      })
+    },
+    getComment (indexComment) {
+      let payload = {
+        id: this.allReports.commentReports[indexComment].PostId,
+        commentId: this.allReports.commentReports[indexComment].CommentId
+      }
+      this.$store.dispatch('posts/getOneComment', payload)
+              .then(response => {
+                console.log(response.data)
+                this.comment.infos = response.data
+                this.$store.dispatch('user/getOneUser', this.comment.infos.user_id)
+                        .then(user => {
+                          this.comment.author = user.data
+                        })
+              })
+    },
+    getContext (indexComment) {
+      let postId = this.allReports.commentReports[indexComment].PostId
+      this.$store.dispatch('posts/getOnePost', postId)
+              .then(response => {
+                this.context.post = response.data
+                this.$store.dispatch('posts/getComments', postId)
+                        .then(comments => {
+                          this.context.comments = comments.data
+                        })
+              })
+    },
+    updateComment (indexComment) {
+      if (this.comment.infos.comment === 0 || this.stateComment !== true) {
+        this.showAlertError('Merci de renseigner les différents champs au bon format', '1500')
+      } else {
+        let postId = this.allReports.commentReports[indexComment].PostId
+        let payload = {
+          id: postId,
+          commentId: this.allReports.commentReports[indexComment].CommentId,
+          newComment: {
+            comment: this.comment.infos.comment.toString()
+          }
+        }
+        document.getElementById('accordion-4').classList.remove('show')
+        this.$store.dispatch('posts/updateComment', payload)
+                .then(() => {
+                  this.showAlertSuccess('Commentaire modifié !', '1500')
+                  this.getComment(indexComment)
+                }).catch(error => {
+          if (error.message.split('code ')[1].includes('500')) {
+            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+          } else if (error.message.split('code ')[1].includes('403')) {
+            this.showAlertError(`Vous n'avez pas le droit de modifier ce commentaire, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
+          } else if (error.message.split('code ')[1].includes('404')) {
+            this.showAlertError(`Ce commentaire n'existe pas !`, '1500')
+          }
+        })
+      }
+    },
+    deleteComment (indexComment) {
+      let payload = {
+        id: this.allReports.commentReports[indexComment].PostId,
+        commentId: this.allReports.commentReports[indexComment].CommentId
+      }
+      this.$store.dispatch('posts/deleteComment', payload)
+              .then(() => {
+                this.showAlertSuccess('Ce commentaire et son signalement ont été supprimés !', '3500')
+                this.isClicked = false
+                this.getAllReports()
+                this.isClicked = true
+                this.$store.dispatch('messageWaiting')
+              }).catch(error => {
+        if (error.message.split('code ')[1].includes('500')) {
+          this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+        } else if (error.message.split('code ')[1].includes('403')) {
+          this.showAlertError(`Vous n'avez pas le droit de supprimer ce commentaire, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
+        } else if (error.message.split('code ')[1].includes('404')) {
+          this.showAlertError(`Ce commentaire n'existe pas !`, '1500')
+        }
+      })
+    },
+
+    //USERS
+    getAllUsers () {
+      this.$store.dispatch('user/getAllUser')
+              .then(response => {
+                this.allUsers = response.data
+                console.log(this.allUsers)
+              })
+    },
+
+    //ISSUES
+    getIssues () {
+      this.$store.dispatch('readAllIssues')
+              .then(response => {
+                this.allIssues = response.data
+              })
+    },
+    getPending () {
+      this.$store.dispatch('readAllPending')
+              .then(response => {
+                if (!response.data.message) {
+                  this.allPending = response.data
+                } else {
+                  this.allPending = ''
+                }
+
+              })
+    },
+    updateIssue (index) {
+      let issueId = this.allIssues[index].id
+      this.$store.dispatch('updateIssue', issueId)
+              .then(() => {
+                this.getIssues()
+                this.getPending()
+                this.$store.dispatch("messageWaiting")
+              })
+    },
+    deleteIssue (index) {
+      this.$store.dispatch('deleteIssue', this.allIssues[index].id)
+              .then(() => {
+                this.showAlertSuccess('Message supprimé !', '1500')
+                this.getIssues()
+                this.getPending()
+                this.$store.dispatch('messageWaiting')
+              })
+    },
+
+    //RESEARCH
     clearResearch () {
       this.showModal = false
       this.userResearch = ''
@@ -490,83 +868,8 @@ export default {
         })
       }
     },
-    getEmoji (index) {
-      let emojiCode = this.emojis[index]
-      if(this.userPost.content === null) {
-        this.userPost.content = emojiCode
-      } else {
-        this.userPost.content += emojiCode
-      }
-      this.$swal({
-        title: '',
-        timer: '1000',
-        text: '✔ Ajouté !️',
-        showConfirmButton: false
-      })
-    },
-    getEmojiComment (index) {
-      let emojiCode = this.emojis[index]
-      if(this.comment.infos.comment === null) {
-        this.comment.infos.comment = emojiCode
-      } else {
-        this.comment.infos.comment += emojiCode
-      }
-      this.$swal({
-        title: '',
-        timer: '1000',
-        text: '✔ Ajouté !️',
-        showConfirmButton: false
-      })
-    },
-    getAllUsers () {
-      this.$store.dispatch('user/getAllUser')
-        .then(response => {
-          this.allUsers = response.data.users
-          console.log(this.allUsers)
-        })
-    },
-    getUserPosts () {
-      this.$store.dispatch('posts/getAllPostsFromOneUser', this.$route.params.id)
-    },
-    onFileChanged (e) {
-      const file = e.target.files[0]
-      this.url = URL.createObjectURL(file)
-    },
-    getIssues () {
-      this.$store.dispatch('readAllIssues')
-        .then(response => {
-          this.allIssues = response.data
-        })
-    },
-    getPending () {
-      this.$store.dispatch('readAllPending')
-        .then(response => {
-          if (!response.data.message) {
-            this.allPending = response.data
-          } else {
-            this.allPending = ''
-          }
 
-        })
-    },
-    updateIssue (index) {
-      let issueId = this.allIssues[index].id
-      this.$store.dispatch('updateIssue', issueId)
-        .then(() => {
-          this.getIssues()
-          this.getPending()
-          this.$store.dispatch("messageWaiting")
-        })
-    },
-    deleteIssue (index) {
-      this.$store.dispatch('deleteIssue', this.allIssues[index].id)
-        .then(() => {
-          this.showAlertSuccess('Message supprimé !', '1500')
-          this.getIssues()
-          this.getPending()
-          this.$store.dispatch('messageWaiting')
-        })
-    },
+    //MODALS + ALERTS
     issueId (index) {
       return 'issueId' + index
     },
@@ -588,131 +891,6 @@ export default {
     userId (index) {
       return 'user' + index
     },
-    getAllReports () {
-      this.$store.dispatch('readAllReports')
-        .then(response => {
-          this.allReports.postReports = response.data.postReports
-          this.allReports.commentReports = response.data.commentReports
-        })
-    },
-    updatePostReport (index) {
-      let id = this.allReports.postReports[index].id
-      this.$store.dispatch('updatePostReport', id)
-        .then(() => {
-          this.showAlertSuccess('Le signalement a été mis à jour !', '2000')
-          this.getAllReports()
-          this.$store.dispatch('messageWaiting')
-        })
-    },
-    deletePostReport (index) {
-      let id = this.allReports.postReports[index].id
-      this.$store.dispatch('deleteOnePostReport', id)
-        .then(() => {
-          this.showAlertSuccess('Signalement supprimé', '1500')
-          this.getAllReports()
-          this.$store.dispatch('messageWaiting')
-        })
-    },
-    getComment (indexComment) {
-      let payload = {
-        id: this.allReports.commentReports[indexComment].PostId,
-        commentId: this.allReports.commentReports[indexComment].CommentId
-      }
-      this.$store.dispatch('posts/getOneComment', payload)
-        .then(response => {
-          this.comment.infos = response.data
-          this.$store.dispatch('user/getOneUser', this.comment.infos.user_id)
-            .then(user => {
-              this.comment.author = user.data
-            })
-        })
-    },
-    getContext (indexComment) {
-      let postId = this.allReports.commentReports[indexComment].PostId
-      this.$store.dispatch('posts/getOnePost', postId)
-        .then(response => {
-          this.context.post = response.data
-          this.$store.dispatch('posts/getComments', postId)
-            .then(comments => {
-              this.context.comments = comments.data
-            })
-        })
-    },
-    updateComment (indexComment) {
-      // eslint-disable-next-line no-useless-escape
-      let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
-      let newComment = ''
-      let postId = this.allReports.commentReports[indexComment].PostId
-      let payload = {
-        id: postId,
-        commentId: this.allReports.commentReports[indexComment].CommentId,
-        newComment: {
-          comment: null
-        }
-      }
-      if (regex.test(this.comment.infos.comment)) {
-        newComment = this.comment.infos.comment.replace(regex, ' ')
-      }
-      if (newComment.length !== 0) {
-        payload.newComment.comment = newComment.toString()
-      } else {
-        payload.newComment.comment = this.comment.infos.comment.toString()
-      }
-      document.getElementById('accordion-4').classList.remove('show')
-      this.$store.dispatch('posts/updateComment', payload)
-              .then(() => {
-                this.showAlertSuccess('Commentaire modifié !', '1500')
-                this.getComment(indexComment)
-              }).catch(error => {
-        if (error.message.split('code ')[1].includes('500')) {
-          this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
-        } else if (error.message.split('code ')[1].includes('403')) {
-          this.showAlertError(`Vous n'avez pas le droit de modifier ce commentaire, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
-        } else if (error.message.split('code ')[1].includes('404')) {
-          this.showAlertError(`Ce commentaire n'existe pas !`, '1500')
-        }
-      })
-    },
-    deleteComment (indexComment) {
-      let payload = {
-        id: this.allReports.commentReports[indexComment].PostId,
-        commentId: this.allReports.commentReports[indexComment].CommentId
-      }
-      this.$store.dispatch('posts/deleteComment', payload)
-              .then(() => {
-                this.showAlertSuccess('Ce commentaire et son signalement ont été supprimés !', '3500')
-                this.isClicked = false
-                this.getAllReports()
-                this.isClicked = true
-                this.$store.dispatch('messageWaiting')
-              }).catch(error => {
-        if (error.message.split('code ')[1].includes('500')) {
-          this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
-        } else if (error.message.split('code ')[1].includes('403')) {
-          this.showAlertError(`Vous n'avez pas le droit de supprimer ce commentaire, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
-        } else if (error.message.split('code ')[1].includes('404')) {
-          this.showAlertError(`Ce commentaire n'existe pas !`, '1500')
-        }
-      })
-    },
-    updateCommentReport (indexComment) {
-      let id = this.allReports.commentReports[indexComment].id
-      this.$store.dispatch('updateCommentReport', id)
-              .then(() => {
-                this.showAlertSuccess('Le signalement a été mis à jour !', '2000')
-                this.getAllReports()
-                this.$store.dispatch('messageWaiting')
-              })
-    },
-    deleteCommentReport (indexComment) {
-      let id = this.allReports.commentReports[indexComment].id
-      this.$store.dispatch('deleteOneCommentReport', id)
-              .then(() => {
-                this.showAlertSuccess('Signalement supprimé', '1500')
-                this.getAllReports()
-                this.$store.dispatch('messageWaiting')
-              })
-    },
     showAlertSuccess (title, timer) {
       this.$swal({
         title: title,
@@ -728,114 +906,6 @@ export default {
         icon: 'error',
         showConfirmButton: false,
         timer: timer})
-    },
-    getUserInfo (index) {
-      let userId = this.allReports.postReports[index].UserId
-      this.$store.dispatch('user/getOneUser', userId)
-        .then((response) => {
-          this.userInfo.id = response.data.id
-          this.userInfo.username = response.data.username
-          this.userInfo.profile_picture = response.data.url_profile_picture
-          this.userInfo.alt_picture = response.data.alt_profile_picture
-        })
-    },
-    getUserInfoComment (indexComment) {
-      let userId = this.allReports.commentReports[indexComment].UserId
-      this.$store.dispatch('user/getOneUser', userId)
-         .then((response) => {
-           this.userInfo.id = response.data.id
-           this.userInfo.username = response.data.username
-           this.userInfo.profile_picture = response.data.url_profile_picture
-           this.userInfo.alt_picture = response.data.alt_profile_picture
-         })
-    },
-    getPost (index) {
-      let postId = this.allReports.postReports[index].PostId
-      this.$store.dispatch('posts/getOnePost', postId)
-        .then(response => {
-          this.postInfo = response.data
-        }).catch(err => console.log(err))
-    },
-    setPostValue (index) {
-      let postId = this.allReports.postReports[index].PostId
-      this.$store.dispatch('posts/getOnePost', postId)
-        .then(post => {
-          this.userPost.title = post.data.title
-          this.userPost.content = post.data.content
-          this.userPost.img = post.data.url_gif
-          this.userPost.altImg = post.data.alt_url_gif
-        }).catch(() => {
-          this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
-        })
-    },
-    updatePost (index) {
-      let postId = this.allReports.postReports[index].PostId
-      // eslint-disable-next-line no-useless-escape
-      let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
-      let newTitle = ''
-      let newContent = ''
-      if (regex.test(this.userPost.title)) {
-        newTitle = this.userPost.title.replace(regex, ' ')
-      }
-      if (regex.test(this.userPost.content)) {
-        newContent = this.userPost.content.replace(regex, ' ')
-      }
-      let formData = new FormData()
-      if (newTitle.length !== 0) {
-        formData.append('title', newTitle.toString())
-      } else {
-        formData.append('title', this.userPost.title.toString())
-      }
-      if (newContent.length !== 0) {
-        formData.append('content', newContent.toString())
-      } else {
-        formData.append('content', this.userPost.content.toString())
-      }
-      formData.append('image', this.file)
-      let payload = {
-        id: postId,
-        data: formData
-      }
-      document.getElementById('accordion-1').classList.remove('show')
-      this.$store.dispatch('posts/updatePost', payload)
-        .then(() => {
-          this.showAlertSuccess('Post modifié !', '1500')
-          this.getPost(index)
-          this.file = null
-          this.userPost.title = ''
-          this.userPost.content = ''
-        }).catch(error => {
-          if (error.message.split('code ')[1].includes('500')) {
-            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
-          } else if (error.message.split('code ')[1].includes('403')) {
-            this.showAlertError(`Vous n'avez pas le droit de modifier ce post, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
-          } else if (error.message.split('code ')[1].includes('404')) {
-            this.showAlertError(`Ce post n'existe pas !`, '1500')
-          } else if (error.message.split('code ')[1].includes('401')) {
-            this.showAlertError(`Nous n'avons pas pu vous identifier, merci de vous connecter ou de créer un compte !`, '2500')
-          }
-        })
-    },
-    deletePost (index) {
-      let postId = this.allReports.postReports[index].PostId
-      this.$store.dispatch('posts/deletePost', postId)
-        .then(() => {
-          this.showAlertSuccess(`Le post signalé a été supprimé ainsi que :\n
-          - Son signalement\n
-          - Ses Likes\n
-          - Ses commentaires\n
-          - Ses commentaires signalés\n
-          - Les signalements des commentaires de ce post`, '5500')
-          this.isClicked = false
-          this.getAllReports()
-          this.isClicked = true
-        }).catch(error => {
-          if (error.message.split('code ')[1].includes('500')) {
-            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
-          } else if (error.message.split('code ')[1].includes('401')) {
-            this.showAlertError(`Vous n'avez pas le droit de supprimer ce post, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
-          }
-        })
     }
   },
   beforeCreate () {
@@ -852,7 +922,7 @@ export default {
           } else {
             this.$store.dispatch('user/getAllUser')
                     .then(response => {
-                      this.allUsers = response.data.users
+                      this.allUsers = response.data
                       this.$store.dispatch('messageWaiting')
                     })
           }
@@ -904,6 +974,8 @@ export default {
   }
   .btn .badge{
     font-size: 1em;
+    font-weight: normal;
+    letter-spacing: 1px;
     top: -15px;
     right: -10px;
     box-shadow: 0 0 4px white;
@@ -919,6 +991,11 @@ export default {
   }
   #btnSearch:hover{
     background-color: #0762a3;
+  }
+  .badgeTab{
+    font-size: 1em;
+    letter-spacing: 1px;
+    font-family: "Berlin Sans FB";
   }
   @media screen and (max-width: 567px){
     .btn .badge{

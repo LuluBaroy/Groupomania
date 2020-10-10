@@ -249,6 +249,7 @@ CREATE TABLE `users` (
   `url_profile_picture` varchar(255) DEFAULT NULL,
   `alt_profile_picture` varchar(45) DEFAULT NULL,
   `consents` varchar(255) NOT NULL,
+  `last_login` datetime NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
@@ -275,4 +276,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-10-01 16:45:36
+-- Dump completed on 2020-10-09 18:51:31

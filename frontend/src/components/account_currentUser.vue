@@ -6,68 +6,89 @@
     <section class="container-fluid d-flex flex-column align-items-center p-0 p-lg-3" id="userPart">
       <div class="d-flex row m-auto justify-content-around align-items-center">
         <div class="d-flex flex-column align-items-center">
-          <img :src="currentUser.infos.url_profile_picture" class="userPhoto mt-4 mb-4 mb-md-5">
+          <img :src="currentUser.infos.url_profile_picture" :alt="currentUser.infos.alt_profile_picture" class="userPhoto mt-4 mb-4 mb-md-5">
 
           <!--MODAL - EDIT INFO-->
-          <i class="far fa-edit mb-4 mb-md-0" v-b-modal.updateProfile><span>Editer les informations</span></i>
-          <b-modal centered ok-title="Modifier" ok-variant="info" cancel-title="Annuler" cancel-variant="warning" id="updateProfile" title="Editer vos informations" @ok="updateUser">
+          <i class="far fa-edit mb-4 mb-md-0" v-b-modal.updateProfile @click="showModalUser = true"><span>Editer les informations</span></i>
+          <b-modal v-if="showModalUser === true" centered ok-title="Modifier" ref="test" ok-variant="info" cancel-title="Annuler" cancel-variant="warning" id="updateProfile" title="Editer vos informations" @ok.prevent="updateUser(), url=''" @close="url = ''" @hidden="url = ''" @cancel="url= ''">
             <div class="my-4">
               <b-form-group
                 id="fieldset-1"
                 label="Email : "
                 label-for="input-1"
               >
-                <b-form-input id="input-1" v-model="userInfo.email"></b-form-input>
+                <b-form-input id="input-1" v-model="userInfo.email" :state="stateEmail"></b-form-input>
+                <b-form-invalid-feedback>
+                  Merci de renseigner un email valide
+                </b-form-invalid-feedback>
               </b-form-group>
               <b-form-group
                 id="fieldset-2"
                 label="Mot de passe : "
                 label-for="input-2"
               >
-                <b-form-input id="input-2" v-model="userInfo.newPassword"></b-form-input>
+                <b-form-input id="input-2" v-model="userInfo.newPassword" :state="statePassword"></b-form-input>
+                <b-form-invalid-feedback>
+                  Merci de renseigner un mot de passe contenant au moins 8 caractères dont une majuscule et un chiffre
+                </b-form-invalid-feedback>
               </b-form-group>
               <b-form-group
                 id="fieldset-3"
                 label="Nom d'utilisateur : "
                 label-for="input-3"
               >
-                <b-form-input id="input-3" v-model="userInfo.username"></b-form-input>
+                <b-form-input id="input-3" v-model="userInfo.username" :state="stateUsername"></b-form-input>
+                <b-form-invalid-feedback>
+                  Merci de renseigner un nom d'utilisateur contenant au minimum 6 caractères ne contenant que des lettres et/ou chiffres (espace(s) accepté(s))
+                </b-form-invalid-feedback>
               </b-form-group>
               <b-form-group
                 id="fieldset-4"
                 label="Bio : "
                 label-for="input-4"
               >
-                <b-form-textarea id="input-4" rows="2" max-rows="4" placeholder="Partagez quelques informations à propos de vous..." v-model="userInfo.bio">{{ userInfo.bio }}</b-form-textarea>
+                <b-form-textarea id="input-4" rows="2" max-rows="4" placeholder="Partagez quelques informations à propos de vous..." v-model="userInfo.bio" :state="stateBio">{{ userInfo.bio }}</b-form-textarea>
+                <b-form-invalid-feedback>
+                  Merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                </b-form-invalid-feedback>
               </b-form-group>
-              <b-form-file
-                v-model="file"
-                label="Image du profil : "
-                placeholder="Choisissez une nouvelle image de profil ..."
-              ></b-form-file>
+              <div>
+                <!--PREVIEW NEW PROFILE PICTURE-->
+                <img :src="currentUser.infos.url_profile_picture" v-if="url.length === 0" class="userPhoto d-flex m-auto" :alt="currentUser.infos.alt_profile_picture"/>
+                <img v-else :src="url" class="img-fluid mr-auto ml-auto userPhoto d-flex" alt="Preview new image">
+                <b-form-group
+                        label="Image du profil :"
+                        label-for="fileInput"
+                        description="Fichiers acceptés : 'jpg', 'jpeg', 'png', 'gif'"
+                        class="mt-3">
+                  <b-form-file id="fileInput" v-model="file" accept=".jpg, .png, .gif, .jpeg" @change="onFileChanged"></b-form-file>
+                </b-form-group>
+              </div>
             </div>
           </b-modal>
         </div>
 
         <!--USER INFO-->
         <div id="userInfos" class="col-md-6 mb-3 mb-md-0 m-md-2 text-break">
-          <h2 class="mb-2 mb-md-5">Vos informations</h2>
-          <div class="d-flex flex-column flex-md-row mt-2 border-bottom">
-            <p class="mr-md-4 infoTitle">Email : </p>
-            <p>{{ currentUser.infos.email }}</p>
-          </div>
-          <div class="d-flex flex-column flex-md-row mt-2 border-bottom">
-            <p class="mr-md-4 infoTitle">Mot de passe (ici masqué) : </p>
-            <p>{{ currentUser.infos.password }}</p>
-          </div>
-          <div class="d-flex flex-column flex-md-row mt-2 border-bottom">
-            <p class="mr-md-4 infoTitle">Nom d'utilisateur : </p>
-            <p>{{ currentUser.infos.username }}</p>
-          </div>
-          <div class="d-flex flex-column flex-md-row mt-2" v-if="currentUser.infos.bio !== ''">
-            <p class="mr-4 infoTitle">Bio : </p>
-            <p>{{ currentUser.infos.bio }}</p>
-          </div>
+          <h2 class="mb-2 mt-md-3 mb-md-3">Vos informations</h2>
+          <b-list-group>
+            <b-list-group-item class="d-flex flex-column align-items-center justify-content-center">
+              <p class="infoTitle">Email : </p>
+              <p>{{ currentUser.infos.email }}</p>
+            </b-list-group-item>
+            <b-list-group-item class="d-flex flex-column align-items-center justify-content-center">
+              <p class="infoTitle">Mot de passe (ici masqué) : </p>
+              <p>{{ currentUser.infos.password }}</p>
+            </b-list-group-item>
+            <b-list-group-item class="d-flex flex-column align-items-center justify-content-center">
+              <p class="infoTitle">Nom d'utilisateur : </p>
+              <p>{{ currentUser.infos.username }}</p>
+            </b-list-group-item>
+            <b-list-group-item v-if="currentUser.infos.bio !== ''" class="d-flex flex-column align-items-center justify-content-center">
+              <p class="infoTitle">Bio : </p>
+              <p>{{ currentUser.infos.bio }}</p>
+            </b-list-group-item>
+          </b-list-group>
         </div>
       </div>
     </section>
@@ -79,7 +100,7 @@
       <!--NO POST PUBLISHED-->
       <article v-if="userPosts.length === 0" class="d-flex flex-column align-items-center justify-content-md-between allPosts">
         <h3 class="pt-md-3">Vous n'avez rien posté pour le moment, Lancez-vous !</h3>
-        <p>Si vous ne savez pas comment faire, regardez le tutoriel dans le carrousel sur le <router-link to="/wall">mur principal</router-link> ou retrouvez nos astuces dans la section FAQ !!</p>
+        <p>Rendez-vous sur le <router-link to="/wall">mur principal</router-link> (si vous ne savez pas comment faire, vous pouvez consulter nos astuces dans la rubrique "FAQ" !)</p>
         <img src="../assets/img/hello.gif" alt="hello gif" class="img-fluid imgPosts mt-2 mb-5">
       </article>
 
@@ -131,7 +152,11 @@
                                   required
                                   rows="3"
                                   max-rows="6"
+                                  :state="stateCommentReport"
                           ></b-form-textarea>
+                          <b-form-invalid-feedback>
+                            Champ requis, merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                          </b-form-invalid-feedback>
                           <b-button type="submit" @click.prevent="sendCommentReport(index, indexComment)" class="rounded-pill d-flex commentBtn">Envoyer</b-button>
                         </b-form-group>
                       </b-modal>
@@ -145,8 +170,8 @@
                       </b-modal>
 
                       <!--MODAL - UPDATE COMMENT - IF USER IS COMMENT AUTHOR OR USER IS ADMIN-->
-                      <i v-b-modal="modalCommentId(index, indexComment, 'update')" class="far fa-edit mt-2 mb-2" v-if="comment.User.id === currentUser.id || currentUser.infos.role.includes('admin')" @click="setCommentValue(indexComment, index), isClicked = true"><span>Modifier le commentaire</span></i>
-                      <b-modal v-if="isClicked === true" centered ok-only ok-title="Fermer" ok-variant="info" :id="'modalComment' + index + indexComment + 'update'" title="Modification du Commentaire">
+                      <i v-b-modal="modalCommentId(index, indexComment, 'update')" class="far fa-edit mt-2 mb-2" v-if="comment.User.id === currentUser.id || currentUser.infos.role.includes('admin')" @click="setCommentValue(indexComment, index), isClickedComment = true"><span>Modifier le commentaire</span></i>
+                      <b-modal v-if="isClickedComment === true" centered ok-only ok-title="Fermer" ok-variant="info" :id="'modalComment' + index + indexComment + 'update'" title="Modification du Commentaire">
                         <div class="my-4">
                           <b-form enctype="multipart/form-data">
                             <b-form-group
@@ -159,14 +184,18 @@
                                       class="postInput text-center"
                                       rows="6"
                                       max-rows="12"
+                                      :state="stateComment"
                               ></b-form-textarea>
+                              <b-form-invalid-feedback>
+                                Champ requis, merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                              </b-form-invalid-feedback>
                               <b-button v-b-modal.emojisComment3 class="mt-2 rounded-pill d-flex mr-auto ml-auto" variant="dark">😃 Ajouter des emoticones !</b-button>
                               <b-modal centered title="Emoticones" ok-only ok-title="Fermer" ok-variant="info" id="emojisComment3" triggers="hover" placement="top">
                                 <div class="d-flex row m-2">
                                   <p v-for="(emoji, index) in emojis" :key="index" @click="getEmojiComment(index)">{{ emoji }}</p>
                                 </div>
                               </b-modal>
-                              <b-button type="submit" @click.prevent="updateComment(index, indexComment), showAlertSuccess('Commentaire modifié !')" class="d-flex commentBtn rounded-pill">Modifier</b-button>
+                              <b-button type="submit" @click.prevent="updateComment(index, indexComment)" class="d-flex commentBtn rounded-pill">Modifier</b-button>
                             </b-form-group>
                           </b-form>
                         </div>
@@ -190,7 +219,11 @@
                             placeholder="Entrez votre commentaire ..."
                             rows="3"
                             max-rows="6"
+                            :state="stateComment"
                     ></b-form-textarea>
+                    <b-form-invalid-feedback>
+                      Champ requis, merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                    </b-form-invalid-feedback>
                     <b-button v-b-modal.emojisComment4 class="mt-2 rounded-pill d-flex ml-auto mr-auto" variant="dark">😃 Ajouter des emoticones !</b-button>
                     <b-modal centered title="Emoticones" ok-only ok-title="Fermer" ok-variant="info" id="emojisComment4" triggers="hover" placement="top">
                       <div class="d-flex row m-2">
@@ -250,7 +283,11 @@
                             value="userPost.title"
                             required
                             class="postInput"
+                            :state="statePostTitle"
                     ></b-form-input>
+                    <b-form-invalid-feedback>
+                      Champ requis, merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid">
+                    </b-form-invalid-feedback>
                   </b-form-group>
                   <b-form-group
                   label="Contenu du post :"
@@ -263,21 +300,31 @@
                             class="postInput mb-3"
                             rows="3"
                             max-rows="6"
+                            :state="statePostContent"
                     >{{ userPost.content }}</b-form-textarea>
+                    <b-form-invalid-feedback>
+                      Champ requis, merci de ne pas utiliser les caractères : <img src="../assets/img/symbols.png" alt="symbols" class="img-fluid"/>
+                    </b-form-invalid-feedback>
                     <b-button v-b-modal.emojis3 class="mt-1 mb-3 rounded-pill" variant="dark">😃 Ajouter des emoticones !</b-button>
                     <b-modal centered title="Emoticones" ok-only ok-title="Fermer" ok-variant="info" id="emojis3" triggers="hover" placement="top">
                       <div class="d-flex row m-2">
                         <p v-for="(emoji, index) in emojis" :key="index" @click="getEmoji(index)">{{ emoji }}</p>
                       </div>
                     </b-modal>
-                    <div id="postUpdate">
-                      <!--PREVIEW NEW GIF-->
-                      <img :src="userPost.img" v-if="url.length === 0" class="img-fluid imgPosts d-flex m-auto" id="updateImg" :alt="userPost.altImg"/>
-                      <img v-else :src="url" class="img-fluid ml-auto mr-auto imgPosts d-flex" alt="Preview new image">
-                      <b-form-file v-model="file" class="mt-3 mb-3" @change="onFileChanged"></b-form-file>
-                    </div>
-                    <b-button type="submit" @click.prevent="updatePost(index), showAlertSuccess('Post modifié !')" class="d-flex rounded-pill commentBtn">Modifier</b-button>
                   </b-form-group>
+                  <div id="postUpdate">
+                    <!--PREVIEW NEW GIF-->
+                    <img :src="userPost.img" v-if="url.length === 0" class="img-fluid imgPosts d-flex m-auto" id="updateImg" :alt="userPost.altImg"/>
+                    <img v-else :src="url" class="img-fluid ml-auto mr-auto imgPosts d-flex" alt="Preview new image">
+                    <b-form-group
+                            label="Votre Gif :"
+                            label-for="fileInput"
+                            description="Fichiers acceptés : 'jpg', 'jpeg', 'png', 'gif'"
+                            class="mt-3 text-center">
+                      <b-form-file id="fileInput" v-model="file" accept=".jpg, .png, .gif, .jpeg" @change="onFileChanged"></b-form-file>
+                    </b-form-group>
+                  </div>
+                  <b-button type="submit" @click.prevent="updatePost(index)" class="d-flex rounded-pill commentBtn">Modifier</b-button>
                 </b-form>
               </div>
             </b-modal>
@@ -362,14 +409,16 @@ export default {
       btnLike: '',
       btnLikeVariant: '',
       userComment: {
-        comment: null,
+        comment: '',
         clicked: false
       },
       emojis: this.$store.state.posts.emojis,
-      commentReport: null,
+      commentReport: '',
       consentsHaveChanged: false,
       isClicked: false,
-      isCommentReportClicked: false
+      isClickedComment: false,
+      isCommentReportClicked: false,
+      showModalUser: false
     }
   },
   computed: {
@@ -377,18 +426,178 @@ export default {
       return this.$store.state.user.currentUser
     },
     userPosts () {
-      let userPosts = this.$store.state.posts.allPostsFromUser
-      if (userPosts.length > 1) {
-        return userPosts.reverse()
-      } else {
-        return userPosts
-      }
+      return this.$store.state.posts.allPostsFromUser
     },
     comments () {
       return this.$store.state.posts.allComments
+    },
+    //FORM VALIDATION
+    stateEmail () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
+      if(regex.test(this.userInfo.email)){
+        return true
+      } else if (!regex.test(this.userInfo.email) && this.userInfo.email.length !== 0) {
+        return false
+      } else {
+        return null
+      }
+    },
+    statePassword () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,32}/)
+      if(this.userInfo.newPassword.length < 8 && this.userInfo.newPassword.length > 0 || this.userInfo.newPassword.length > 0 && !regex.test(this.userInfo.newPassword)){
+        return false
+      } else if (this.userInfo.newPassword.length > 0 && this.userInfo.newPassword.length > 8 && regex.test(this.userInfo.newPassword) || this.userInfo.newPassword.length === 8 && regex.test(this.userInfo.newPassword)){
+        return true
+      } else {
+        return null
+      }
+    },
+    stateUsername () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`.]/)
+      // eslint-disable-next-line no-useless-escape
+      let regex2 = new RegExp(/[a-zA-Z0-9_ ]{6,16}/)
+      if (this.userInfo.username.length > 0 && this.userInfo.username.length < 6 || this.userInfo.username.length > 0 && regex.test(this.userInfo.username) || this.userInfo.username.length > 0 && !regex2.test(this.userInfo.username)){
+        return false
+      } else if (this.userInfo.username.length > 6 && regex2.test(this.userInfo.username) && !regex.test(this.userInfo.username) || this.userInfo.username.length === 6 && regex2.test(this.userInfo.username) && !regex.test(this.userInfo.username)){
+        return true
+      } else {
+        return null
+      }
+    },
+    stateBio () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/)
+      if(this.userInfo.bio !== null && this.userInfo.bio.length > 0 && !regex.test(this.userInfo.bio)){
+        return true
+      } else if (this.userInfo.bio !== null && this.userInfo.bio.length > 0 && regex.test(this.userInfo.bio) || regex.test(this.userInfo.bio)) {
+        return false
+      } else {
+        return null
+      }
+    },
+    statePostTitle () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.userPost.title.length > 0 && !regex.test(this.userPost.title)){
+        return true
+      } else if(this.userPost.title.length > 0 && regex.test(this.userPost.title) || regex.test(this.userPost.title)) {
+        return false
+      } else {
+        return null
+      }
+    },
+    statePostContent () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.userPost.content.length > 0 && !regex.test(this.userPost.content)){
+        return true
+      } else if(this.userPost.content.length > 0 && regex.test(this.userPost.content) || regex.test(this.userPost.content)) {
+        return false
+      } else {
+        return null
+      }
+    },
+    stateComment () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.userComment.comment.length > 0 && !regex.test(this.userComment.comment)){
+        return true
+      } else if(this.userComment.comment.length > 0 && regex.test(this.userComment.comment) || regex.test(this.userComment.comment)) {
+        return false
+      } else {
+        return null
+      }
+    },
+    stateCommentReport () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/g)
+      if(this.commentReport.length > 0 && !regex.test(this.commentReport)){
+        return true
+      } else if(this.commentReport.length > 0 && regex.test(this.commentReport) || regex.test(this.commentReport)) {
+        return false
+      } else {
+        return null
+      }
     }
   },
   methods: {
+    //POSTS
+    getUserPosts () {
+      this.$store.dispatch('posts/getAllPostsFromOneUser', this.$route.params.id)
+    },
+    setPostValue (index) {
+      let postId = this.userPosts[index].id
+      this.$store.dispatch('posts/getOnePost', postId)
+              .then(post => {
+                this.userPost.title = post.data.title
+                this.userPost.content = post.data.content
+                this.userPost.img = post.data.url_gif
+                this.userPost.altImg = post.data.alt_url_gif
+              }).catch(() => {
+        this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+      })
+    },
+    onFileChanged (e) {
+      let authorizedFile = ['jpg', 'jpeg', 'gif', 'png']
+      const file = e.target.files[0]
+      if (!authorizedFile.includes(file.name.split('.')[1])) {
+        this.url = 'http://localhost:3000/images/wrongExtension.png'
+      } else {
+        this.url = URL.createObjectURL(file)
+      }
+    },
+    updatePost (index) {
+      let authorizedFile = ['jpg', 'jpeg', 'gif', 'png']
+      if(this.statePostTitle !== true || this.statePostContent !== true || !authorizedFile.includes(this.file.name.split('.')[1])){
+        this.showAlertError('Merci de renseigner les différents champs au bon format', '1500')
+      } else {
+        let postId = this.userPosts[index].id
+        let formData = new FormData()
+        formData.append('title', this.userPost.title.toString())
+        formData.append('content', this.userPost.content.toString())
+        formData.append('image', this.file)
+        let payload = {
+          id: postId,
+          data: formData
+        }
+        this.isClicked = false
+        this.$store.dispatch('posts/updatePost', payload)
+                .then(() => {
+                  this.showAlertSuccess('Post modifié !')
+                  this.file = null
+                  this.userPost.title = ''
+                  this.userPost.content = ''
+                  this.getUserPosts()
+                }).catch(error => {
+          if (error.message.split('code ')[1].includes('500')) {
+            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+          } else if (error.message.split('code ')[1].includes('403')) {
+            this.showAlertError(`Vous n'avez pas le droit de modifier ce post, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
+          } else if (error.message.split('code ')[1].includes('404')) {
+            this.showAlertError(`Ce post n'existe pas !`, '1500')
+          } else if (error.message.split('code ')[1].includes('401')) {
+            this.showAlertError(`Nous n'avons pas pu vous identifier, merci de vous connecter ou de créer un compte !`, '2500')
+          }
+        })
+      }
+    },
+    deletePost (index) {
+      let postId = this.userPosts[index].id
+      this.$store.dispatch('posts/deletePost', postId)
+              .then(() => {
+                this.getUserPosts()
+              })
+              .catch(error => {
+                if (error.message.split('code ')[1].includes('500')) {
+                  this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
+                } else if (error.message.split('code ')[1].includes('401')) {
+                  this.showAlertError(`Vous n'avez pas le droit de supprimer ce post, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
+                }
+              })
+    },
     getEmoji (index) {
       let emojiCode = this.emojis[index]
       if(this.userPost.content === null) {
@@ -403,6 +612,8 @@ export default {
         showConfirmButton: false
       })
     },
+
+    //COMMENTS
     getEmojiComment (index) {
       let emojiCode = this.emojis[index]
       if(this.userComment.comment === null) {
@@ -417,120 +628,10 @@ export default {
         showConfirmButton: false
       })
     },
-    hasAlreadyLiked (index) {
-      if (this.userPosts[index].Likes.filter(like => like.user_id === this.currentUser.id).length !== 0) {
-        return true
-      }
-    },
     hasCommented (index) {
       if (this.userPosts[index].Comments.filter(comment => comment.user_id === this.currentUser.id).length !== 0) {
         return true
       }
-    },
-    showAlertError (title, timer) {
-      this.$swal({
-        title: title,
-        position: 'center',
-        icon: 'error',
-        showConfirmButton: false,
-        timer: timer})
-    },
-    showAlertSuccess (title) {
-      this.$swal({
-        title: title,
-        position: 'center',
-        icon: 'success',
-        showConfirmButton: false,
-        timer: '1500'})
-    },
-    modalPostId (index, text) {
-      return 'modalPost' + index + text
-    },
-    modalCommentId (index, indexComment, text) {
-      return 'modalComment' + index + indexComment + text
-    },
-    modalLikeId (index, text) {
-      return 'modalLike' + index + text
-    },
-    getUserPosts () {
-      this.$store.dispatch('posts/getAllPostsFromOneUser', this.$route.params.id)
-    },
-    setPostValue (index) {
-      let postId = this.userPosts[index].id
-      this.$store.dispatch('posts/getOnePost', postId)
-        .then(post => {
-          this.userPost.title = post.data.title
-          this.userPost.content = post.data.content
-          this.userPost.img = post.data.url_gif
-          this.userPost.altImg = post.data.alt_url_gif
-        }).catch(() => {
-          this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
-        })
-    },
-    onFileChanged (e) {
-      const file = e.target.files[0]
-      this.url = URL.createObjectURL(file)
-    },
-    updatePost (index) {
-      let postId = this.userPosts[index].id
-      // eslint-disable-next-line no-useless-escape
-      let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
-      let newTitle = ''
-      let newContent = ''
-      if (regex.test(this.userPost.title)) {
-        newTitle = this.userPost.title.replace(regex, ' ')
-      }
-      if (regex.test(this.userPost.content)) {
-        newContent = this.userPost.content.replace(regex, ' ')
-      }
-      let formData = new FormData()
-      if (newTitle.length !== 0) {
-        formData.append('title', newTitle.toString())
-      } else {
-        formData.append('title', this.userPost.title.toString())
-      }
-      if (newContent.length !== 0) {
-        formData.append('content', newContent.toString())
-      } else {
-        formData.append('content', this.userPost.content.toString())
-      }
-      formData.append('image', this.file)
-      let payload = {
-        id: postId,
-        data: formData
-      }
-      this.isClicked = false
-      this.$store.dispatch('posts/updatePost', payload)
-        .then(() => {
-          this.file = null
-          this.userPost.title = ''
-          this.userPost.content = ''
-          this.getUserPosts()
-        }).catch(error => {
-          if (error.message.split('code ')[1].includes('500')) {
-            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
-          } else if (error.message.split('code ')[1].includes('403')) {
-            this.showAlertError(`Vous n'avez pas le droit de modifier ce post, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
-          } else if (error.message.split('code ')[1].includes('404')) {
-            this.showAlertError(`Ce post n'existe pas !`, '1500')
-          } else if (error.message.split('code ')[1].includes('401')) {
-            this.showAlertError(`Nous n'avons pas pu vous identifier, merci de vous connecter ou de créer un compte !`, '2500')
-          }
-        })
-    },
-    deletePost (index) {
-      let postId = this.userPosts[index].id
-      this.$store.dispatch('posts/deletePost', postId)
-        .then(() => {
-          this.getUserPosts()
-        })
-        .catch(error => {
-          if (error.message.split('code ')[1].includes('500')) {
-            this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
-          } else if (error.message.split('code ')[1].includes('401')) {
-            this.showAlertError(`Vous n'avez pas le droit de supprimer ce post, si besoin, vous pouvez signaler le contenu du post en cliquant sur le drapeau rouge !`, '4000')
-          }
-        })
     },
     getComments (index) {
       let postId = this.userPosts[index].id
@@ -543,26 +644,15 @@ export default {
       this.userComment.clicked = true
     },
     addComment (index) {
-      if (this.userComment.comment === null) {
+      if (this.userComment.comment.length === 0 || this.stateComment !== true) {
         this.showAlertError('Merci de renseigner les différents champs', '1500')
       } else {
-        // eslint-disable-next-line no-useless-escape
-        let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
-        let newComment = ''
         let postId = this.userPosts[index].id
         let payload = {
           id: postId,
           newComment: {
-            comment: null
+            comment: this.userComment.comment.toString()
           }
-        }
-        if (regex.test(this.userComment.comment)) {
-          newComment = this.userComment.comment.replace(regex, ' ')
-        }
-        if (newComment.length !== 0) {
-          payload.newComment.comment = newComment.toString()
-        } else {
-          payload.newComment.comment = this.userComment.comment.toString()
         }
         this.showAlertSuccess('Commentaire ajouté !')
         this.$store.dispatch('posts/createComment', payload)
@@ -582,36 +672,31 @@ export default {
       }
       this.$store.dispatch('posts/getOneComment', payload)
         .then(comment => {
-          document.getElementById('commentUpdate').innerText = comment.data.comment
+          this.userComment.comment = comment.data.comment
         }).catch(() => {
           this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
         })
     },
     updateComment (index, indexComment) {
-      // eslint-disable-next-line no-useless-escape
-      let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
-      let newComment = ''
-      let postId = this.userPosts[index].id
-      let payload = {
-        id: postId,
-        commentId: this.comments[indexComment].id,
-        newComment: {
-          comment: null
-        }
-      }
-      if (regex.test(this.userComment.comment)) {
-        newComment = this.userComment.comment.replace(regex, ' ')
-      }
-      if (newComment.length !== 0) {
-        payload.newComment.comment = newComment.toString()
+      console.log(this.comments[indexComment])
+      if(this.stateComment !== true) {
+        this.showAlertError('Merci de renseigner les différents champs au bon format', '1500')
       } else {
-        payload.newComment.comment = this.userComment.comment.toString()
-      }
-      this.$store.dispatch('posts/updateComment', payload)
-        .then(() => {
-          this.getComments(index)
-          this.userComment.comment = ''
-        }).catch(error => {
+        let postId = this.userPosts[index].id
+        let payload = {
+          id: postId,
+          commentId: this.comments[indexComment].id,
+          newComment: {
+            comment: this.userComment.comment.toString()
+          }
+        }
+        this.isClickedComment = false
+        this.$store.dispatch('posts/updateComment', payload)
+                .then(() => {
+                  this.showAlertSuccess('Commentaire modifié !')
+                  this.getComments(index)
+                  this.userComment.comment = ''
+                }).catch(error => {
           if (error.message.split('code ')[1].includes('500')) {
             this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
           } else if (error.message.split('code ')[1].includes('403')) {
@@ -620,6 +705,7 @@ export default {
             this.showAlertError(`Ce commentaire n'existe pas !`, '1500')
           }
         })
+      }
     },
     deleteComment (index, indexComment) {
       let payload = {
@@ -640,35 +726,31 @@ export default {
         })
     },
     sendCommentReport (index, indexComment) {
-      if (this.commentReport === null) {
-        this.showAlertError('Merci de renseigner les différents champs', '1500')
+      if (this.commentReport.length === 0 || this.stateCommentReport !== true) {
+        this.showAlertError('Merci de renseigner les différents champs au bon format', '1500')
       } else {
         let payload = {
           id: this.userPosts[index].id,
           commentId: this.comments[indexComment].id,
           newReport: {
-            report: null
+            report: this.commentReport.toString()
           }
-        }
-        let newReport = ''
-        // eslint-disable-next-line no-useless-escape
-        let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
-        if (regex.test(this.commentReport)) {
-          newReport = this.commentReport.replace(regex, ' ')
-        }
-        if (newReport.length !== 0) {
-          payload.newReport.report = newReport.toString()
-        } else {
-          payload.newReport.report = this.commentReport.toString()
         }
         this.isCommentReportClicked = false
         this.showAlertSuccess('Commentaire signalé !')
         this.$store.dispatch('posts/sendCommentReport', payload)
           .then(() => {
-            this.commentReport = null
+            this.commentReport = ''
           }).catch(() => {
             this.showAlertError(`Oups ! Quelque chose s'est mal passé ! Si cela se reproduit, merci de nous contacter via la rubrique "Nous contacter" !`, '3500')
           })
+      }
+    },
+
+    //LIKES
+    hasAlreadyLiked (index) {
+      if (this.userPosts[index].Likes.filter(like => like.user_id === this.currentUser.id).length !== 0) {
+        return true
       }
     },
     getLikes (index) {
@@ -708,161 +790,197 @@ export default {
           }
         })
     },
+
+    //USERS OPTIONS
     updateUser () {
-      let formData = new FormData()
-      formData.append('image', this.file)
-      formData.append('email', this.userInfo.email)
-      formData.append('password', this.userInfo.newPassword)
-      formData.append('username', this.userInfo.username)
-      formData.append('bio', this.userInfo.bio)
-      formData.append('shareable', this.newConsents.shareable)
-      formData.append('contactable', this.newConsents.contactable)
-      let payload = {
-        userId: this.$store.state.user.currentUser.id,
-        formData: formData
+      let authorizedFile = ['jpg', 'jpeg', 'gif', 'png']
+      if(this.stateEmail === false || this.statePassword === false || this.stateUsername === false || this.stateBio === false){
+        this.showAlertError('Merci de renseigner les différents champs au bon format', '1500')
+      } else if (this.file !== null && !authorizedFile.includes(this.file.name.split('.')[1])) {
+        this.showAlertError("Ce type de fichier n'est pas autorisé", '1500')
+      } else {
+        this.showModalUser = false
+        let formData = new FormData()
+        formData.append('image', this.file)
+        formData.append('email', this.userInfo.email)
+        formData.append('password', this.userInfo.newPassword)
+        formData.append('username', this.userInfo.username)
+        formData.append('bio', this.userInfo.bio)
+        formData.append('shareable', this.newConsents.shareable)
+        formData.append('contactable', this.newConsents.contactable)
+        let payload = {
+          userId: this.$store.state.user.currentUser.id,
+          formData: formData
+        }
+        this.$store.dispatch('user/updateUser', payload)
+                .then(() => {
+                  this.showAlertSuccess('Informations modifiées !')
+                  this.consentsHaveChanged = false
+                  this.$store.dispatch('user/getCurrentUser', this.$store.state.user.currentUser.id)
+                })
       }
-      this.$store.dispatch('user/updateUser', payload)
-        .then(() => {
-          this.showAlertSuccess('Informations modifiées !')
-          this.consentsHaveChanged = false
-          this.$store.dispatch('user/getCurrentUser', this.$store.state.user.currentUser.id)
-            .then(() => console.log(this.$store.state.user.currentUser))
-        })
     },
     deleteAccount () {
       if(this.currentUser.infos.role.includes('admin')){
         this.$store.dispatch('user/getAllUser')
-          .then(response => {
-            let adminUser = []
-            response.data.users.forEach(user => {
-              if(user.role.includes('admin') && user.id !== this.currentUser.id){
-                adminUser.push(user)
-              }
-            })
-            if(adminUser.length !== 0){
-              this.$store.dispatch('user/deleteUser', this.$store.state.user.currentUser.id)
-                      .then(() => {
+            .then(response => {
+               let adminUser = []
+               response.data.users.forEach(user => {
+                 if(user.role.includes('admin') && user.id !== this.currentUser.id){
+                   adminUser.push(user)
+                 }
+               })
+               if(adminUser.length !== 0){
+                this.$store.dispatch('user/deleteUser', this.$store.state.user.currentUser.id)
+                    .then(() => {
                         this.$cookies.remove('user')
                         this.$store.state.user.currentUser = {
-                          id: '',
-                          infos: {}
+                           id: '',
+                           infos: {}
                         }
                         this.$router.push({name: 'auth'})
-                      })
-            } else {
-              this.showAlertError(`Vous devez donner le privilège "admin" a au moins un utilisateur avant de pouvoir supprimer votre compte !`, '5000')
-            }
-          })
+                    })
+               } else {
+                   this.showAlertError(`Vous devez donner le privilège "admin" a au moins un utilisateur avant de pouvoir supprimer votre compte !`, '5000')
+               }
+            })
       } else {
         this.$store.dispatch('user/deleteUser', this.$store.state.user.currentUser.id)
-                .then(() => {
-                  this.$cookies.remove('user')
-                  this.$store.state.user.currentUser = {
-                    id: '',
-                    infos: {}
-                  }
-                  this.$router.push({name: 'auth'})
-                })
+            .then(() => {
+              this.$cookies.remove('user')
+              this.$store.state.user.currentUser = {
+                id: '',
+                infos: {}
+              }
+              this.$router.push({name: 'auth'})
+            })
       }
     },
     downloadInfo () {
       this.$store.dispatch('user/getOneUser', this.$store.state.user.currentUser.id)
-        .then((user) => {
-          let posts = []
-          let comments = []
-          let likes = []
-          if (user.data.Posts.length === 0) {
-            posts.push(`Vous n'avez rien posté !`)
-          } else {
-            for (let i in user.data.Posts) {
-              for (const [key, value] of Object.entries(user.data.Posts[i])) {
-                posts.push(`${key} : ${value}`)
-              }
-            }
-          }
-          if (user.data.Comments.length === 0) {
-            comments.push(`Vous n'avez rien commenté !`)
-          } else {
-            for (let j in user.data.Comments) {
-              for (const [key, value] of Object.entries(user.data.Comments[j])) {
-                comments.push(`${key} : ${value}`)
-              }
-            }
-          }
-          if (user.data.Likes.length === 0) {
-            likes.push(`Vous n'avez rien liké !`)
-          } else {
-            for (let k in user.data.Likes) {
-              for (const [key, value] of Object.entries(user.data.Likes[k])) {
-                likes.push(`${key} : ${value}`)
-              }
-            }
-          }
-          const document = {
-            content: [
-              {
-                text: 'All your information\n\n',
-                style: 'header'
-              },
-              {
-                text: 'User Info\n\n',
-                style: 'subheader'
-              },
-              {
-                ul: [
-                  `id : ${user.data.id}`,
-                  `email : ${user.data.email}`,
-                  `password : ${user.data.password}`,
-                  `username : ${user.data.username}`,
-                  `role : ${user.data.role}`,
-                  `bio : ${user.data.bio}`,
-                  `url_profile_picture : ${user.data.url_profile_picture}`,
-                  `alt_profile_picture : ${user.data.alt_profile_picture}`,
-                  `created at : ${user.data.createdAt}`,
-                  `updated at : ${user.data.updatedAt}\n\n`
-                ]
-              },
-              {
-                text: 'Posts\n\n',
-                style: 'subheader'
-              },
-              {
-                ul: [
-                  posts
-                ]
-              },
-              {
-                text: '\n\nComments\n\n',
-                style: 'subheader'
-              },
-              {
-                ul: [
-                  comments
-                ]
-              },
-              {
-                text: '\n\nLikes\n\n',
-                style: 'subheader'
-              },
-              {
-                ul: [
-                  likes
-                ]
-              }
-            ],
-            styles: {
-              header: {
-                fontSize: 18,
-                bold: true
-              },
-              subheader: {
-                fontSize: 15,
-                bold: true
-              }
-            }
-          }
-          pdfMake.createPdf(document).download()
-        })
+              .then((user) => {
+                let posts = []
+                let comments = []
+                let likes = []
+                if (user.data.Posts.length === 0) {
+                  posts.push(`Vous n'avez rien posté !`)
+                } else {
+                  for (let i in user.data.Posts) {
+                    for (const [key, value] of Object.entries(user.data.Posts[i])) {
+                      posts.push(`${key} : ${value}`)
+                    }
+                  }
+                }
+                if (user.data.Comments.length === 0) {
+                  comments.push(`Vous n'avez rien commenté !`)
+                } else {
+                  for (let j in user.data.Comments) {
+                    for (const [key, value] of Object.entries(user.data.Comments[j])) {
+                      comments.push(`${key} : ${value}`)
+                    }
+                  }
+                }
+                if (user.data.Likes.length === 0) {
+                  likes.push(`Vous n'avez rien liké !`)
+                } else {
+                  for (let k in user.data.Likes) {
+                    for (const [key, value] of Object.entries(user.data.Likes[k])) {
+                      likes.push(`${key} : ${value}`)
+                    }
+                  }
+                }
+                const document = {
+                  content: [
+                    {
+                      text: 'All your information\n\n',
+                      style: 'header'
+                    },
+                    {
+                      text: 'User Info\n\n',
+                      style: 'subheader'
+                    },
+                    {
+                      ul: [
+                        `id : ${user.data.id}`,
+                        `email : ${user.data.email}`,
+                        `password : ${user.data.password}`,
+                        `username : ${user.data.username}`,
+                        `role : ${user.data.role}`,
+                        `bio : ${user.data.bio}`,
+                        `url_profile_picture : ${user.data.url_profile_picture}`,
+                        `alt_profile_picture : ${user.data.alt_profile_picture}`,
+                        `created at : ${user.data.createdAt}`,
+                        `updated at : ${user.data.updatedAt}\n\n`
+                      ]
+                    },
+                    {
+                      text: 'Posts\n\n',
+                      style: 'subheader'
+                    },
+                    {
+                      ul: [
+                        posts
+                      ]
+                    },
+                    {
+                      text: '\n\nComments\n\n',
+                      style: 'subheader'
+                    },
+                    {
+                      ul: [
+                        comments
+                      ]
+                    },
+                    {
+                      text: '\n\nLikes\n\n',
+                      style: 'subheader'
+                    },
+                    {
+                      ul: [
+                        likes
+                      ]
+                    }
+                  ],
+                  styles: {
+                    header: {
+                      fontSize: 18,
+                      bold: true
+                    },
+                    subheader: {
+                      fontSize: 15,
+                      bold: true
+                    }
+                  }
+                }
+                pdfMake.createPdf(document).download()
+              })
+    },
+
+    //MODALS AND ALERTS
+    showAlertError (title, timer) {
+      this.$swal({
+        title: title,
+        position: 'center',
+        icon: 'error',
+        showConfirmButton: false,
+        timer: timer})
+    },
+    showAlertSuccess (title) {
+      this.$swal({
+        title: title,
+        position: 'center',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: '1500'})
+    },
+    modalPostId (index, text) {
+      return 'modalPost' + index + text
+    },
+    modalCommentId (index, indexComment, text) {
+      return 'modalComment' + index + indexComment + text
+    },
+    modalLikeId (index, text) {
+      return 'modalLike' + index + text
     }
   },
   beforeMount () {
@@ -913,8 +1031,13 @@ export default {
   }
   #userInfos{
     font-size: 18px;
-    background-color: rgba(215, 215, 215, 1);
+    background-color: rgba(215, 215, 215, 0.7);
     border: 4px double #0762a3;
+    box-shadow: 0 0 4px black;
+  }
+  .list-group-item{
+    background-color: rgba(215, 215, 215, 0.3);
+    padding: 0;
   }
   .infoTitle{
     color: #0762a3;
@@ -939,5 +1062,8 @@ export default {
   .commentBtn{
     background-color: #2C3F5F;
     color: white;
+  }
+  div .list-group-item:last-child {
+    margin-bottom: 5%;
   }
 </style>
