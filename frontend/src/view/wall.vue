@@ -138,22 +138,15 @@ export default {
       this.userResult = ''
     },
     research () {
+      // eslint-disable-next-line no-useless-escape
+      let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
       if (this.userResearch.length === 0) {
         this.showAlertError('Merci de renseigner un nom avant de cliquer sur le bouton de recherche', '1500')
+      } else if (regex.test(this.userResearch)){
+        this.showAlertError(`Merci de ne pas utiliser les caractères suivant : |/*+&#{([]})<>$£€%=^ `, '4000')
       } else {
-        // eslint-disable-next-line no-useless-escape
-        let regex = new RegExp(/['\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/g)
-        let newResearch = ''
-        let data = {
-          research: null
-        }
-        if (regex.test(this.userResearch)) {
-          newResearch = this.userResearch.replace(regex, '')
-        }
-        if (newResearch.length !== 0) {
-          data.research = newResearch.toString()
-        } else {
-          data.research = this.userResearch.toString()
+          let data = {
+          research: this.userResearch.toString()
         }
         this.showModal = true
         this.$store.dispatch('researchUser', data)

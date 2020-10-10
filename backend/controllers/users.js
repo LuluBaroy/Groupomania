@@ -51,7 +51,6 @@ schema
  *
  */
 exports.signup = (req, res, next) => {
-	console.log(req.body)
 	if(!validator.isEmail(req.body.email) || validator.matches(req.body.username, /[\|\/\\\*\+&#"\{\(\[\]\}\)<>$£€%=\^`]/) || validator.matches(req.body.bio, /[\|\/\\\*\+&#\{\(\[\]\}\)<>$£€%=\^`]/)){
 		logger.info('User tried to sign up with invalid email or fields containing symbols');
 		return res.status(422).json({ message: `Wrong format - Please don't use : |/*+&#{([]})<>$£€%=^` });
@@ -67,10 +66,10 @@ exports.signup = (req, res, next) => {
 							.then(hash => {
 								let urlProfilePicture, altProfilePicture;
 								if(req.file){
-									urlProfilePicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+									urlProfilePicture = req.file.filename
 									altProfilePicture = "Photo de profil de l'utilisateur"
 								} else {
-									urlProfilePicture = `${req.protocol}://${req.get('host')}/images/defaultPicture.png`
+									urlProfilePicture = 'defaultPicture.png'
 									altProfilePicture = "Photo de profil de l'utilisateur"
 								}
 								models.Users.create({
@@ -92,7 +91,7 @@ exports.signup = (req, res, next) => {
 												email: "deletedUser@admin.fr",
 												password: hash,
 												username: "Utilisateur supprimé",
-												url_profile_picture: `${req.protocol}://${req.get('host')}/images/deletedUser.png`,
+												url_profile_picture: `deletedUser.png`,
 												alt_profile_picture: altProfilePicture,
 												bio: null,
 												role: role,
@@ -118,10 +117,10 @@ exports.signup = (req, res, next) => {
 										.then(hash => {
 											let urlProfilePicture, altProfilePicture;
 											if(req.file){
-												urlProfilePicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+												urlProfilePicture = req.file.filename
 												altProfilePicture = "Photo de profil de l'utilisateur"
 											} else {
-												urlProfilePicture = `${req.protocol}://${req.get('host')}/images/defaultPicture.png`
+												urlProfilePicture = `defaultPicture.png`
 												altProfilePicture = "Photo de profil de l'utilisateur"
 											}
 											models.Users.create({
@@ -346,11 +345,13 @@ exports.readOne = (req, res, next) => {
 		res.status(400).json({message: `You're not authenticated, please log in !`})
 	} else {
 		models.Users.findOne({ where: { id: req.params.id }, include: [models.Posts, models.Comments, models.Likes]})
-			.then((user) => {
-				if(!user){
+			.then((users) => {
+				if(!users){
 					logger.info(`User ${userId} tried to get info about user ${req.params.id} but it seems this user doesn't exist`);
 					res.status(404).json({ message: `User with ID ${req.params.id} not found !`})
 				} else {
+					let user = users
+					user.url_profile_picture = `${req.protocol}://${req.get('host')}/images/${users.url_profile_picture}`
 					logger.info(`User ${userId} got info about user ${req.params.id}`);
 					hateoasUsers(req, res, user, 'api/auth')
 				}
@@ -405,61 +406,72 @@ exports.delete = (req, res, next) => {
 					}).catch(err => res.status(500).json(err))
 			})
 		}
-
-		models.Users.findOne({where: {id: req.params.id}})
+		models.Users.findOne({where: {id: userId}})
 			.then(admin => {
 				if(!admin){
-					logger.info(`User ${res.params.id} couldn't be found in DB (function delete (user))`);
-					res.status(404).json({message: `User ${req.params.id} couldn't be found !`})
+					logger.info(`user ${userId} couldn't be found in DB`);
+					res.status(400).json({message: `We couldn't authenticate user, please log in or sign up !`})
 				} else {
-					let role = JSON.parse(admin.role);
-					if (userId == req.params.id || role.includes('admin')) {
-						const filename = admin.url_profile_picture.split('/images/')[1];
-						if(!filename.includes('defaultPicture.png')) {
-							fs.unlink(`images/${filename}`, () => {
-								deleting()
-									.then(() => {
-										logger.info(`All posts/comments/likes/postsReports/commentsReports from user ${req.params.id} has been reassigned to user 2`);
-										models.Users.destroy({where: {id: req.params.id}})
-											.then(() => {
-												logger.info(`User ${req.params.id} has been deleted`);
-												res.status(200).json({message: `User ${req.params.id} deleted !`})
+					if(req.params.id == 2){
+						res.status(400).json({message: `You can't delete this default account`})
+					} else {
+						models.Users.findOne({where: {id: req.params.id}})
+							.then(user => {
+								if(!user){
+									logger.info(`User ${res.params.id} couldn't be found in DB (function delete (user))`);
+									res.status(404).json({message: `User ${req.params.id} couldn't be found !`})
+								} else {
+									let role = JSON.parse(admin.role);
+									if (user.id == req.params.id || role.includes('admin')) {
+										const filename = user.url_profile_picture;
+										if(!filename.includes('defaultPicture.png')) {
+											fs.unlink(`images/${filename}`, () => {
+												deleting()
+													.then(() => {
+														logger.info(`All posts/comments/likes/postsReports/commentsReports from user ${req.params.id} has been reassigned to user 2`);
+														models.Users.destroy({where: {id: req.params.id}})
+															.then(() => {
+																logger.info(`User ${req.params.id} has been deleted`);
+																res.status(200).json({message: `User ${req.params.id} deleted !`})
+															})
+															.catch(err => {
+																logger.info(`Couldn't delete user ${req.params.id}`);
+																res.status(500).json(err)
+															})
+													}).catch(err => {
+													logger.info(`Something went wrong in function deleting (function delete (user))`);
+													res.status(500).json(err)
+												})
 											})
-											.catch(err => {
-												logger.info(`Couldn't delete user ${req.params.id}`);
+										} else {
+											deleting()
+												.then(() => {
+													models.Users.destroy({where: {id: req.params.id}})
+														.then(() => {
+															logger.info(`User ${req.params.id} has been deleted`);
+															res.status(200).json({message: `User ${req.params.id} deleted !`})
+														})
+														.catch(err => {
+															logger.info(`Couldn't delete user ${req.params.id}`);
+															res.status(500).json(err)
+														})
+												}).catch(err => {
+												logger.info(`Something went wrong in function deleting (function delete (user))`);
 												res.status(500).json(err)
 											})
-									}).catch(err => {
-									logger.info(`Something went wrong in function deleting (function delete (user))`);
-									res.status(500).json(err)
-								})
-							})
-						} else {
-							deleting()
-								.then(() => {
-									models.Users.destroy({where: {id: req.params.id}})
-										.then(() => {
-											logger.info(`User ${req.params.id} has been deleted`);
-											res.status(200).json({message: `User ${req.params.id} deleted !`})
-										})
-										.catch(err => {
-											logger.info(`Couldn't delete user ${req.params.id}`);
-											res.status(500).json(err)
-										})
-								}).catch(err => {
-								logger.info(`Something went wrong in function deleting (function delete (user))`);
-								res.status(500).json(err)
-							})
-						}
-					} else {
-						logger.info(`User ${userId} tried to delete user ${req.params.id}`);
-						res.status(400).json({message: `You're not allowed for this action`})
+										}
+									} else {
+										logger.info(`User ${userId} tried to delete user ${req.params.id}`);
+										res.status(400).json({message: `You're not allowed for this action`})
+									}
+								}
+							}).catch(err => {
+							logger.info(`Something went wrong when trying to search user (function delete (user))`);
+							res.status(500).json(err)
+						})
 					}
 				}
-			}).catch(err => {
-			logger.info(`Something went wrong when trying to search user (function delete (user))`);
-			res.status(500).json(err)
-		})
+			})
 	}
 }
 
@@ -527,11 +539,11 @@ exports.update = (req, res, next) => {
 							})
 						} else {
 							if(req.file){
-								const filename = user.url_profile_picture.split('/images/')[1];
+								const filename = user.url_profile_picture;
 								fs.unlink(`images/${filename}`, () => {
 									//
 								})
-								urlProfilePicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+								urlProfilePicture = req.file.filename
 							} else {
 								urlProfilePicture = user.url_profile_picture;
 							}
@@ -546,7 +558,9 @@ exports.update = (req, res, next) => {
 									.then(() => {
 										logger.info(`User ${userId} has updated his info`);
 										models.Users.findOne({ where: { id: req.params.id }})
-											.then(user => {
+											.then(users => {
+												let user = users
+												user.url_profile_picture = `${req.protocol}://${req.get('host')}/images/${user.url_profile_picture}`
 												res.status(200).json({message: `Your information have been updated !`, user})
 											}).catch(err=> {
 											logger.info(`Something went wrong when trying to search for user in function updateUser`);
@@ -566,7 +580,9 @@ exports.update = (req, res, next) => {
 												.then(() => {
 													logger.info(`User ${userId} has updated his info`);
 													models.Users.findOne({ where: { id: req.params.id }})
-														.then(user => {
+														.then(users => {
+															let user = users
+															user.url_profile_picture = `${req.protocol}://${req.get('host')}/images/${users.url_profile_picture}`
 															res.status(200).json({message: `Your information have been updated !`, user})
 														}).catch(err=> {
 														logger.info(`Something went wrong when trying to search for user in function updateUser`);
@@ -824,7 +840,11 @@ exports.readAll = (req, res, next) => {
 				['username', 'ASC']
 			]
 		})
-			.then(allUsers => {
+			.then(allUser => {
+				let allUsers = allUser
+				allUsers.forEach(user => {
+					user.url_profile_picture = `${req.protocol}://${req.get('host')}/images/${user.url_profile_picture}`
+				})
 				logger.info(`All users info has been asked`);
 				hateoasUsers(req, res, allUsers, 'api/auth')
 			}).catch((err) => {

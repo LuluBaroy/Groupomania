@@ -35,7 +35,7 @@ module.exports = function (req, res, users, baseUrl){
 		};
 		newUser._links.posts = {
 			method: 'GET',
-			href: 'http://' + req.get('host') + 'api/posts/from/' + newUser.id
+			href: 'http://' + req.get('host') + '/api/posts/from/' + newUser.id
 		}
 		return newUser;
 	}

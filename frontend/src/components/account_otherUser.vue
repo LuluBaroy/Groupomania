@@ -411,11 +411,15 @@ export default {
   methods: {
     //USER OPTIONS WHEN CURRENT USER IS ADMIN
     deleteUser () {
-      this.$store.dispatch('user/deleteUser', this.$route.params.id)
-        .then(() => {
-          this.showAlertSuccess('Utilisateur Supprimé')
-          this.$router.push({name: 'wall'})
-        })
+      if(this.$route.params.id == 2){
+        this.showAlertError(`Vous ne pouvez pas supprimer ce compte par défaut`, '2500')
+      } else {
+        this.$store.dispatch('user/deleteUser', this.$route.params.id)
+                .then(() => {
+                  this.showAlertSuccess('Utilisateur Supprimé')
+                  this.$router.push({name: 'wall'})
+                })
+      }
     },
     updatePrivilege () {
       let id = this.infos.id
@@ -756,16 +760,21 @@ export default {
       this.$router.push({name: 'auth'})
     } else {
       this.$store.dispatch('user/getCurrentUser')
-        .then(() => {
-          this.$store.dispatch('user/getOneUser', this.$route.params.id)
-                  .then(response => {
-                    this.infos = response.data
-                    this.userRole = JSON.parse(response.data.role).join(', ')
-                    this.$store.dispatch('posts/getAllPostsFromOneUser', this.infos.id)
-                            .then(posts => {
-                              this.posts = posts.data
-                            })
-                  })
+        .then((user) => {
+          if(this.$route.params.id == 2 && !user.data.role.includes('admin')){
+            this.$router.push({name: 'wall'})
+            this.showAlertError('Vous ne disposez pas des droits nécessaires pour accéder à ce profil', '2500')
+          } else {
+            this.$store.dispatch('user/getOneUser', this.$route.params.id)
+                    .then(response => {
+                      this.infos = response.data
+                      this.userRole = JSON.parse(response.data.role).join(', ')
+                      this.$store.dispatch('posts/getAllPostsFromOneUser', this.infos.id)
+                              .then(posts => {
+                                this.posts = posts.data
+                              })
+                    })
+          }
         })
     }
   }

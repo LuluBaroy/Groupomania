@@ -1,6 +1,6 @@
 import axios from 'axios'
 import auth from './auth'
-const url = 'http://localhost:3000/api/research'
+const url = window.location.protocol + '//' + window.location.hostname + ':3000/api/research'
 
 class ResearchRoute {
   researchUser (data) {

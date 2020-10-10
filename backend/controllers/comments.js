@@ -462,7 +462,11 @@ exports.readAll = (req, res, next) => {
 				['id', 'ASC']
 			]
 		})
-			.then(comments => {
+			.then(comment => {
+				let comments = comment
+				comments.forEach(comment => {
+					comment.User.url_profile_picture = `${req.protocol}://${req.get('host')}/images/${comment.User.url_profile_picture}`
+				})
 				logger.info(`User got all comments from post ${req.params.id}`)
 				hateoasComment(req, res, comments, `api/posts/${req.params.id}`)
 			}).catch(err => {logger.info(`Something went wrong when trying to search for all comments from post ${req.params.id}`);res.status(500).json(err)})
