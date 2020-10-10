@@ -2,7 +2,7 @@ import axios from 'axios'
 import auth from '../services/auth'
 
 const url1 = window.location.protocol + '//' + window.location.hostname + ':3000/api/report'
-const url2 = 'http://localhost:3000/api/report/comment/'
+const url2 = window.location.protocol + '//' + window.location.hostname + ':3000/api/report/comment/'
 
 class Reports {
   updatePostReport (id) {
