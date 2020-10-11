@@ -1250,3 +1250,362 @@
 2020-10-11 01:10:01:101 info: User 1 got all reports
 2020-10-11 01:10:01:101 info: User 1 got all waiting messages
 2020-10-11 01:10:05:105 info: User got all posts from user undefined
+2020-10-11 01:31:49:3149 info: An user tried to sign up with an email already in DB
+2020-10-11 01:31:56:3156 info: New user has been created
+2020-10-11 01:31:56:3156 info: Registered user connected
+2020-10-11 01:31:56:3156 info: User 3 got info about user 3
+2020-10-11 01:31:56:3156 info: User 3 got info about user 3
+2020-10-11 01:31:56:3156 info: user got all posts infos
+2020-10-11 01:37:56:3756 info: User 3 tried to get info about user 3 but it seems this user doesn't exist
+2020-10-11 01:37:56:3756 info: user got all posts infos
+2020-10-11 01:37:56:3756 info: User 3 tried to get info about user 3 but it seems this user doesn't exist
+2020-10-11 01:37:56:3756 info: user got all posts infos
+2020-10-11 01:39:19:3919 info: First user account created
+2020-10-11 01:39:19:3919 info: Deleted user account created
+2020-10-11 01:39:19:3919 info: Registered user connected
+2020-10-11 01:39:19:3919 info: User 1 got info about user 1
+2020-10-11 01:39:19:3919 info: User 1 got info about user 1
+2020-10-11 01:39:19:3919 info: user got all posts infos
+2020-10-11 01:39:19:3919 info: User 1 got all waiting messages
+2020-10-11 01:45:27:4527 info: User 1 has published a post
+2020-10-11 01:45:27:4527 info: user got all posts infos
+2020-10-11 01:45:36:4536 info: User 1 got post 1 info
+2020-10-11 01:45:39:4539 info: User 1 has updated post 1
+2020-10-11 01:45:39:4539 info: user got all posts infos
+2020-10-11 01:45:42:4542 info: User 1 got post 1 info
+2020-10-11 01:45:48:4548 info: User 1 has updated post 1
+2020-10-11 01:45:48:4548 info: user got all posts infos
+2020-10-11 01:45:58:4558 info: User got all comments from post 1
+2020-10-11 01:46:03:463 info: User 1 has commented post 1
+2020-10-11 01:46:03:463 info: User got all comments from post 1
+2020-10-11 01:46:07:467 info: User got comment 1
+2020-10-11 01:46:14:4614 info: User 1 has updated comment 1
+2020-10-11 01:46:15:4615 info: User got all comments from post 1
+2020-10-11 01:46:24:4624 info: User 1 has created a comment report about comment 1
+2020-10-11 01:46:24:4624 info: User 1 got all waiting messages
+2020-10-11 01:46:28:4628 info: user got all posts infos
+2020-10-11 01:46:33:4633 info: User 1 has created a post report for post 1
+2020-10-11 01:46:33:4633 info: User 1 got all waiting messages
+2020-10-11 01:46:36:4636 info: an user got likes for post 1 - here zero
+2020-10-11 01:46:39:4639 info: User 1 has liked post 1
+2020-10-11 01:46:39:4639 info: An user got likes for post 1
+2020-10-11 01:46:44:4644 info: user got all posts infos
+2020-10-11 01:46:47:4647 info: An user got likes for post 1
+2020-10-11 01:46:49:4649 info: user got all posts infos
+2020-10-11 01:46:51:4651 info: An user got likes for post 1
+2020-10-11 01:46:52:4652 info: User 1 has disliked post 1
+2020-10-11 01:46:52:4652 info: an user got likes for post 1 - here zero
+2020-10-11 01:46:54:4654 info: user got all posts infos
+2020-10-11 01:47:01:471 info: an user got likes for post 1 - here zero
+2020-10-11 01:47:01:471 info: User 1 has liked post 1
+2020-10-11 01:47:01:471 info: An user got likes for post 1
+2020-10-11 01:47:03:473 info: user got all posts infos
+2020-10-11 01:47:04:474 info: User got all comments from post 1
+2020-10-11 01:47:07:477 info: User 1 has deleted comment 1
+2020-10-11 01:47:07:477 info: User got all comments from post 1
+2020-10-11 01:47:07:477 info: User 1 got all waiting messages
+2020-10-11 01:47:09:479 info: user got all posts infos
+2020-10-11 01:47:11:4711 info: User got all comments from post 1
+2020-10-11 01:47:15:4715 info: User 1 has commented post 1
+2020-10-11 01:47:15:4715 info: User got all comments from post 1
+2020-10-11 01:47:21:4721 info: User 1 has created a comment report about comment 2
+2020-10-11 01:47:21:4721 info: User 1 got all waiting messages
+2020-10-11 01:47:26:4726 info: User 1 has commented post 1
+2020-10-11 01:47:26:4726 info: User got all comments from post 1
+2020-10-11 01:47:28:4728 info: user got all posts infos
+2020-10-11 01:47:47:4747 info: User 1 got info about user 1
+2020-10-11 01:47:47:4747 info: All users info has been asked
+2020-10-11 01:47:47:4747 info: User 1 got all waiting messages
+2020-10-11 01:47:49:4749 info: User 1 got all reports
+2020-10-11 01:47:50:4750 info: User got all posts from user undefined
+2020-10-11 01:47:51:4751 info: User 1 got info about user 1
+2020-10-11 01:47:51:4751 info: user got all posts infos
+2020-10-11 01:47:51:4751 info: User 1 got all waiting messages
+2020-10-11 01:47:52:4752 info: User 1 got info about user 1
+2020-10-11 01:47:52:4752 info: All users info has been asked
+2020-10-11 01:47:52:4752 info: User 1 got all waiting messages
+2020-10-11 01:47:58:4758 info: User 1 got info about user 1
+2020-10-11 01:47:58:4758 info: user got all posts infos
+2020-10-11 01:47:58:4758 info: User 1 got all waiting messages
+2020-10-11 01:47:59:4759 info: User 1 got info about user 1
+2020-10-11 01:47:59:4759 info: All users info has been asked
+2020-10-11 01:47:59:4759 info: User 1 got all waiting messages
+2020-10-11 01:48:06:486 info: User 1 got all reports
+2020-10-11 01:48:08:488 info: User 1 got info about user 1
+2020-10-11 01:48:08:488 info: User 1 got post 1 info
+2020-10-11 01:48:18:4818 info: User 1 got post 1 info
+2020-10-11 01:48:20:4820 info: User 1 got post 1 info
+2020-10-11 01:48:24:4824 info: User 1 has updated postReport 1
+2020-10-11 01:48:24:4824 info: User 1 got all reports
+2020-10-11 01:48:24:4824 info: User 1 got all waiting messages
+2020-10-11 01:48:27:4827 info: User 1 has deleted postReport 1
+2020-10-11 01:48:27:4827 info: User 1 got all reports
+2020-10-11 01:48:27:4827 info: User 1 got all waiting messages
+2020-10-11 01:48:31:4831 info: User 1 got info about user 1
+2020-10-11 01:48:31:4831 info: User got comment 2
+2020-10-11 01:48:31:4831 info: User 1 got info about user 1
+2020-10-11 01:48:38:4838 info: User 1 got post 1 info
+2020-10-11 01:48:38:4838 info: User got all comments from post 1
+2020-10-11 01:48:51:4851 info: User 1 has updated commentReport 2
+2020-10-11 01:48:51:4851 info: User 1 got all reports
+2020-10-11 01:48:51:4851 info: User 1 got all waiting messages
+2020-10-11 01:48:57:4857 info: User 1 has deleted comment Report 2
+2020-10-11 01:48:57:4857 info: User 1 got all reports
+2020-10-11 01:48:57:4857 info: User 1 got all waiting messages
+2020-10-11 01:48:59:4859 info: User got all posts from user undefined
+2020-10-11 01:49:01:491 info: All users info has been asked
+2020-10-11 01:49:04:494 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:04:494 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:04:494 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:04:494 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:05:495 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:05:495 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:05:495 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:05:495 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:05:495 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:07:497 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:07:497 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:08:498 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:08:498 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:08:498 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:08:498 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:09:499 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:12:4912 info: User 1 got info about user 1
+2020-10-11 01:49:12:4912 info: user got all posts infos
+2020-10-11 01:49:12:4912 info: User 1 got all waiting messages
+2020-10-11 01:49:18:4918 info: User got all user which usernames are matching with his research
+2020-10-11 01:49:20:4920 info: User 1 got info about user 1
+2020-10-11 01:49:20:4920 info: User 1 got info about user 1
+2020-10-11 01:49:20:4920 info: User 1 got info about user 2
+2020-10-11 01:49:20:4920 info: User got all posts from user 2
+2020-10-11 01:49:30:4930 info: User 1 has updated user 2 privilege
+2020-10-11 01:49:30:4930 info: User 1 got info about user 2
+2020-10-11 01:49:36:4936 info: User 1 has updated user 2 privilege
+2020-10-11 01:49:36:4936 info: User 1 got info about user 2
+2020-10-11 01:49:53:4953 info: User 1 got info about user 1
+2020-10-11 01:49:53:4953 info: user got all posts infos
+2020-10-11 01:49:53:4953 info: User 1 got all waiting messages
+2020-10-11 01:50:19:5019 info: An user has created a new issue
+2020-10-11 01:50:19:5019 info: User 1 got all waiting messages
+2020-10-11 01:50:26:5026 info: User 1 got info about user 1
+2020-10-11 01:50:26:5026 info: All users info has been asked
+2020-10-11 01:50:26:5026 info: User 1 got all waiting messages
+2020-10-11 01:50:29:5029 info: User 1 got all user issues
+2020-10-11 01:50:29:5029 info: User 1 got all issues with status 'pending'
+2020-10-11 01:50:56:5056 info: UserIssue 1 has been updated
+2020-10-11 01:50:56:5056 info: User 1 got all user issues
+2020-10-11 01:50:56:5056 info: User 1 got all issues with status 'pending' - here zero
+2020-10-11 01:50:56:5056 info: User 1 got all waiting messages
+2020-10-11 01:51:02:512 info: User 1 has deleted userIssue 1
+2020-10-11 01:51:02:512 info: User 1 got all user issues
+2020-10-11 01:51:02:512 info: User 1 got all issues with status 'pending' - here zero
+2020-10-11 01:51:02:512 info: User 1 got all waiting messages
+2020-10-11 01:51:07:517 info: User 1 got info about user 1
+2020-10-11 01:51:07:517 info: user got all posts infos
+2020-10-11 01:51:07:517 info: User 1 got all waiting messages
+2020-10-11 01:51:42:5142 info: User 1 got info about user 1
+2020-10-11 01:51:42:5142 info: user got all posts infos
+2020-10-11 01:51:42:5142 info: User 1 got all waiting messages
+2020-10-11 02:22:01:221 info: User 1 got info about user 1
+2020-10-11 02:22:01:221 info: user got all posts infos
+2020-10-11 02:22:01:221 info: User 1 got all waiting messages
+2020-10-11 02:22:38:2238 info: An user tried to sign up with an email already in DB
+2020-10-11 02:22:44:2244 info: New user has been created
+2020-10-11 02:22:44:2244 info: Registered user connected
+2020-10-11 02:22:44:2244 info: User 3 got info about user 3
+2020-10-11 02:22:44:2244 info: User 3 got info about user 3
+2020-10-11 02:22:44:2244 info: user got all posts infos
+2020-10-11 02:25:53:2553 info: User 3 has published a post
+2020-10-11 02:25:53:2553 info: user got all posts infos
+2020-10-11 02:26:05:265 info: User 3 got post 2 info
+2020-10-11 02:26:18:2618 info: User 3 has updated post 2
+2020-10-11 02:26:18:2618 info: user got all posts infos
+2020-10-11 02:26:25:2625 info: User got all comments from post 2
+2020-10-11 02:26:29:2629 info: User 3 has commented post 2
+2020-10-11 02:26:29:2629 info: User got all comments from post 2
+2020-10-11 02:26:38:2638 info: User 3 has created a comment report about comment 4
+2020-10-11 02:26:40:2640 info: user got all posts infos
+2020-10-11 02:26:44:2644 info: User 3 has created a post report for post 2
+2020-10-11 02:26:46:2646 info: an user got likes for post 2 - here zero
+2020-10-11 02:26:47:2647 info: User 3 has liked post 2
+2020-10-11 02:26:47:2647 info: An user got likes for post 2
+2020-10-11 02:26:50:2650 info: User 3 has disliked post 2
+2020-10-11 02:26:50:2650 info: an user got likes for post 2 - here zero
+2020-10-11 02:26:52:2652 info: user got all posts infos
+2020-10-11 02:26:54:2654 info: User got all comments from post 1
+2020-10-11 02:26:57:2657 info: user got all posts infos
+2020-10-11 02:26:58:2658 info: User got all comments from post 1
+2020-10-11 02:27:03:273 info: user got all posts infos
+2020-10-11 02:27:07:277 info: user got all posts infos
+2020-10-11 02:27:10:2710 info: User 3 got info about user 3
+2020-10-11 02:27:10:2710 info: User got all posts from user 3
+2020-10-11 02:27:20:2720 info: User 3 has updated his info
+2020-10-11 02:27:20:2720 info: User 3 got info about user 3
+2020-10-11 02:27:31:2731 info: User got all comments from post 2
+2020-10-11 02:27:33:2733 info: User got all posts from user 3
+2020-10-11 02:27:34:2734 info: an user got likes for post 2 - here zero
+2020-10-11 02:27:35:2735 info: User 3 has liked post 2
+2020-10-11 02:27:35:2735 info: An user got likes for post 2
+2020-10-11 02:27:36:2736 info: User got all posts from user 3
+2020-10-11 02:27:38:2738 info: User 3 got info about user 3
+2020-10-11 02:27:52:2752 info: User 3 got info about user 3
+2020-10-11 02:28:04:284 info: User 3 has updated his info
+2020-10-11 02:28:04:284 info: User 3 got info about user 3
+2020-10-11 02:28:08:288 info: User 3 has updated his info
+2020-10-11 02:28:08:288 info: User 3 got info about user 3
+2020-10-11 02:28:23:2823 info: All posts/comments/likes/postsReports/commentsReports from user 3 has been reassigned to user 2
+2020-10-11 02:28:23:2823 info: User 3 has been deleted
+2020-10-11 02:28:45:2845 warn: User didn't use correct password
+2020-10-11 02:28:52:2852 warn: User didn't use correct password
+2020-10-11 02:28:56:2856 info: An user tried to log in but couldn't be found in DB
+2020-10-11 02:33:15:3315 info: An unauthenticated user tried to access to function readAll(post)
+2020-10-11 03:07:14:714 info: First user account created
+2020-10-11 03:07:14:714 info: Deleted user account created
+2020-10-11 03:07:14:714 info: Registered user connected
+2020-10-11 03:07:14:714 info: User 1 got info about user 1
+2020-10-11 03:07:14:714 info: User 1 got info about user 1
+2020-10-11 03:07:14:714 info: user got all posts infos
+2020-10-11 03:07:14:714 info: User 1 got all waiting messages
+2020-10-11 03:09:29:929 info: Registered user connected
+2020-10-11 03:09:29:929 info: User 1 got info about user 1
+2020-10-11 03:09:29:929 info: user got all posts infos
+2020-10-11 03:09:29:929 info: User 1 got info about user 1
+2020-10-11 03:09:29:929 info: User 1 got all waiting messages
+2020-10-11 03:11:08:118 info: User 1 has published a post
+2020-10-11 03:11:08:118 info: user got all posts infos
+2020-10-11 03:11:35:1135 info: User 1 got post 1 info
+2020-10-11 03:11:40:1140 info: User 1 has updated post 1
+2020-10-11 03:11:40:1140 info: user got all posts infos
+2020-10-11 03:11:43:1143 info: User 1 got post 1 info
+2020-10-11 03:11:48:1148 info: User got all comments from post 1
+2020-10-11 03:11:58:1158 info: User 1 has commented post 1
+2020-10-11 03:11:58:1158 info: User got all comments from post 1
+2020-10-11 03:12:08:128 info: User 1 has created a comment report about comment 1
+2020-10-11 03:12:08:128 info: User 1 got all waiting messages
+2020-10-11 03:12:12:1212 info: user got all posts infos
+2020-10-11 03:12:16:1216 info: User 1 has created a post report for post 1
+2020-10-11 03:12:16:1216 info: User 1 got all waiting messages
+2020-10-11 03:12:18:1218 info: an user got likes for post 1 - here zero
+2020-10-11 03:12:19:1219 info: User 1 has liked post 1
+2020-10-11 03:12:19:1219 info: An user got likes for post 1
+2020-10-11 03:12:22:1222 info: User 1 has disliked post 1
+2020-10-11 03:12:22:1222 info: an user got likes for post 1 - here zero
+2020-10-11 03:12:25:1225 info: user got all posts infos
+2020-10-11 03:12:27:1227 info: User 1 got info about user 1
+2020-10-11 03:12:27:1227 info: User got all posts from user 1
+2020-10-11 03:12:38:1238 info: User 1 has updated his info
+2020-10-11 03:12:38:1238 info: User 1 got info about user 1
+2020-10-11 03:12:52:1252 info: User got all comments from post 1
+2020-10-11 03:12:59:1259 info: User got all posts from user 1
+2020-10-11 03:13:01:131 info: an user got likes for post 1 - here zero
+2020-10-11 03:13:01:131 info: User 1 has liked post 1
+2020-10-11 03:13:01:131 info: An user got likes for post 1
+2020-10-11 03:13:03:133 info: User got all posts from user 1
+2020-10-11 03:13:05:135 info: User 1 got info about user 1
+2020-10-11 03:13:23:1323 info: All users info has been asked
+2020-10-11 03:13:39:1339 info: User 1 has updated his info
+2020-10-11 03:13:39:1339 info: User 1 got info about user 1
+2020-10-11 03:13:45:1345 info: User 1 got info about user 1
+2020-10-11 03:13:45:1345 info: user got all posts infos
+2020-10-11 03:13:45:1345 info: User 1 got all waiting messages
+2020-10-11 03:13:52:1352 info: User got all user which usernames are matching with his research
+2020-10-11 03:13:53:1353 info: User 1 got info about user 1
+2020-10-11 03:13:53:1353 info: User 1 got info about user 1
+2020-10-11 03:13:53:1353 info: User 1 got info about user 2
+2020-10-11 03:13:53:1353 info: User got all posts from user 2
+2020-10-11 03:14:02:142 info: User 1 has updated user 2 privilege
+2020-10-11 03:14:02:142 info: User 1 got info about user 2
+2020-10-11 03:14:08:148 info: User 1 has updated user 2 privilege
+2020-10-11 03:14:08:148 info: User 1 got info about user 2
+2020-10-11 03:14:20:1420 info: User 1 got info about user 1
+2020-10-11 03:14:20:1420 info: user got all posts infos
+2020-10-11 03:14:20:1420 info: User 1 got all waiting messages
+2020-10-11 03:14:29:1429 info: User 1 got info about user 1
+2020-10-11 03:14:29:1429 info: All users info has been asked
+2020-10-11 03:14:29:1429 info: User 1 got all waiting messages
+2020-10-11 03:14:30:1430 info: User 1 got info about user 1
+2020-10-11 03:14:30:1430 info: user got all posts infos
+2020-10-11 03:14:30:1430 info: User 1 got all waiting messages
+2020-10-11 03:14:31:1431 info: User 1 got info about user 1
+2020-10-11 03:14:31:1431 info: All users info has been asked
+2020-10-11 03:14:31:1431 info: User 1 got all waiting messages
+2020-10-11 03:14:38:1438 info: User 1 got all reports
+2020-10-11 03:14:40:1440 info: User 1 got info about user 1
+2020-10-11 03:14:40:1440 info: User 1 got post 1 info
+2020-10-11 03:14:44:1444 info: User 1 got info about user 1
+2020-10-11 03:14:44:1444 info: User got comment 1
+2020-10-11 03:14:44:1444 info: User 1 got info about user 1
+2020-10-11 03:14:47:1447 info: User got all posts from user undefined
+2020-10-11 03:15:04:154 info: An user has created a new issue
+2020-10-11 03:15:04:154 info: User 1 got all waiting messages
+2020-10-11 03:15:10:1510 info: User 1 got all user issues
+2020-10-11 03:15:10:1510 info: User 1 got all issues with status 'pending'
+2020-10-11 03:15:36:1536 info: UserIssue 1 has been updated
+2020-10-11 03:15:36:1536 info: User 1 got all user issues
+2020-10-11 03:15:36:1536 info: User 1 got all issues with status 'pending' - here zero
+2020-10-11 03:15:36:1536 info: User 1 got all waiting messages
+2020-10-11 03:15:43:1543 info: User 1 got all user issues
+2020-10-11 03:15:43:1543 info: User 1 got all issues with status 'pending' - here zero
+2020-10-11 03:15:44:1544 info: User 1 has deleted userIssue 1
+2020-10-11 03:15:44:1544 info: User 1 got all user issues
+2020-10-11 03:15:44:1544 info: User 1 got all issues with status 'pending' - here zero
+2020-10-11 03:15:44:1544 info: User 1 got all waiting messages
+2020-10-11 03:15:48:1548 info: User 1 got all reports
+2020-10-11 03:15:49:1549 info: User 1 got info about user 1
+2020-10-11 03:15:49:1549 info: User 1 got post 1 info
+2020-10-11 03:15:55:1555 info: User 1 got info about user 1
+2020-10-11 03:15:55:1555 info: User got all posts from user 1
+2020-10-11 03:15:59:1559 info: User 1 got info about user 1
+2020-10-11 03:15:59:1559 info: All users info has been asked
+2020-10-11 03:15:59:1559 info: User 1 got all waiting messages
+2020-10-11 03:15:59:1559 info: User 1 got all reports
+2020-10-11 03:16:01:161 info: User 1 got info about user 1
+2020-10-11 03:16:01:161 info: User 1 got post 1 info
+2020-10-11 03:16:07:167 info: User 1 got post 1 info
+2020-10-11 03:16:09:169 info: User 1 got post 1 info
+2020-10-11 03:16:12:1612 info: User 1 has updated postReport 1
+2020-10-11 03:16:12:1612 info: User 1 got all reports
+2020-10-11 03:16:12:1612 info: User 1 got all waiting messages
+2020-10-11 03:16:19:1619 info: User 1 has deleted postReport 1
+2020-10-11 03:16:19:1619 info: User 1 got all reports
+2020-10-11 03:16:19:1619 info: User 1 got all waiting messages
+2020-10-11 03:16:22:1622 info: User 1 got info about user 1
+2020-10-11 03:16:22:1622 info: User got comment 1
+2020-10-11 03:16:22:1622 info: User 1 got info about user 1
+2020-10-11 03:16:27:1627 info: User 1 got post 1 info
+2020-10-11 03:16:27:1627 info: User got all comments from post 1
+2020-10-11 03:16:40:1640 info: User 1 has updated commentReport 1
+2020-10-11 03:16:40:1640 info: User 1 got all reports
+2020-10-11 03:16:40:1640 info: User 1 got all waiting messages
+2020-10-11 03:16:42:1642 info: User 1 has deleted comment Report 1
+2020-10-11 03:16:42:1642 info: User 1 got all reports
+2020-10-11 03:16:42:1642 info: User 1 got all waiting messages
+2020-10-11 03:16:45:1645 info: User got all posts from user undefined
+2020-10-11 03:16:46:1646 info: User 1 got info about user 1
+2020-10-11 03:16:46:1646 info: user got all posts infos
+2020-10-11 03:16:46:1646 info: User 1 got all waiting messages
+2020-10-11 03:17:09:179 info: User 1 got info about user 1
+2020-10-11 03:17:09:179 info: user got all posts infos
+2020-10-11 03:17:09:179 info: User 1 got all waiting messages
+2020-10-11 03:17:21:1721 info: User 1 got info about user 1
+2020-10-11 03:17:21:1721 info: user got all posts infos
+2020-10-11 03:17:21:1721 info: User 1 got all waiting messages
+2020-10-11 03:42:12:4212 info: Registered user connected
+2020-10-11 03:42:12:4212 info: User 1 got info about user 1
+2020-10-11 03:42:12:4212 info: user got all posts infos
+2020-10-11 03:42:12:4212 info: User 1 got info about user 1
+2020-10-11 03:42:12:4212 info: User 1 got all waiting messages
+2020-10-11 03:42:20:4220 info: User 1 got post 1 info
+2020-10-11 03:42:22:4222 info: User 1 got post 1 info
+2020-10-11 03:42:25:4225 info: User got all comments from post 1
+2020-10-11 03:42:27:4227 info: User got comment 1
+2020-10-11 03:42:29:4229 info: user got all posts infos
+2020-10-11 03:42:30:4230 info: An user got likes for post 1
+2020-10-11 03:42:30:4230 info: user got all posts infos
+2020-10-11 03:42:32:4232 info: user got all posts infos
+2020-10-11 03:42:34:4234 info: User 1 got info about user 1
+2020-10-11 03:42:34:4234 info: All users info has been asked
+2020-10-11 03:42:34:4234 info: User 1 got all waiting messages
+2020-10-11 03:42:35:4235 info: User 1 got info about user 1
+2020-10-11 03:42:35:4235 info: user got all posts infos
+2020-10-11 03:42:35:4235 info: User 1 got all waiting messages
