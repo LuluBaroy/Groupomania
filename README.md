@@ -28,6 +28,9 @@ Clone this repository, then :
  - Run `npm run serve`
  - Keep this terminal open
  
+ #### *DataBase*
+You will find the instructions for creating the database at the root of the project in the BDD.sql file
+ 
  #### *Application*
  Open the application on `http://localhost:8080/`
  
