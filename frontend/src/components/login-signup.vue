@@ -49,7 +49,7 @@
           <!--SIGNUP FORM-->
           <b-tab title="Inscription">
             <div class="formConnexion">
-              <h2>Incrivez-vous !</h2>
+              <h2>Inscrivez-vous !</h2>
               <b-form class="form" enctype="multipart/form-data">
                 <b-form-group
                   id="input-group-3"
