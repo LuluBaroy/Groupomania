@@ -10,7 +10,7 @@
     </div>
       <!--LOGO-->
     <router-link :to="{name: 'wall'}" class="col-md-6">
-      <img src="../assets/img/logo.png" tabindex="0" class="p-0" alt="Logo Groupomania" id="navBarLogo">
+      <img src="../assets/img/logo.png" tabindex="0" class="p-0 img-fluid" alt="Logo Groupomania" id="navBarLogo">
     </router-link>
     <!--DISCONNECTION BUTTON-->
     <div class="col-md-3 justify-content-center m-auto">
