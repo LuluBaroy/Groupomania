@@ -10,8 +10,7 @@ export const user = {
     currentUser: {
       id: '',
       infos: {}
-    },
-    loggedIn: null
+    }
   },
   actions: {
     registerUser ({ commit }, formData) {
@@ -117,15 +116,12 @@ export const user = {
     },
     registerUserFailure () {},
     logUserSuccess (state) {
-      state.loggedIn = true
       state.currentUser.id = Vue.$cookies.get('user').user_id
     },
     logUserFailure () {},
     updateUserSuccess () {},
     updateUserFailure () {},
-    deleteUserSuccess (state) {
-      state.loggedIn = false
-    },
+    deleteUserSuccess () {},
     deleteUserFailure () {},
     getAllUserSuccess (state, response) {
       state.allUsers = response.data
@@ -136,7 +132,6 @@ export const user = {
     getCurrentUserSuccess (state, user) {
       state.currentUser.id = user.data.id
       state.currentUser.infos = user.data
-      state.loggedIn = true
     },
     getCurrentUserFailure () {},
     updatePrivilegeSuccess () {},

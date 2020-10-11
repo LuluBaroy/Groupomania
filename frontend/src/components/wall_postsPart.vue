@@ -283,10 +283,6 @@ export default {
         img: '',
         altImg: ''
       },
-      modal: {
-        title: '',
-        content: ''
-      },
       emojis: this.$store.state.posts.emojis,
       slide: 0,
       btnLike: '',
