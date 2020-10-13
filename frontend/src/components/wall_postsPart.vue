@@ -14,7 +14,7 @@
         <!--POST AUTHOR-->
         <div class="d-flex flex-column mb-3 mb-md-0">
           <h3>{{ post.User.username }}</h3>
-          <router-link :to="`/profile/${post.UserId}`"><img :src="post.User.url_profile_picture" :alt="post.User.alt_profile_picture" class="userPhoto"/></router-link>
+          <router-link :to="`/profile/${post.UserId}`" aria-label="profil utilisateur"><img :src="post.User.url_profile_picture" :alt="post.User.alt_profile_picture" class="userPhoto"/></router-link>
         </div>
 
         <!--ADMIN PANEL IF USER IS ADMIN OR USER IS AUTHOR-->

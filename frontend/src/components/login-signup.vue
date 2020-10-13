@@ -105,7 +105,7 @@
 
                 <b-form-group id="input-group-6" label="Biographie (optionnel) :" label-for="input-6">
                   <b-form-textarea
-                    id="textarea"
+                    id="input-6"
                     v-model="user.bio"
                     :placeholder="`Exemple : Je m'appelle ${user.username || '...'} J'occupe le poste de ... `"
                     rows="3"

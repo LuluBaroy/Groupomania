@@ -11,23 +11,27 @@
           indicators
           style="text-shadow: 1px 1px 2px #333; box-shadow: 0 0 12px black; border: 4px solid black"
         >
-          <b-carousel-slide img-src="http://localhost:3000/images/Slide0.gif"></b-carousel-slide>
-          <b-carousel-slide img-src="http://localhost:3000/images/Slide1.gif"></b-carousel-slide>
-          <b-carousel-slide img-src="http://localhost:3000/images/Slide2.png"></b-carousel-slide>
+          <b-carousel-slide img-src="http://localhost:3000/images/Slide0.gif" img-alt="Image Bienvenue"></b-carousel-slide>
+          <b-carousel-slide img-src="http://localhost:3000/images/Slide1.gif" img-alt="Image fonctionnalités"></b-carousel-slide>
+          <b-carousel-slide img-src="http://localhost:3000/images/Slide2.png" img-alt="Image infos entreprise"></b-carousel-slide>
         </b-carousel>
       </section>
 
       <!--SEARCH BAR-->
-      <section id="searchBarBg" class="mt-5 mb-5 d-flex flex-column ml-auto mr-auto flex-md-row align-items-center justify-content-center">
-        <b-form-input placeholder="Rechercher un utilisateur" id="barSearch" v-model="userResearch" class="col-md-9 col-lg-8 mt-md-1 mb-md-1"></b-form-input>
-        <b-button v-b-modal.researchModal id="btnSearch" type="submit" @click.prevent="research()" class="col-md-2"><i class="fas fa-search"></i></b-button>
-          <b-modal centered v-if="showModal" id="researchModal" title="Utilisateur(s) correspondant(s) à votre recherche :" ok-only ok-variant="info" @hidden="clearResearch()">
-            <div v-if="userResult.length === 0">Aucun utilisateur ne correspond à votre recherche</div>
-            <div v-else class="my-4 d-flex row align-items-center justify-content-md-between" v-for="user in userResult" :key="user.id" id="userResearch">
-              <router-link :to="`/profile/${user.id}`"><img :src="user.url_profile_picture" class=" d-flex img-fluid imgResearch"/></router-link>
-              <h4 class="d-flex text-break col-8">{{ user.username }}</h4>
-            </div>
-          </b-modal>
+      <section id="searchBarBg" class="mt-5 mb-5 align-items-center justify-content-center">
+        <b-form-group label="Votre recherche :" label-for="barSearch" class="d-flex flex-column">
+          <div class="d-flex flex-column flex-md-row mr-auto ml-auto">
+            <b-form-input placeholder="Rechercher un utilisateur" id="barSearch" v-model="userResearch" class="col-md-8 ml-auto"></b-form-input>
+            <b-button v-b-modal.researchModal id="btnSearch" type="submit" @click.prevent="research()" class="col-md-2 mr-auto"><i class="fas fa-search"> Rechercher</i></b-button>
+            <b-modal centered v-if="showModal" id="researchModal" title="Utilisateur(s) correspondant(s) à votre recherche :" ok-only ok-variant="info" @hidden="clearResearch()">
+              <div v-if="userResult.length === 0">Aucun utilisateur ne correspond à votre recherche</div>
+              <div v-else class="my-4 d-flex row align-items-center justify-content-md-between" v-for="user in userResult" :key="user.id" id="userResearch">
+                <router-link :to="`/profile/${user.id}`"><img :src="user.url_profile_picture" class=" d-flex img-fluid imgResearch"/></router-link>
+                <h4 class="d-flex text-break col-8">{{ user.username }}</h4>
+              </div>
+            </b-modal>
+          </div>
+        </b-form-group>
       </section>
 
       <!--USER PART - SEE COMPONENT 'wall_userPart.vue'-->
