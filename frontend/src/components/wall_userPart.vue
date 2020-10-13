@@ -6,11 +6,11 @@
       <h1>Bonjour<br> {{ currentUser.infos.username }} !</h1>
       <div>
         <!--LINK TO CURRENT USER PROFILE-->
-        <router-link :to="`/profile/${currentUser.id}`" class="d-flex flex-column align-items-center text-decoration-none">
+        <router-link :to="`/profile/${currentUser.id}`" class="d-flex flex-column align-items-center text-decoration-none" aria-label="profil utilisateur">
           <img :src="currentUser.infos.url_profile_picture" :alt="currentUser.infos.alt_profile_picture" class="userPhoto">
           <!--IF USER IS ADMIN => NOTIFICATION FOR USER MESSAGE & REPORTS-->
         </router-link>
-        <router-link :to="{name: 'admin'}" class="text-decoration-none">
+        <router-link :to="{name: 'admin'}" class="text-decoration-none" aria-label="page admin">
           <i id="messages" v-if="currentUser.infos.role && currentUser.infos.role.includes('admin')" class="fas fa-envelope mt-3 col-md-1 p-0" v-b-popover>
             <span class="ml-1">{{ messageWaiting.total }}</span>
           </i>

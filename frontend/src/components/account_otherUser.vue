@@ -3,7 +3,7 @@
     <!--OTHER USER INFO-->
     <h1 class="titleConfig rounded-pill pt-3 pb-3">Compte utilisateur</h1>
     <section class="d-flex flex-column flex-md-row align-items-center justify-content-md-center ml-0 mr-0 mb-4 p-md-3" id="userPart">
-      <img :src="infos.url_profile_picture" class="userPhoto">
+      <img :src="infos.url_profile_picture" class="userPhoto" :alt="infos.alt_profile_picture">
       <div class="d-flex flex-column col-md-6 justify-content-around align-items-center">
         <h2>Vous êtes sur le profil de</h2>
         <h3>{{ infos.username }}</h3>

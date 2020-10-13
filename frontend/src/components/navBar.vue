@@ -16,7 +16,7 @@
     <div class="col-md-3 justify-content-center m-auto">
       <div v-if="currentUser.infos.role !== undefined" :style="{display: this.$cookies.isKey('user') ? 'flex' : 'none'}">
         <div class="d-flex col-4 justify-content-center">
-          <router-link :to="{name: 'admin'}" class="d-flex justify-content-center">
+          <router-link :to="{name: 'admin'}" class="d-flex justify-content-center" aria-label="Administration">
             <i v-if="currentUser.infos.role.includes('admin')" class="fas fa-users-cog d-flex flex-column" id="admin">
               <b-popover target="admin" triggers="hover" placement="bottom">
                 Administration
@@ -24,14 +24,14 @@
             </i>
           </router-link>
         </div>
-        <router-link :to="`/profile/${currentUser.id}`" class="d-flex col-4 justify-content-center">
+        <router-link :to="`/profile/${currentUser.id}`" class="d-flex col-4 justify-content-center" arial-label="Profil">
           <i class="fas fa-user d-flex flex-column justify-content-center" id="profileIcon">
             <b-popover target="profileIcon" triggers="hover" placement="bottom">
               Profil
             </b-popover>
           </i>
         </router-link>
-        <router-link :to="{name: 'auth'}" class="d-flex col-4 justify-content-center">
+        <router-link :to="{name: 'auth'}" class="d-flex col-4 justify-content-center" aria-label="déconnexion">
           <i class="fas fa-power-off p-0 d-flex flex-column justify-content-center" @click.prevent="removeCookie" id="signOff">
             <b-popover target="signOff" triggers="hover" placement="bottom">
               Quitter
