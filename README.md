@@ -39,9 +39,9 @@ You will find the instructions for creating the database at the root of the proj
  
  ## *Badges*
  #### *Snyk*
-Backend : <a href="https://snyk.io/test/github/LuluBaroy/Groupomania?targetFile=backend/package.json"><img src="https://snyk.io/test/github/LuluBaroy/Groupomania/badge.svg?targetFile=backend/package.json" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/LuluBaroy/Groupomania?targetFile=backend/package.json" style="max-width:100%;"></a>
+Backend : <a href="https://snyk.io/test/github/LuluBaroy/Groupomania?targetFile=backend/package.json"><img src="https://snyk.io/test/github/LuluBaroy/Groupomania/badge.svg?targetFile=backend/package.json" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/LuluBaroy/Groupomania?targetFile=backend/package.json" style="max-width:100%;"></a>   *No solution for now*
 
-Frontend : <a href="https://snyk.io/test/github/LuluBaroy/Groupomania?targetFile=frontend/package.json"><img src="https://snyk.io/test/github/LuluBaroy/Groupomania/badge.svg?targetFile=frontend/package.json" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/LuluBaroy/Groupomania?targetFile=frontend/package.json" style="max-width:100%;"></a>
+Frontend : <a href="https://snyk.io/test/github/LuluBaroy/Groupomania?targetFile=frontend/package.json"><img src="https://snyk.io/test/github/LuluBaroy/Groupomania/badge.svg?targetFile=frontend/package.json" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/github/LuluBaroy/Groupomania?targetFile=frontend/package.json" style="max-width:100%;"></a>  *No solution for now*
 
 #### *DeepScan*
 [![DeepScan grade](https://deepscan.io/api/teams/11149/projects/14066/branches/252209/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=11149&pid=14066&bid=252209)
