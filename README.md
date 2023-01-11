@@ -1,3 +1,6 @@
+#APP CURRENTLY BEING REBUILT - 12/2022
+
+
 # Groupomania 
 ![alt-text](./frontend/src/assets/img/logoFooter.png)
 ## *API Documentation* 
